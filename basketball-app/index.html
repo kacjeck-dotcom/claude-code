@@ -112,6 +112,7 @@ h3{font:700 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04e
 .spot-label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
 .spot-label b{font:700 20px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
 
+.coach b{color:var(--accent)}
 .wo-live{border-left:0;background:var(--ink);color:var(--bg)}
 .wo-live .muted{color:color-mix(in srgb,var(--bg) 70%,transparent)}
 .bar{height:8px;border-radius:99px;background:color-mix(in srgb,currentColor 18%,transparent);overflow:hidden;margin-top:10px}
@@ -227,6 +228,11 @@ td.num,th.num{text-align:right}
             <button class="btn undo" id="undo-btn" type="button">Undo</button>
           </div>
           <div class="dots" id="dots" aria-label="Recent shots"></div>
+        </div>
+        <div class="panel coach" id="coach">
+          <div class="spot-label"><span class="eyebrow">Coach</span><b id="coach-angle">–</b></div>
+          <p id="coach-tip" style="margin:0">Track a shot with the camera and you'll get feedback on your arc and misses here.</p>
+          <p class="muted" id="coach-sum" style="margin:8px 0 0;font-size:14px"></p>
         </div>
         <div class="panel">
           <div class="spot-label"><span class="eyebrow">Shooting from</span><b id="spot-name">Top 3</b></div>
@@ -375,7 +381,7 @@ function seedExamples(){
 
 let db = load();
 if(!db){ db = {sessions: seedExamples(), current: null, settings: {}}; }
-db.settings = Object.assign({voice:false, spot:{x:25,y:31,ft:false}, ball:null}, db.settings||{});
+db.settings = Object.assign({voice:true, spot:{x:25,y:31,ft:false}, ball:null}, db.settings||{});
 if(!db.current || db.current.demo) db.current = newSession();
 
 /* ---------- helpers ---------- */
@@ -418,16 +424,16 @@ function speak(text){
 }
 
 /* ---------- recording shots ---------- */
-function record(made, auto){
+function record(made, auto, fb){
   const cur = db.current, sp = db.settings.spot;
   const z = zoneOf(sp.x, sp.y, sp.ft);
-  cur.shots.push({t: Date.now(), made, x: sp.x, y: sp.y, zone: z, auto: !!auto});
+  cur.shots.push({t: Date.now(), made, x: sp.x, y: sp.y, zone: z, auto: !!auto, fb: fb || undefined});
   const sm = summarize(cur.shots);
   beep(made); flash(made);
-  speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.`);
+  speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
   advanceWorkout(made);
   if(!cur.demo) save();
-  renderScore(); renderShots();
+  renderScore(); renderShots(); renderCoach();
 }
 function flash(made){
   const f = $('#flash');
@@ -699,7 +705,7 @@ function showView(v){
   if(v === 'track') requestAnimationFrame(sizeOverlay);
 }
 $$('nav.tabs [data-view]').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
-function renderAll(){ renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
+function renderAll(){ renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
 
 $('#make-btn').addEventListener('click', () => record(true, false));
 $('#miss-btn').addEventListener('click', () => record(false, false));
@@ -909,10 +915,10 @@ function judge(p, now){
   const w = hoop.x1 - hoop.x0, h = hoop.y1 - hoop.y0, cx = (hoop.x0 + hoop.x1)/2;
   const near = Math.abs(p.x - cx) < w * 3;
   if(shot.phase === 'idle'){
-    if(p.y < hoop.y0 - h*.4 && near){ shot = {phase:'up', t0: now, entered:false, close:false, prev:p}; }
+    if(p.y < hoop.y0 - h*.4 && near){ shot = {phase:'up', t0: now, entered:false, close:false, prev:p, path:[p]}; }
     return;
   }
-  const prev = shot.prev; shot.prev = p;
+  const prev = shot.prev; shot.prev = p; shot.path.push(p);
   const inX = p.x > hoop.x0 - w*.12 && p.x < hoop.x1 + w*.12;
   if(Math.abs(p.x - cx) < w*1.6 && Math.abs(p.y - hoop.y0) < h*2.5) shot.close = true;
   if(inX && p.y >= hoop.y0 - h*.3 && p.y <= hoop.y1 && prev && p.y >= prev.y - .002) shot.entered = true;
@@ -924,9 +930,45 @@ function judge(p, now){
   }
   if(now - shot.t0 > 3200){ shot.close ? finish(false) : (shot = {phase:'idle'}); }
 }
+/* feedback: entry angle + miss direction from the tracked arc */
+function analyze(path, made){
+  if(path.length < 4 || !hoop) return null;
+  const ar = PW / PH, w = hoop.x1 - hoop.x0, cx = (hoop.x0 + hoop.x1)/2;
+  const startX = path[0].x, dir = Math.sign(cx - startX) || 1;
+  const peak = Math.min(...path.map(q => q.y));
+  const arc = Math.max(0, (hoop.y0 - peak) * PH / (w * PW));      // apex height in rim-widths
+  let i = path.findIndex((q, k) => k > 0 && q.y >= hoop.y0 - (hoop.y1-hoop.y0)*.3 && q.y > path[k-1].y);
+  if(i < 1) i = path.length - 1;
+  const a = path[Math.max(0, i-3)], b = path[i];
+  let angle = Math.round(Math.atan2(b.y - a.y, Math.abs(b.x - a.x) * ar + 1e-6) * 180 / Math.PI);
+  angle = Math.max(10, Math.min(80, angle));
+  let miss = null;
+  if(!made){ const off = (b.x - cx) * dir; miss = off < -w*.25 ? 'short' : off > w*.25 ? 'long' : 'rim'; }
+  let tip;
+  if(angle < 36) tip = made ? 'Went in, but flat. Push the ball higher. Aim for about 45° as it comes down.' : 'Flat shot. Lift your release and follow through up, not out.';
+  else if(angle > 58) tip = made ? 'Rainbow! A bit less height gives you more control.' : 'Very high arc. Ease off so you can hit the distance.';
+  else tip = made ? 'Great arc. Hold that follow-through.' : null;
+  if(miss === 'short') tip = (angle < 36 ? 'Short and flat. ' : 'Short. ') + 'Get more legs into it and finish the shot.';
+  if(miss === 'long') tip = 'Long. Soften your release and aim for the front of the rim.';
+  if(miss === 'rim' && !tip) tip = 'Just off the rim. Good distance, so stay square to the basket.';
+  return {angle, arc: +arc.toFixed(1), miss, tip};
+}
+function renderCoach(){
+  const fbs = db.current.shots.filter(s => s.fb);
+  const last = fbs[fbs.length-1];
+  if(!last){ $('#coach-angle').textContent = '–'; return; }
+  $('#coach-angle').textContent = last.fb.angle + '° entry';
+  $('#coach-tip').textContent = (last.made ? 'Make. ' : 'Miss. ') + last.fb.tip;
+  const avg = Math.round(fbs.reduce((t,s) => t + s.fb.angle, 0) / fbs.length);
+  const m = {short:0, long:0, rim:0}; fbs.forEach(s => s.fb.miss && m[s.fb.miss]++);
+  const top = Object.entries(m).sort((x,y) => y[1]-x[1])[0];
+  $('#coach-sum').textContent = `Session: average entry ${avg}° (ideal 43–50°) over ${fbs.length} tracked shots` +
+    (top[1] ? ` · most misses ${top[0] === 'rim' ? 'rim-outs' : top[0]} (${top[1]})` : '') + '.';
+}
 function finish(made){
+  const fb = analyze(shot.path || [], made);
   shot = {phase:'idle'}; cooldownUntil = performance.now() + 1100;
-  record(made, true);
+  record(made, true, fb);
 }
 
 function loop(){
