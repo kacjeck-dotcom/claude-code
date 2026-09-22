@@ -113,6 +113,10 @@ h3{font:700 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04e
 .spot-label b{font:700 20px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
 
 .coach b{color:var(--accent)}
+.frow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+.frow:last-child{border-bottom:0}
+.pill{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;color:#fff;white-space:nowrap}
+.pill.good{background:var(--make)}.pill.ok{background:#B7791F}.pill.work{background:var(--miss)}
 .wo-live{border-left:0;background:var(--ink);color:var(--bg)}
 .wo-live .muted{color:color-mix(in srgb,var(--bg) 70%,transparent)}
 .bar{height:8px;border-radius:99px;background:color-mix(in srgb,currentColor 18%,transparent);overflow:hidden;margin-top:10px}
@@ -228,6 +232,12 @@ td.num,th.num{text-align:right}
             <button class="btn undo" id="undo-btn" type="button">Undo</button>
           </div>
           <div class="dots" id="dots" aria-label="Recent shots"></div>
+        </div>
+        <div class="panel" id="form-card">
+          <div class="spot-label"><span class="eyebrow">AI form check</span><b id="form-score" style="font-size:34px">–</b></div>
+          <p id="form-tip" style="margin:0">Start the camera with your whole body in frame. After each shot you get a form score and one thing to fix.</p>
+          <div id="form-rows" style="margin-top:10px"></div>
+          <p class="muted" id="ai-status" style="margin:10px 0 0;font-size:13px"></p>
         </div>
         <div class="panel coach" id="coach">
           <div class="spot-label"><span class="eyebrow">Coach</span><b id="coach-angle">–</b></div>
@@ -420,7 +430,7 @@ function beep(made){
 }
 function speak(text){
   if(!db.settings.voice) return;
-  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
+  try{ const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
 }
 
 /* ---------- recording shots ---------- */
@@ -610,7 +620,8 @@ function renderStats(){
     tile('FT%', fmtPct(pct(...sm.ft)), `${sm.ft[0]}/${sm.ft[1]}`),
     tile('eFG%', fmtPct(sm.efg), 'weights threes 1.5×'),
     tile('Best streak', sm.best, 'makes in a row'),
-    tile('Sessions', sess.length, `${sm.pts} points scored`)
+    tile('Sessions', sess.length, `${sm.pts} points scored`),
+    (() => { const f = sess.flatMap(x => x.forms || []); return tile('Form score', f.length ? Math.round(f.reduce((a,x)=>a+x.score,0)/f.length) : '–', `${f.length} shots analyzed`); })()
   ].join('');
 
   const byZone = {};
@@ -705,7 +716,7 @@ function showView(v){
   if(v === 'track') requestAnimationFrame(sizeOverlay);
 }
 $$('nav.tabs [data-view]').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
-function renderAll(){ renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
+function renderAll(){ renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
 
 $('#make-btn').addEventListener('click', () => record(true, false));
 $('#miss-btn').addEventListener('click', () => record(false, false));
@@ -767,6 +778,7 @@ async function begin(kind, keep){
     hoop = db.settings.hoop || null;
   }
   try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){}
+  if(kind !== 'demo') loadAI().then(aiLoop);
   if(!hoop && kind !== 'demo') enterMode('hoop');
   else setHint('');
   renderScore();
@@ -921,6 +933,7 @@ function judge(p, now){
   const prev = shot.prev; shot.prev = p; shot.path.push(p);
   const inX = p.x > hoop.x0 - w*.12 && p.x < hoop.x1 + w*.12;
   if(Math.abs(p.x - cx) < w*1.6 && Math.abs(p.y - hoop.y0) < h*2.5) shot.close = true;
+  if(prev && prev.y < hoop.y0 && p.y >= hoop.y0){ const k = (hoop.y0 - prev.y)/(p.y - prev.y), xc = prev.x + (p.x - prev.x)*k; if(xc > hoop.x0 - w*.12 && xc < hoop.x1 + w*.12) shot.entered = true; }
   if(inX && p.y >= hoop.y0 - h*.3 && p.y <= hoop.y1 && prev && p.y >= prev.y - .002) shot.entered = true;
   if(p.y > hoop.y1 + h*.15){
     if(shot.entered && inX) finish(true);
@@ -953,6 +966,133 @@ function analyze(path, made){
   if(miss === 'rim' && !tip) tip = 'Just off the rim. Good distance, so stay square to the basket.';
   return {angle, arc: +arc.toFixed(1), miss, tip};
 }
+/* ================= AI: MoveNet pose (form) + COCO-SSD (ball) ================= */
+const BONES = [['left_shoulder','right_shoulder'],['left_shoulder','left_elbow'],['left_elbow','left_wrist'],['right_shoulder','right_elbow'],['right_elbow','right_wrist'],
+  ['left_shoulder','left_hip'],['right_shoulder','right_hip'],['left_hip','right_hip'],['left_hip','left_knee'],['left_knee','left_ankle'],['right_hip','right_knee'],['right_knee','right_ankle']];
+const ai = {state:'off', pose:null, coco:null};
+let poseBuf = [], lastPose = null, cocoBall = null, formCooldown = 0, aiBusy = false;
+function aiStatus(t){ const el = $('#ai-status'); if(el) el.textContent = t; }
+function loadScript(src){ return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+async function loadAI(){
+  if(ai.state === 'ready' || ai.state === 'loading') return;
+  ai.state = 'loading'; aiStatus('Loading AI models (first time takes a few seconds)…');
+  const J = 'https://cdn.jsdelivr.net/npm/';
+  try{
+    await loadScript(J + '@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+    await loadScript(J + '@mediapipe/pose@0.5.1675469404/pose.js').catch(() => {});
+    await loadScript(J + '@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js');
+    await tf.ready();
+    ai.pose = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING});
+    ai.state = 'ready';
+    aiStatus('AI form analysis on. Keep your whole body in frame.');
+  }catch(e){
+    ai.state = 'failed';
+    aiStatus("AI form analysis couldn't load on this page. Open the app from its own web address (see README) to use it. Ball tracking still works.");
+    return;
+  }
+  try{
+    await loadScript(J + '@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js');
+    ai.coco = await cocoSsd.load({base:'lite_mobilenet_v2'});
+    aiStatus('AI on: form analysis and ball detection. Keep your whole body and the rim in frame.');
+  }catch(e){}
+}
+async function aiLoop(){
+  if(aiBusy || ai.state !== 'ready') return;
+  aiBusy = true;
+  try{
+    while(running && source !== 'demo'){
+      if(video.readyState >= 2 && !video.paused && !video.ended){
+        const now = performance.now();
+        const poses = await ai.pose.estimatePoses(video);
+        if(poses[0]) handlePose(poses[0], now);
+        if(ai.coco){
+          const dets = await ai.coco.detect(video, 6, .2);
+          const balls = dets.filter(d => d.class === 'sports ball');
+          if(balls.length){
+            const vw = video.videoWidth, vh = video.videoHeight;
+            const c = balls.map(d => ({x:(d.bbox[0] + d.bbox[2]/2)/vw, y:(d.bbox[1] + d.bbox[3]/2)/vh, r:d.bbox[2]/2/vw, t:performance.now()}));
+            c.sort((a,b) => lastBall ? Math.hypot(a.x-lastBall.x,a.y-lastBall.y) - Math.hypot(b.x-lastBall.x,b.y-lastBall.y) : 0);
+            cocoBall = c[0];
+          }
+        }
+      }
+      await new Promise(r => requestAnimationFrame(r));
+    }
+  }catch(e){ aiStatus('AI stopped: ' + e.message); }
+  aiBusy = false;
+}
+const ang = (a,b,c) => { const v1 = [a.x-b.x, a.y-b.y], v2 = [c.x-b.x, c.y-b.y];
+  return Math.acos(Math.max(-1, Math.min(1, (v1[0]*v2[0] + v1[1]*v2[1]) / (Math.hypot(...v1)*Math.hypot(...v2) + 1e-6)))) * 180/Math.PI; };
+const ok = (...q) => q.every(x => x && x.s > .3);
+function handlePose(pose, now){
+  const kp = {}; pose.keypoints.forEach(k => kp[k.name] = {x:k.x, y:k.y, s:k.score ?? 0});
+  lastPose = {kp, t: now}; poseBuf.push(lastPose);
+  while(poseBuf.length && now - poseBuf[0].t > 3500) poseBuf.shift();
+  if(now < formCooldown) return;
+  for(const side of ['left','right']){
+    const w = kp[side+'_wrist'], e = kp[side+'_elbow'], sh = kp[side+'_shoulder'], n = kp.nose;
+    if(!ok(w, e, sh, n)) continue;
+    if(w.y < n.y && w.y < sh.y && ang(sh, e, w) > 135){
+      formCooldown = now + 2000;
+      setTimeout(() => analyzeForm(now, side), 800);
+      return;
+    }
+  }
+}
+function analyzeForm(t, side){
+  const P = k => side + '_' + k;
+  const win = poseBuf.filter(f => f.t > t - 1500 && f.t < t + 900);
+  const cand = win.filter(f => f.t > t - 250 && f.t < t + 400 && ok(f.kp[P('wrist')]));
+  if(!cand.length) return;
+  const rel = cand.reduce((a,b) => b.kp[P('wrist')].y < a.kp[P('wrist')].y ? b : a);
+  const K = rel.kp, sw = Math.abs(K.left_shoulder.x - K.right_shoulder.x) || 40;
+  const midY = (a,b) => (a.y + b.y)/2, midX = (a,b) => (a.x + b.x)/2;
+  const torso = ok(K.left_shoulder, K.left_hip) ? Math.abs(midY(K.left_hip,K.right_hip) - midY(K.left_shoulder,K.right_shoulder)) : sw*1.5;
+  const rows = [];
+  const rate = (name, val, unit, good, okay, tipBad, better) => {
+    if(val == null || isNaN(val)) { rows.push({name, text:'not visible', r:null}); return; }
+    const r = better(val, good) ? 'good' : better(val, okay) ? 'ok' : 'work';
+    rows.push({name, text: Math.round(val) + unit, r, tip: r === 'good' ? null : tipBad});
+  };
+  const lower = (v, lim) => v <= lim, higher = (v, lim) => v >= lim;
+  // knee bend: smallest knee angle in the dip before release
+  const dip = win.filter(f => f.t <= rel.t && f.t > rel.t - 1200).map(f => {
+    const k = f.kp, a = [];
+    if(ok(k.left_hip,k.left_knee,k.left_ankle)) a.push(ang(k.left_hip,k.left_knee,k.left_ankle));
+    if(ok(k.right_hip,k.right_knee,k.right_ankle)) a.push(ang(k.right_hip,k.right_knee,k.right_ankle));
+    return a.length ? {f, v: a.reduce((x,y)=>x+y)/a.length} : null; }).filter(Boolean);
+  const dipMin = dip.length ? dip.reduce((a,b) => b.v < a.v ? b : a) : null;
+  rate('Knee bend', dipMin && dipMin.v, '°', 135, 152, 'Bend your knees more. Your power should come from your legs, not your arms.', lower);
+  rate('Arm extension', ok(K[P('shoulder')],K[P('elbow')],K[P('wrist')]) ? ang(K[P('shoulder')],K[P('elbow')],K[P('wrist')]) : null, '°', 160, 148, 'Finish with a fully straight shooting arm. Snap up, not out.', higher);
+  const relH = ok(K.nose) ? (K.nose.y - K[P('wrist')].y) / torso * 100 : null;
+  rate('Release height', relH, '%', 55, 30, 'Release higher. The ball should leave your hand above your forehead.', higher);
+  const post = win.filter(f => f.t > rel.t && f.t < rel.t + 550 && ok(f.kp[P('wrist')], f.kp[P('shoulder')]));
+  const follow = post.length ? post.filter(f => f.kp[P('wrist')].y < f.kp[P('shoulder')].y).length / post.length * 100 : null;
+  rate('Follow-through', follow, '%', 75, 45, 'Hold your follow-through until the ball lands. Keep the "gooseneck" wrist.', higher);
+  const land = win.filter(f => f.t > rel.t + 400).pop();
+  const drift = dipMin && land && ok(dipMin.f.kp.left_hip, land.kp.left_hip) ?
+    Math.abs(midX(land.kp.left_hip,land.kp.right_hip) - midX(dipMin.f.kp.left_hip,dipMin.f.kp.right_hip)) / sw * 100 : null;
+  rate('Balance (drift)', drift, '%', 35, 70, 'You are drifting. Land on the same spot you jumped from.', lower);
+  const scored = rows.filter(r => r.r);
+  if(scored.length < 2){ aiStatus('Shot seen, but not enough of your body was visible. Step back so head to feet is in frame.'); return; }
+  const score = Math.round(scored.reduce((a,r) => a + (r.r === 'good' ? 100 : r.r === 'ok' ? 65 : 30), 0) / scored.length);
+  const worst = scored.find(r => r.r === 'work') || scored.find(r => r.r === 'ok');
+  const tempo = dipMin ? Math.round(rel.t - dipMin.f.t) : null;
+  const tip = worst ? worst.tip : 'Textbook form. Keep repeating that exact motion.';
+  const res = {t: Date.now(), score, tip, tempo, rows: rows.map(({name,text,r}) => ({name,text,r}))};
+  (db.current.forms = db.current.forms || []).push(res);
+  if(!db.current.demo) save();
+  renderForm(res);
+  speak(`Form ${score}. ${tip}`);
+}
+function renderForm(res){
+  if(!res){ const f = db.current.forms || []; res = f[f.length-1]; if(!res) return; }
+  $('#form-score').textContent = res.score;
+  $('#form-score').style.color = res.score >= 80 ? 'var(--make)' : res.score >= 60 ? '#B7791F' : 'var(--miss)';
+  $('#form-tip').textContent = res.tip + (res.tempo ? ` (Release time: ${(res.tempo/1000).toFixed(2)}s)` : '');
+  $('#form-rows').innerHTML = res.rows.map(r => `<div class="frow"><span>${r.name}</span><span>${r.text} ${r.r ? `<span class="pill ${r.r}">${r.r === 'work' ? 'fix' : r.r}</span>` : ''}</span></div>`).join('');
+}
+
 function renderCoach(){
   const fbs = db.current.shots.filter(s => s.fb);
   const last = fbs[fbs.length-1];
@@ -979,7 +1119,7 @@ function loop(){
   const src = source === 'demo' ? demoCv : video;
   if(source !== 'demo' && (video.readyState < 2 || video.paused || video.ended)) { draw(null, now); return; }
   pctx.drawImage(src, 0, 0, PW, PH);
-  const b = detect();
+  const b = (source !== 'demo' && cocoBall && now - cocoBall.t < 150) ? cocoBall : detect();
   if(b){ lastBall = b; lostFrames = 0; trail.push({x:b.x, y:b.y, t:now}); judge(b, now); }
   else if(++lostFrames > 8){ lastBall = null; }
   while(trail.length && now - trail[0].t > 1400) trail.shift();
@@ -1005,6 +1145,14 @@ function draw(b, now){
       octx.strokeStyle = `rgba(240,114,53,${(i/trail.length)*.9})`; octx.lineWidth = (2 + 4*i/trail.length)*d;
       octx.beginPath(); octx.moveTo(a.x*W, a.y*H); octx.lineTo(c.x*W, c.y*H); octx.stroke();
     }
+    octx.restore();
+  }
+  if(lastPose && source !== 'demo' && now - lastPose.t < 400 && video.videoWidth){
+    const k = lastPose.kp, sx = W / video.videoWidth, sy = H / video.videoHeight;
+    octx.save(); octx.lineWidth = 3*d; octx.strokeStyle = 'rgba(123,165,230,.9)'; octx.lineCap = 'round';
+    for(const [a1,b1] of BONES){ const A = k[a1], B = k[b1]; if(!A || !B || A.s < .3 || B.s < .3) continue;
+      octx.beginPath(); octx.moveTo(A.x*sx, A.y*sy); octx.lineTo(B.x*sx, B.y*sy); octx.stroke(); }
+    octx.fillStyle = '#fff'; for(const n in k){ const q = k[n]; if(q.s < .3) continue; octx.beginPath(); octx.arc(q.x*sx, q.y*sy, 3*d, 0, 7); octx.fill(); }
     octx.restore();
   }
   if(b){

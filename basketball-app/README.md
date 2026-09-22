@@ -5,6 +5,11 @@ One HTML file, no account, no server, no subscription. Everything runs on your d
 
 ## Features
 
+- **AI form check.** A pose-detection model (MoveNet) watches your body. After every shot you get a
+  0–100 form score covering knee bend, arm extension, release height, follow-through and balance/drift,
+  plus release time and one spoken tip on what to fix. An object-detection model (COCO-SSD) helps find the ball.
+  The AI needs the app opened from its own web address (GitHub Pages); it can't load inside the Claude artifact preview.
+
 - **Automatic make/miss detection.** Point your phone's camera at the hoop, or upload a recorded clip.
   Swish Lab finds the ball using colour and motion, follows it, and calls each shot as a make or a miss.
 - **Shot chart.** Tap the court to set where you're shooting from. Each shot is tagged with its zone
