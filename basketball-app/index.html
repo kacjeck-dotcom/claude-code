@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Swish Lab</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EFE4D2; --surface:#FBF6EE; --surface-2:#F4EADB; --ink:#1A2130; --muted:#5E6472;
+  --line:#C9B99E; --accent:#E2571B; --accent-ink:#FFFFFF; --court:#24508F;
+  --make:#1D8A57; --miss:#C3362B; --stage:#0E141C; --shadow:0 1px 0 rgba(26,33,48,.06),0 8px 24px -12px rgba(26,33,48,.25);
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131920; --surface:#1C242E; --surface-2:#232D39; --ink:#EDE6DA; --muted:#98A0AC;
+    --line:#3A4654; --accent:#F07235; --accent-ink:#1A1109; --court:#7BA5E6;
+    --make:#3DBA7F; --miss:#EA5A4E; --stage:#080B10; --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131920; --surface:#1C242E; --surface-2:#232D39; --ink:#EDE6DA; --muted:#98A0AC;
+  --line:#3A4654; --accent:#F07235; --accent-ink:#1A1109; --court:#7BA5E6;
+  --make:#3DBA7F; --miss:#EA5A4E; --stage:#080B10; --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:16px/1.45 var(--body);-webkit-font-smoothing:antialiased;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--court);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px}
+
+/* scoreboard */
+.board{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--ink);color:var(--bg)}
+.board .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{font:800 26px/1 var(--display);letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-right:auto}
+.brand svg{width:26px;height:26px}
+.tally{display:flex;gap:18px;font-variant-numeric:tabular-nums}
+.tally div{display:flex;flex-direction:column;align-items:flex-end}
+.tally b{font:700 26px/1 var(--display)}
+.tally span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.board .end{background:transparent;border:1.5px solid color-mix(in srgb,var(--bg) 45%,transparent);color:var(--bg);border-radius:999px;padding:6px 14px;font-weight:600;font-size:14px}
+.board .end:hover{border-color:var(--bg)}
+
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-selected="true"]{color:var(--accent)}
+
+main{padding-block:18px 24px}
+.view{display:grid;gap:18px}
+h2{font:800 30px/1 var(--display);text-transform:uppercase;letter-spacing:.01em;margin:0;text-wrap:balance}
+h3{font:700 19px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04em;margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{background:var(--surface);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;background:var(--surface-2);color:var(--ink)}
+.btn:hover{filter:brightness(.97)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.btn.on{background:var(--court);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:14px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* track */
+.track-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:780px){.track-grid{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:var(--stage);border-radius:14px;overflow:hidden;aspect-ratio:16/9;max-width:100%;touch-action:none}
+.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage video{object-fit:fill}
+#overlay{z-index:2}
+.stage .empty{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;text-align:center;color:#EDE6DA;
+  background:radial-gradient(120% 90% at 50% 0%,#1d2a3b 0%,#0E141C 70%)}
+.stage .empty p{margin:0;max-width:34ch;font-size:15px;opacity:.8}
+.stage .empty .row{justify-content:center}
+.stage .hint{pointer-events:none;position:absolute;left:10px;top:10px;z-index:4;background:rgba(14,20,28,.78);color:#EDE6DA;font-size:13px;font-weight:600;padding:6px 10px;border-radius:8px;max-width:calc(100% - 20px)}
+.flash{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;pointer-events:none;font:800 min(18vw,110px)/1 var(--display);text-transform:uppercase;letter-spacing:.02em;opacity:0}
+.flash.show{animation:flash .9s ease-out}
+@keyframes flash{0%{opacity:0;transform:scale(.8)}15%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.flash.show{animation:none;opacity:1}}
+.tool-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tool-row .btn{padding:8px 12px;font-size:14px}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:6px;border:1.5px solid rgba(255,255,255,.6)}
+.status{font-size:13px;color:var(--muted);margin-top:8px;min-height:1.4em}
+
+.mm{display:grid;grid-template-columns:1fr 1fr auto;gap:10px}
+.mm .btn{padding:16px 10px;font:800 24px/1 var(--display);text-transform:uppercase;letter-spacing:.04em;border-radius:12px}
+.mm .make{background:var(--make);color:#fff}
+.mm .miss{background:var(--miss);color:#fff}
+.mm .undo{font:600 14px/1 var(--body);text-transform:none;letter-spacing:0}
+.dots{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;min-height:12px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--miss)}
+.dots i.m{background:var(--make)}
+
+.court{width:100%;display:block;max-width:100%}
+.court .ln{fill:none;stroke:var(--line);stroke-width:.35}
+.court .floor{fill:var(--surface-2)}
+.court .rim{fill:none;stroke:var(--accent);stroke-width:.4}
+.spotpick{cursor:crosshair}
+.spot-label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.spot-label b{font:700 20px/1 var(--display);text-transform:uppercase;letter-spacing:.03em}
+
+.wo-live{border-left:0;background:var(--ink);color:var(--bg)}
+.wo-live .muted{color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.bar{height:8px;border-radius:99px;background:color-mix(in srgb,currentColor 18%,transparent);overflow:hidden;margin-top:10px}
+.bar > i{display:block;height:100%;background:var(--accent);border-radius:inherit;transition:width .3s}
+
+/* workouts */
+.wo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.wo{display:flex;flex-direction:column;gap:10px}
+.wo .meta{display:flex;gap:12px;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.wo p{margin:0;color:var(--muted)}
+.wo .btn{align-self:flex-start;margin-top:auto}
+.wo svg.court{max-width:180px}
+
+/* stats */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.tile{background:var(--surface);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.tile b{display:block;font:800 38px/1 var(--display);font-variant-numeric:tabular-nums}
+.tile span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile small{display:block;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.stats-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:780px){.stats-grid{grid-template-columns:minmax(0,1fr)}}
+.zone-lbl{font:700 2.1px var(--body);fill:#fff;text-anchor:middle;dominant-baseline:central}
+.legend{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{flex:1;height:8px;border-radius:99px;max-width:160px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:15px}
+th{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right}
+.chart text{fill:var(--muted);font:11px var(--body)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.table-wrap{overflow-x:auto}
+
+/* history */
+.sess{display:grid;gap:10px}
+.sess-head{display:flex;align-items:center;gap:14px;background:none;border:0;padding:0;text-align:left;width:100%}
+.sess-pct{font:800 34px/1 var(--display);min-width:3.2ch;font-variant-numeric:tabular-nums}
+.sess-head .grow{flex:1;min-width:0}
+.sess-head .title{font-weight:600}
+.sess-head .sub{font-size:14px;color:var(--muted)}
+.tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--surface-2);color:var(--muted);margin-left:6px;vertical-align:1px}
+.sess-body{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:16px;align-items:start;padding-top:6px}
+@media (max-width:560px){.sess-body{grid-template-columns:minmax(0,1fr)}}
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--surface-2);border-radius:12px;padding:10px 14px;font-size:14px}
+
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+
+<header class="board">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E2571B"/><path d="M2 12h20M12 2v20M5 5c3 3 3 11 0 14M19 5c-3 3-3 11 0 14" stroke="#1A2130" stroke-width="1.3" fill="none"/></svg>
+      Swish Lab
+    </div>
+    <div class="tally" aria-live="polite">
+      <div><b id="t-made">0</b><span>Makes</span></div>
+      <div><b id="t-att">0</b><span>Shots</span></div>
+      <div><b id="t-pct">–</b><span>FG%</span></div>
+      <div><b id="t-streak">0</b><span>Streak</span></div>
+      <div><b id="t-time">0:00</b><span>Time</span></div>
+    </div>
+    <button class="end" id="end-btn" type="button">End session</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- TRACK -->
+  <section class="view" id="view-track">
+    <div class="track-grid">
+      <div>
+        <div class="stage" id="stage">
+          <video id="video" playsinline muted></video>
+          <canvas id="demo" hidden></canvas>
+          <canvas id="overlay"></canvas>
+          <div class="hint" id="hint" hidden></div>
+          <div class="flash" id="flash"></div>
+          <div class="empty" id="empty">
+            <h2 style="color:#EDE6DA">Point. Shoot. Track.</h2>
+            <p>Set your phone on the baseline or behind the shooter with the hoop in frame. Swish Lab spots the ball and calls every make and miss.</p>
+            <div class="row">
+              <button class="btn primary" id="cam-btn" type="button">Start camera</button>
+              <label class="btn ghost" style="border-color:#3A4654;color:#EDE6DA">Upload a clip<input id="file" type="file" accept="video/*" class="sr"></label>
+              <button class="btn ghost" id="demo-btn" type="button" style="border-color:#3A4654;color:#EDE6DA">Watch the demo</button>
+            </div>
+          </div>
+        </div>
+        <div class="tool-row" id="tools" hidden>
+          <button class="btn" id="hoop-btn" type="button">Set hoop</button>
+          <button class="btn" id="color-btn" type="button"><span class="swatch" id="swatch"></span>Tap the ball</button>
+          <button class="btn" id="pause-btn" type="button" hidden>Pause</button>
+          <button class="btn" id="voice-btn" type="button" aria-pressed="false">Voice calls: off</button>
+          <button class="btn ghost" id="stop-btn" type="button">Stop</button>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="view" style="gap:14px">
+        <div class="panel wo-live" id="wo-live" hidden>
+          <div class="eyebrow" style="color:inherit;opacity:.7">Workout</div>
+          <h3 id="wo-live-name" style="font-size:24px;margin-top:4px"></h3>
+          <div class="muted" id="wo-live-step" style="margin-top:4px"></div>
+          <div class="bar"><i id="wo-live-bar" style="width:0%"></i></div>
+          <div class="row" style="margin-top:12px"><button class="btn" id="wo-quit" type="button" style="background:rgba(255,255,255,.12);color:inherit">Quit workout</button></div>
+        </div>
+        <div class="panel">
+          <div class="mm">
+            <button class="btn make" id="make-btn" type="button">Make</button>
+            <button class="btn miss" id="miss-btn" type="button">Miss</button>
+            <button class="btn undo" id="undo-btn" type="button">Undo</button>
+          </div>
+          <div class="dots" id="dots" aria-label="Recent shots"></div>
+        </div>
+        <div class="panel">
+          <div class="spot-label"><span class="eyebrow">Shooting from</span><b id="spot-name">Top 3</b></div>
+          <div id="spot-court"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="chip" id="ft-chip" type="button" aria-pressed="false">Free-throw line</button>
+            <span class="muted" style="font-size:13px">Tap the floor to move your spot.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKOUTS -->
+  <section class="view" id="view-workouts" hidden>
+    <div><div class="eyebrow">Guided drills</div><h2>Workouts</h2></div>
+    <p class="muted" style="margin:0;max-width:62ch">Pick a drill and head to Track. Your spot moves for you as you finish each station, and every shot lands on your chart.</p>
+    <div class="wo-list" id="wo-list"></div>
+  </section>
+
+  <!-- STATS -->
+  <section class="view" id="view-stats" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div><div class="eyebrow">Your shooting</div><h2>Stats</h2></div>
+      <div class="row" role="group" aria-label="Range">
+        <button class="chip" data-range="5" type="button" aria-pressed="false">Last 5</button>
+        <button class="chip" data-range="10" type="button" aria-pressed="false">Last 10</button>
+        <button class="chip" data-range="all" type="button" aria-pressed="true">All</button>
+      </div>
+    </div>
+    <div id="ex-banner-stats"></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="stats-grid">
+      <div class="panel"><h3>Hot zones</h3><div id="heat" style="margin-top:10px"></div>
+        <div class="legend">Cold <i style="background:linear-gradient(90deg,#3E6FB8,#8C8F99,#E2571B,#C3202B)"></i> Hot</div></div>
+      <div class="view" style="gap:18px">
+        <div class="panel"><h3>FG% by session</h3><div id="trend" style="margin-top:10px"></div></div>
+        <div class="panel"><h3>By zone</h3><div class="table-wrap" id="zone-table"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="view" id="view-history" hidden>
+    <div><div class="eyebrow">Every session</div><h2>History</h2></div>
+    <div id="ex-banner-hist"></div>
+    <div class="sess" id="sess-list"></div>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button role="tab" data-view="track" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/></svg>Track</button>
+    <button role="tab" data-view="workouts" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Workouts</button>
+    <button role="tab" data-view="stats" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+    <button role="tab" data-view="history" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const HOOP = {x:25, y:5.25};
+const KEY = 'swishlab.v1';
+
+/* ---------- storage ---------- */
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){} }
+
+function newSession(demo){ return {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), start: Date.now(), shots: [], workout: null, demo: !!demo}; }
+
+/* ---------- court geometry ---------- */
+function zoneOf(x, y, ft){
+  if(ft) return 'Free Throw';
+  const dx = x-HOOP.x, dy = y-HOOP.y, d = Math.hypot(dx,dy);
+  const a = Math.atan2(Math.max(dy,0), dx)*180/Math.PI;
+  const three = y <= 14.2 ? Math.abs(dx) >= 22 : d >= 23.75;
+  if(three){
+    if(y <= 14.2) return dx < 0 ? 'Corner 3 L' : 'Corner 3 R';
+    return a > 120 ? 'Wing 3 L' : a < 60 ? 'Wing 3 R' : 'Top 3';
+  }
+  if(Math.abs(dx) <= 8 && y <= 19) return 'Paint';
+  return a > 120 ? 'Mid Left' : a < 60 ? 'Mid Right' : 'Mid Center';
+}
+const ZONES = {
+  'Paint':[25,11], 'Free Throw':[25,19.5], 'Mid Left':[10,11], 'Mid Right':[40,11], 'Mid Center':[25,26],
+  'Corner 3 L':[1.2,8], 'Corner 3 R':[48.8,8], 'Wing 3 L':[6,27], 'Wing 3 R':[44,27], 'Top 3':[25,36]
+};
+const ptsOf = z => z === 'Free Throw' ? 1 : z.includes('3') ? 3 : 2;
+
+function courtSVG(inner, cls){
+  return `<svg class="court ${cls||''}" viewBox="-2.5 -1 55 43" role="img" aria-label="Half court">
+    <rect class="floor" x="-2.5" y="-1" width="55" height="43" rx="1.2"/>
+    <rect class="ln" x="0" y="0" width="50" height="47"/>
+    <rect class="ln" x="17" y="0" width="16" height="19"/>
+    <circle class="ln" cx="25" cy="19" r="6"/>
+    <path class="ln" d="M3 0 L3 14.2 A23.75 23.75 0 0 0 47 14.2 L47 0"/>
+    <path class="ln" d="M21 5.25 A4 4 0 0 0 29 5.25"/>
+    <line class="ln" x1="22" y1="4" x2="28" y2="4" style="stroke:var(--ink);stroke-width:.5"/>
+    <circle class="rim" cx="25" cy="5.25" r=".75"/>
+    ${inner||''}
+  </svg>`;
+}
+
+/* ---------- workouts ---------- */
+const arc = (r, deg) => [+(25 + r*Math.cos(deg*Math.PI/180)).toFixed(1), +(5.25 + r*Math.sin(deg*Math.PI/180)).toFixed(1)];
+const WORKOUTS = [
+  {id:'form', name:'Form Shooting', desc:'Grooved reps close to the rim. Five spots, ten shots each — focus on arc and follow-through.', level:'Warm-up',
+    steps:[arc(6,160),arc(6,125),arc(6,90),arc(6,55),arc(6,20)].map((p,i)=>({x:p[0],y:p[1],shots:10,label:['Left block','Left short wing','Front of rim','Right short wing','Right block'][i]}))},
+  {id:'ft50', name:'Free Throw 50', desc:'Fifty from the line. Game-level free throw shooting is 75%+ — see where you stand.', level:'All levels',
+    steps:[{x:25,y:19,ft:true,shots:50,label:'Free-throw line'}]},
+  {id:'elbows', name:'Elbow to Elbow', desc:'Mid-range pull-up spots. Fifteen from each elbow, then fifteen from the top of the key.', level:'Intermediate',
+    steps:[{x:17,y:19,shots:15,label:'Left elbow'},{x:33,y:19,shots:15,label:'Right elbow'},{x:25,y:24,shots:15,label:'Top of the key'}]},
+  {id:'atw', name:'Around the World', desc:'Ten threes from each of five spots: both corners, both wings and the top.', level:'Advanced',
+    steps:[{x:1.5,y:4,label:'Left corner'},{x:7.5,y:22.5,label:'Left wing'},{x:25,y:31,label:'Top'},{x:42.5,y:22.5,label:'Right wing'},{x:48.5,y:4,label:'Right corner'}].map(s=>({...s,shots:10}))},
+  {id:'make100', name:'Make 100', desc:'Keep shooting until you hit 100 makes from anywhere. Move your spot as you like.', level:'Endurance',
+    steps:[{makes:100,label:'Anywhere',free:true}]},
+  {id:'corner', name:'Corner Specialist', desc:'The shortest three on the floor. Make 10 from each corner — misses do not count.', level:'Intermediate',
+    steps:[{x:1.5,y:4,makes:10,label:'Left corner'},{x:48.5,y:4,makes:10,label:'Right corner'}]}
+];
+const woById = id => WORKOUTS.find(w => w.id === id);
+
+/* ---------- example data ---------- */
+function seedExamples(){
+  let s = 7; const rnd = () => (s = (s*16807) % 2147483647) / 2147483647;
+  const base = {'Paint':.68,'Free Throw':.74,'Mid Left':.46,'Mid Right':.5,'Mid Center':.44,'Corner 3 L':.38,'Corner 3 R':.42,'Wing 3 L':.33,'Wing 3 R':.36,'Top 3':.35};
+  const out = []; const now = Date.now();
+  const plan = ['atw','ft50',null,'elbows','form',null,'atw','ft50'];
+  plan.forEach((wid, i) => {
+    const start = now - (plan.length - i) * 2.6 * 864e5 + 18*36e5;
+    const shots = []; let t = start; const w = wid && woById(wid);
+    const spots = w ? w.steps.flatMap(st => Array(st.shots||10).fill(st)) :
+      Array.from({length: 40 + Math.floor(rnd()*30)}, () => { const a = 10+rnd()*160, r = 4+rnd()*22; const p = arc(r,a); return {x:p[0], y:p[1]}; });
+    spots.forEach(sp => {
+      const z = zoneOf(sp.x, sp.y, sp.ft);
+      t += 9000 + rnd()*9000;
+      shots.push({t, made: rnd() < base[z] + i*0.012, x: sp.x + (rnd()-.5), y: sp.y + (rnd()-.5), zone: z, auto: rnd() > .2});
+    });
+    out.push({id:'ex'+i, start, end:t, shots, workout: wid, example:true});
+  });
+  return out;
+}
+
+let db = load();
+if(!db){ db = {sessions: seedExamples(), current: null, settings: {}}; }
+db.settings = Object.assign({voice:false, spot:{x:25,y:31,ft:false}, ball:null}, db.settings||{});
+if(!db.current || db.current.demo) db.current = newSession();
+
+/* ---------- helpers ---------- */
+const pct = (m,a) => a ? Math.round(m/a*100) : null;
+const fmtPct = v => v == null ? '–' : v + '%';
+const fmtTime = ms => { const s = Math.max(0, Math.floor(ms/1000)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+const fmtDate = t => new Date(t).toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function summarize(shots){
+  const r = {att:shots.length, made:0, three:[0,0], ft:[0,0], two:[0,0], pts:0, best:0};
+  let run = 0;
+  for(const s of shots){
+    const p = ptsOf(s.zone);
+    const bucket = p === 3 ? r.three : p === 1 ? r.ft : r.two;
+    bucket[1]++;
+    if(s.made){ r.made++; bucket[0]++; r.pts += p; run++; r.best = Math.max(r.best, run); } else run = 0;
+  }
+  r.fga = r.two[1] + r.three[1];
+  r.efg = r.fga ? Math.round((r.two[0] + 1.5*r.three[0]) / r.fga * 100) : null;
+  return r;
+}
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+
+/* ---------- audio / voice ---------- */
+let actx;
+function beep(made){
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'triangle'; o.frequency.value = made ? 880 : 220;
+    if(made) o.frequency.exponentialRampToValueAtTime(1320, actx.currentTime + .12);
+    g.gain.setValueAtTime(.18, actx.currentTime); g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + .3);
+    o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + .32);
+  }catch(e){}
+}
+function speak(text){
+  if(!db.settings.voice) return;
+  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
+}
+
+/* ---------- recording shots ---------- */
+function record(made, auto){
+  const cur = db.current, sp = db.settings.spot;
+  const z = zoneOf(sp.x, sp.y, sp.ft);
+  cur.shots.push({t: Date.now(), made, x: sp.x, y: sp.y, zone: z, auto: !!auto});
+  const sm = summarize(cur.shots);
+  beep(made); flash(made);
+  speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.`);
+  advanceWorkout(made);
+  if(!cur.demo) save();
+  renderScore(); renderShots();
+}
+function flash(made){
+  const f = $('#flash');
+  f.textContent = made ? 'Bucket' : 'Miss';
+  f.style.color = made ? 'var(--make)' : 'var(--miss)';
+  f.style.textShadow = '0 4px 30px rgba(0,0,0,.5)';
+  f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+}
+function undo(){
+  const cur = db.current; const s = cur.shots.pop();
+  if(!s){ toast('No shots to undo'); return; }
+  if(cur.workout){ recomputeWorkout(); setStepSpot(); }
+  if(!cur.demo) save();
+  toast('Last shot removed'); renderScore(); renderShots(); renderWorkoutLive();
+}
+function recomputeWorkout(){
+  const cur = db.current, wp = cur.workout, w = woById(wp.id);
+  const shots = cur.shots.filter(s => s.t >= wp.startT);
+  let step = 0, att = 0, made = 0;
+  for(const s of shots){
+    att++; if(s.made) made++;
+    const st = w.steps[step];
+    if((st.shots && att >= st.shots) || (st.makes && made >= st.makes)){ step++; att = 0; made = 0; if(step >= w.steps.length) break; }
+  }
+  Object.assign(wp, {step: Math.min(step, w.steps.length-1), att, made});
+}
+
+/* ---------- workouts flow ---------- */
+function startWorkout(id){
+  const w = woById(id);
+  if(source === 'demo') stopSource(false);
+  if(db.current.shots.length && !db.current.demo) endSession(true);
+  if(db.current.demo) db.current = newSession();
+  db.current.workout = {id, step:0, att:0, made:0, startT: Date.now()};
+  setStepSpot();
+  save(); showView('track'); renderAll();
+  toast(`${w.name} — ${w.steps[0].label}`);
+  speak(`${w.name}. Start at ${w.steps[0].label}.`);
+}
+function setStepSpot(){
+  const wp = db.current.workout; if(!wp) return;
+  const st = woById(wp.id).steps[wp.step];
+  if(!st.free) db.settings.spot = {x: st.x, y: st.y, ft: !!st.ft};
+  renderSpot();
+}
+function advanceWorkout(made){
+  const wp = db.current.workout; if(!wp) return;
+  const w = woById(wp.id), st = w.steps[wp.step];
+  wp.att++; if(made) wp.made++;
+  const done = (st.shots && wp.att >= st.shots) || (st.makes && wp.made >= st.makes);
+  if(done){
+    const stepPct = pct(wp.made, wp.att);
+    if(wp.step + 1 >= w.steps.length){
+      const sm = summarize(db.current.shots.filter(s => s.t >= wp.startT));
+      toast(`${w.name} complete — ${sm.made}/${sm.att} (${fmtPct(pct(sm.made, sm.att))})`);
+      speak(`Workout complete. ${pct(sm.made, sm.att)} percent.`);
+      db.current.workoutDone = true;
+      endSession(true);
+      return;
+    }
+    wp.step++; wp.att = 0; wp.made = 0;
+    const next = w.steps[wp.step];
+    toast(`${st.label}: ${stepPct}% — move to ${next.label}`);
+    speak(`Move to ${next.label}.`);
+    setStepSpot();
+  }
+  renderWorkoutLive();
+}
+
+function endSession(silent){
+  const cur = db.current;
+  if(cur.demo){ db.current = newSession(); if(source === 'demo') stopSource(false); if(!silent) toast("Demo shots aren't saved"); renderAll(); return; }
+  if(cur.shots.length){
+    cur.end = cur.shots[cur.shots.length-1].t;
+    if(cur.workout) { cur.workout = cur.workout.id; }
+    db.sessions.push(cur);
+    if(!silent){ const sm = summarize(cur.shots); toast(`Saved: ${sm.made}/${sm.att} (${fmtPct(pct(sm.made, sm.att))})`); }
+  } else if(!silent) toast('Nothing to save yet');
+  db.current = newSession();
+  save(); renderAll();
+}
+
+/* ---------- rendering: scoreboard + track ---------- */
+function renderScore(){
+  const sm = summarize(db.current.shots);
+  let streak = 0; for(let i = db.current.shots.length-1; i >= 0 && db.current.shots[i].made; i--) streak++;
+  $('#t-made').textContent = sm.made; $('#t-att').textContent = sm.att;
+  $('#t-pct').textContent = fmtPct(pct(sm.made, sm.att)); $('#t-streak').textContent = streak;
+}
+setInterval(() => { const c = db.current; $('#t-time').textContent = fmtTime(c.shots.length ? Date.now() - c.shots[0].t : 0); }, 1000);
+
+function renderShots(){
+  const shots = db.current.shots.slice(-40);
+  $('#dots').innerHTML = shots.map(s => `<i class="${s.made?'m':''}" title="${s.made?'Make':'Miss'} · ${esc(s.zone)}"></i>`).join('') ||
+    '<span class="muted" style="font-size:14px">Shots show up here as they happen.</span>';
+  renderSpot();
+}
+function renderSpot(){
+  const sp = db.settings.spot;
+  const marks = db.current.shots.slice(-30).map(s => `<circle cx="${s.x}" cy="${s.y}" r=".9" fill="${s.made?'var(--make)':'var(--miss)'}" opacity=".7"/>`).join('');
+  $('#spot-court').innerHTML = courtSVG(marks + `<circle cx="${sp.x}" cy="${sp.y}" r="2" fill="none" stroke="var(--accent)" stroke-width=".6"/><circle cx="${sp.x}" cy="${sp.y}" r=".8" fill="var(--accent)"/>`, 'spotpick');
+  $('#spot-name').textContent = zoneOf(sp.x, sp.y, sp.ft);
+  $('#ft-chip').setAttribute('aria-pressed', sp.ft ? 'true' : 'false');
+}
+$('#spot-court').addEventListener('click', e => {
+  const svg = e.currentTarget.querySelector('svg'); if(!svg) return;
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  db.settings.spot = {x: +Math.min(50, Math.max(0, p.x)).toFixed(1), y: +Math.min(41.5, Math.max(0, p.y)).toFixed(1), ft:false};
+  save(); renderSpot();
+});
+$('#ft-chip').addEventListener('click', () => {
+  const sp = db.settings.spot;
+  db.settings.spot = sp.ft ? {x:25, y:24, ft:false} : {x:25, y:19, ft:true};
+  save(); renderSpot();
+});
+function renderWorkoutLive(){
+  const wp = db.current.workout, box = $('#wo-live');
+  if(!wp){ box.hidden = true; return; }
+  const w = woById(wp.id), st = w.steps[wp.step];
+  box.hidden = false;
+  $('#wo-live-name').textContent = w.name;
+  const goal = st.shots ? `${wp.att}/${st.shots} shots` : `${wp.made}/${st.makes} makes`;
+  $('#wo-live-step').textContent = `Station ${wp.step+1} of ${w.steps.length} · ${st.label} · ${goal}`;
+  const frac = st.shots ? wp.att/st.shots : wp.made/st.makes;
+  $('#wo-live-bar').style.width = Math.round((wp.step + frac) / w.steps.length * 100) + '%';
+}
+$('#wo-quit').addEventListener('click', () => { db.current.workout = null; save(); renderWorkoutLive(); toast('Workout ended — shots stay in this session'); });
+
+/* ---------- workouts view ---------- */
+function renderWorkouts(){
+  $('#wo-list').innerHTML = WORKOUTS.map(w => {
+    const total = w.steps.reduce((a,s) => a + (s.shots || 0), 0);
+    const goal = total ? `${total} shots` : `${w.steps.reduce((a,s)=>a+(s.makes||0),0)} makes`;
+    const pts = w.steps.filter(s => !s.free).map(s => `<circle cx="${s.x}" cy="${s.y}" r="1.6" fill="var(--accent)"/>`).join('');
+    const done = db.sessions.filter(s => s.workout === w.id);
+    const last = done[done.length-1];
+    const lastTxt = last ? (() => { const sm = summarize(last.shots); return `Last: ${fmtPct(pct(sm.made, sm.att))} on ${fmtDate(last.start)}`; })() : 'Not tried yet';
+    return `<article class="panel wo">
+      <div class="meta"><span>${esc(w.level)}</span><span>${goal}</span><span>${w.steps.length} station${w.steps.length>1?'s':''}</span></div>
+      <h3 style="font-size:24px">${esc(w.name)}</h3>
+      ${pts ? courtSVG(pts) : ''}
+      <p>${esc(w.desc)}</p>
+      <div class="muted" style="font-size:14px">${lastTxt}</div>
+      <button class="btn primary" data-wo="${w.id}" type="button">Start workout</button>
+    </article>`;
+  }).join('');
+}
+$('#wo-list').addEventListener('click', e => { const b = e.target.closest('[data-wo]'); if(b) startWorkout(b.dataset.wo); });
+
+/* ---------- stats view ---------- */
+let range = 'all';
+function heatColor(p){
+  // cold blue -> neutral -> orange -> red, keyed to FG%
+  const stops = [[0.2,[62,111,184]],[0.4,[140,143,153]],[0.55,[226,87,27]],[0.7,[195,32,43]]];
+  if(p <= stops[0][0]) return `rgb(${stops[0][1]})`;
+  for(let i = 1; i < stops.length; i++){
+    if(p <= stops[i][0]){ const [a0,c0] = stops[i-1], [a1,c1] = stops[i]; const k = (p-a0)/(a1-a0);
+      return `rgb(${c0.map((c,j)=>Math.round(c+(c1[j]-c)*k))})`; }
+  }
+  return `rgb(${stops[stops.length-1][1]})`;
+}
+function renderStats(){
+  $$('[data-range]').forEach(b => b.setAttribute('aria-pressed', b.dataset.range === range ? 'true' : 'false'));
+  const all = db.sessions.slice().sort((a,b) => a.start - b.start);
+  const sess = range === 'all' ? all : all.slice(-(+range));
+  const shots = sess.flatMap(s => s.shots);
+  const sm = summarize(shots);
+  $('#ex-banner-stats').innerHTML = exampleBanner();
+  const tile = (label, val, sub) => `<div class="tile"><span>${label}</span><b>${val}</b><small>${sub}</small></div>`;
+  $('#tiles').innerHTML = [
+    tile('FG%', fmtPct(pct(sm.made, sm.att)), `${sm.made}/${sm.att} all shots`),
+    tile('3PT%', fmtPct(pct(...sm.three)), `${sm.three[0]}/${sm.three[1]}`),
+    tile('FT%', fmtPct(pct(...sm.ft)), `${sm.ft[0]}/${sm.ft[1]}`),
+    tile('eFG%', fmtPct(sm.efg), 'weights threes 1.5×'),
+    tile('Best streak', sm.best, 'makes in a row'),
+    tile('Sessions', sess.length, `${sm.pts} points scored`)
+  ].join('');
+
+  const byZone = {};
+  for(const s of shots){ const z = byZone[s.zone] || (byZone[s.zone] = [0,0]); z[1]++; if(s.made) z[0]++; }
+  const dots = shots.slice(-400).map(s => `<circle cx="${s.x}" cy="${s.y}" r=".45" fill="${s.made?'var(--make)':'var(--miss)'}" opacity=".45"/>`).join('');
+  const bubbles = Object.entries(ZONES).map(([z,[x,y]]) => {
+    const v = byZone[z]; if(!v) return '';
+    const p = v[0]/v[1];
+    return `<g><circle cx="${x}" cy="${y}" r="3.4" fill="${heatColor(p)}" stroke="var(--surface)" stroke-width=".4"><title>${z}: ${v[0]}/${v[1]}</title></circle>
+      <text class="zone-lbl" x="${x}" y="${y}">${Math.round(p*100)}%</text></g>`;
+  }).join('');
+  $('#heat').innerHTML = shots.length ? courtSVG(dots + bubbles) : '<p class="muted">No shots yet — log a session to see your hot zones.</p>';
+
+  const rows = Object.keys(ZONES).filter(z => byZone[z]).map(z => { const [m,a] = byZone[z]; return `<tr><td>${z}</td><td class="num">${m}/${a}</td><td class="num"><b>${pct(m,a)}%</b></td></tr>`; }).join('');
+  $('#zone-table').innerHTML = rows ? `<table><thead><tr><th>Zone</th><th class="num">Made</th><th class="num">FG%</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="muted">No shots yet.</p>';
+
+  renderTrend(all.slice(-12));
+}
+function renderTrend(sess){
+  if(sess.length < 2){ $('#trend').innerHTML = '<p class="muted">Log two or more sessions to see your trend.</p>'; return; }
+  const W = 460, H = 200, L = 36, R = 12, T = 12, B = 28;
+  const xs = i => L + i * (W - L - R) / (sess.length - 1);
+  const ys = v => T + (1 - v/100) * (H - T - B);
+  const vals = sess.map(s => { const sm = summarize(s.shots); return pct(sm.made, sm.att) || 0; });
+  const grid = [0,25,50,75,100].map(v => `<line class="grid" x1="${L}" x2="${W-R}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${L-6}" y="${ys(v)+4}" text-anchor="end">${v}%</text>`).join('');
+  const line = vals.map((v,i) => `${i?'L':'M'}${xs(i).toFixed(1)} ${ys(v).toFixed(1)}`).join(' ');
+  const area = `${line} L${xs(vals.length-1)} ${ys(0)} L${xs(0)} ${ys(0)} Z`;
+  const pts = vals.map((v,i) => `<circle cx="${xs(i)}" cy="${ys(v)}" r="${i===vals.length-1?5:3}" fill="${i===vals.length-1?'var(--accent)':'var(--surface)'}" stroke="var(--accent)" stroke-width="2"><title>${fmtDate(sess[i].start)}: ${v}%</title></circle>`).join('');
+  const lastLbl = `<text x="${xs(vals.length-1)}" y="${ys(vals[vals.length-1]) - 10}" text-anchor="end" style="fill:var(--ink);font-weight:600">${vals[vals.length-1]}%</text>`;
+  const xl = [0, sess.length-1].map(i => `<text x="${xs(i)}" y="${H-8}" text-anchor="${i?'end':'start'}">${fmtDate(sess[i].start)}</text>`).join('');
+  $('#trend').innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Field goal percentage by session">
+    ${grid}<path d="${area}" fill="var(--accent)" opacity=".12"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>${pts}${lastLbl}${xl}</svg>`;
+}
+$$('[data-range]').forEach(b => b.addEventListener('click', () => { range = b.dataset.range; renderStats(); }));
+
+/* ---------- history ---------- */
+function exampleBanner(){
+  if(!db.sessions.some(s => s.example)) return '';
+  return `<div class="banner"><span>These are <b>example sessions</b> so you can see how Swish Lab looks with data. Your own sessions appear alongside them.</span>
+    <button class="btn ghost" data-clear-ex type="button">Clear examples</button></div>`;
+}
+const openSess = new Set(); const armedDelete = new Set();
+function renderHistory(){
+  $('#ex-banner-hist').innerHTML = exampleBanner();
+  const list = db.sessions.slice().sort((a,b) => b.start - a.start);
+  if(!list.length){ $('#sess-list').innerHTML = '<div class="panel muted">No sessions yet. Head to Track and put up some shots.</div>'; return; }
+  $('#sess-list').innerHTML = list.map(s => {
+    const sm = summarize(s.shots), p = pct(sm.made, sm.att);
+    const w = s.workout && woById(s.workout);
+    const open = openSess.has(s.id);
+    const zones = {}; s.shots.forEach(x => { const z = zones[x.zone] || (zones[x.zone] = [0,0]); z[1]++; if(x.made) z[0]++; });
+    const body = open ? `<div class="sess-body">
+        ${courtSVG(s.shots.map(x => `<circle cx="${x.x}" cy="${x.y}" r=".8" fill="${x.made?'var(--make)':'var(--miss)'}" opacity=".7"/>`).join(''))}
+        <div>
+          <div class="table-wrap"><table><tbody>${Object.entries(zones).map(([z,[m,a]]) => `<tr><td>${z}</td><td class="num">${m}/${a}</td><td class="num">${pct(m,a)}%</td></tr>`).join('')}</tbody></table></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" data-copy="${s.id}" type="button">Copy summary</button>
+            <button class="btn ghost" data-del="${s.id}" type="button" style="color:var(--miss)">${armedDelete.has(s.id) ? 'Tap again to delete' : 'Delete'}</button>
+          </div>
+        </div></div>` : '';
+    return `<article class="panel"><button class="sess-head" data-toggle="${s.id}" type="button" aria-expanded="${open}">
+        <span class="sess-pct" style="color:${p >= 50 ? 'var(--make)' : 'var(--ink)'}">${fmtPct(p)}</span>
+        <span class="grow"><span class="title">${w ? esc(w.name) : 'Free shooting'}</span>${s.example ? '<span class="tag">Example</span>' : ''}
+          <br><span class="sub">${fmtDate(s.start)} · ${sm.made}/${sm.att} · 3PT ${fmtPct(pct(...sm.three))} · ${fmtTime((s.end||s.start) - s.start)}</span></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(${open?180:0}deg);transition:.2s"><path d="M6 9l6 6 6-6"/></svg>
+      </button>${body}</article>`;
+  }).join('');
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-toggle],[data-del],[data-copy],[data-clear-ex]'); if(!t) return;
+  if(t.dataset.toggle){ const id = t.dataset.toggle; openSess.has(id) ? openSess.delete(id) : openSess.add(id); renderHistory(); }
+  else if(t.dataset.del){
+    const id = t.dataset.del;
+    if(!armedDelete.has(id)){ armedDelete.add(id); renderHistory(); setTimeout(() => { armedDelete.delete(id); renderHistory(); }, 3000); return; }
+    db.sessions = db.sessions.filter(s => s.id !== id); armedDelete.delete(id); save(); renderAll(); toast('Session deleted');
+  }
+  else if(t.dataset.copy){
+    const s = db.sessions.find(x => x.id === t.dataset.copy); const sm = summarize(s.shots); const w = s.workout && woById(s.workout);
+    const txt = `🏀 ${w ? w.name : 'Shooting session'} — ${fmtDate(s.start)}\n${sm.made}/${sm.att} FG (${fmtPct(pct(sm.made,sm.att))}) · 3PT ${sm.three[0]}/${sm.three[1]} · FT ${sm.ft[0]}/${sm.ft[1]} · best streak ${sm.best}\nTracked with Swish Lab`;
+    const done = () => toast('Summary copied');
+    try{ navigator.clipboard.writeText(txt).then(done, () => toast('Copy blocked here — select the text manually')); }catch(err){ toast('Copy blocked here'); }
+  }
+  else if(t.dataset.clearEx !== undefined){ db.sessions = db.sessions.filter(s => !s.example); save(); renderAll(); toast('Examples cleared'); }
+});
+
+/* ---------- views ---------- */
+function showView(v){
+  $$('nav.tabs [data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v ? 'true' : 'false'));
+  $$('.view[id^="view-"]').forEach(s => s.hidden = s.id !== 'view-' + v);
+  try{ localStorage.setItem(KEY + '.tab', v); }catch(e){}
+  if(v === 'stats') renderStats(); if(v === 'history') renderHistory(); if(v === 'workouts') renderWorkouts();
+  if(v === 'track') requestAnimationFrame(sizeOverlay);
+}
+$$('nav.tabs [data-view]').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+function renderAll(){ renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
+
+$('#make-btn').addEventListener('click', () => record(true, false));
+$('#miss-btn').addEventListener('click', () => record(false, false));
+$('#undo-btn').addEventListener('click', undo);
+$('#end-btn').addEventListener('click', () => endSession(false));
+
+/* =========================================================
+   VISION — ball tracking + automatic make / miss detection
+   Colour + motion segmentation runs entirely on-device.
+   ========================================================= */
+const video = $('#video'), demoCv = $('#demo'), overlay = $('#overlay'), octx = overlay.getContext('2d');
+const proc = document.createElement('canvas'), pctx = proc.getContext('2d', {willReadFrequently:true});
+let source = null;          // 'camera' | 'file' | 'demo'
+let running = false, paused = false, stream = null, wakeLock = null;
+let mode = null;            // 'hoop' | 'color' | null
+let hoop = null;            // normalised {x0,y0,x1,y1}
+let bg = null, mask = null, PW = 0, PH = 0;
+let trail = [], lastBall = null, lostFrames = 0;
+let shot = {phase:'idle'}, cooldownUntil = 0;
+let drag = null;
+const DEFAULT_BALL = {h:20, tol:16, sMin:.42, vMin:.28};
+let ball = db.settings.ball || DEFAULT_BALL;
+
+function setHint(t){ const h = $('#hint'); h.hidden = !t; h.textContent = t || ''; }
+function setStatus(t){ $('#status').textContent = t || ''; }
+function updateSwatch(){ $('#swatch').style.background = `hsl(${ball.h} ${Math.round(Math.max(ball.sMin*1.4,.5)*100)}% 50%)`; }
+updateSwatch();
+
+function sizeOverlay(){
+  const r = $('#stage').getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  overlay.width = Math.round(r.width*d); overlay.height = Math.round(r.height*d);
+}
+window.addEventListener('resize', sizeOverlay);
+
+function setAspect(w, h){
+  $('#stage').style.aspectRatio = `${w} / ${h}`;
+  PW = 160; PH = Math.max(60, Math.round(160 * h / w));
+  proc.width = PW; proc.height = PH;
+  bg = new Float32Array(PW*PH); mask = new Uint8Array(PW*PH); bg.inited = false;
+  requestAnimationFrame(sizeOverlay);
+}
+
+async function begin(kind, keep){
+  if(!keep) stopSource(true);
+  source = kind; running = true; paused = false;
+  $('#empty').hidden = true; $('#tools').hidden = false;
+  $('#pause-btn').hidden = kind !== 'file';
+  trail = []; shot = {phase:'idle'}; lastBall = null;
+  if(kind === 'demo'){
+    if(!db.current.demo){ if(db.current.shots.length) endSession(true); db.current = newSession(true); }
+    demoCv.hidden = false; video.hidden = true;
+    demoCv.width = 960; demoCv.height = 540; setAspect(960, 540);
+    hoop = {x0:.685, y0:.355, x1:.765, y1:.43};
+    demo.reset();
+    setStatus('Demo: a simulated shooter. The tracker is doing the calling, not a script.');
+  } else {
+    demoCv.hidden = true; video.hidden = false;
+    if(db.current.demo) db.current = newSession();
+    hoop = db.settings.hoop || null;
+  }
+  try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){}
+  if(!hoop && kind !== 'demo') enterMode('hoop');
+  else setHint('');
+  renderScore();
+  loop();
+}
+function stopSource(quiet){
+  running = false;
+  if(stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if(video.src){ video.pause(); URL.revokeObjectURL(video.src); video.removeAttribute('src'); video.load(); }
+  video.srcObject = null;
+  try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
+  if(!quiet){
+    const wasDemo = source === 'demo' && db.current.demo;
+    source = null;
+    if(wasDemo){ db.current = newSession(); renderAll(); toast("Demo over — demo shots aren't saved"); } $('#empty').hidden = false; $('#tools').hidden = true; demoCv.hidden = true; setHint(''); setStatus('');
+    octx.clearRect(0,0,overlay.width,overlay.height); mode = null;
+  }
+}
+
+$('#cam-btn').addEventListener('click', async () => {
+  if(!navigator.mediaDevices?.getUserMedia){ toast('This browser has no camera access — upload a clip instead'); return; }
+  stopSource(true);
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment', width:{ideal:1280}, height:{ideal:720}}, audio:false});
+  }catch(e){ stream = null; toast('Camera blocked — allow camera access, or upload a clip instead'); setStatus('Camera access was refused. On this page you can still upload a recorded clip or watch the demo.'); return; }
+  video.srcObject = stream; await video.play().catch(()=>{});
+  const go = () => { setAspect(video.videoWidth || 1280, video.videoHeight || 720); begin('camera', true); setStatus('Camera live. Mark the hoop, then tap the ball once so the tracker learns its colour.'); };
+  video.videoWidth ? go() : video.addEventListener('loadedmetadata', go, {once:true});
+});
+$('#file').addEventListener('change', e => {
+  const f = e.target.files[0]; if(!f) return;
+  stopSource(true);
+  video.srcObject = null; video.src = URL.createObjectURL(f); video.loop = false;
+  video.addEventListener('loadedmetadata', () => {
+    setAspect(video.videoWidth, video.videoHeight);
+    begin('file', true); video.play().catch(()=>{});
+    setStatus(`Analyzing ${f.name}. Mark the hoop, and the tracker calls shots as the clip plays.`);
+  }, {once:true});
+  video.onended = () => { setStatus('Clip finished. End the session to save it, or upload another clip.'); };
+  e.target.value = '';
+});
+$('#demo-btn').addEventListener('click', () => begin('demo'));
+$('#stop-btn').addEventListener('click', () => stopSource(false));
+$('#pause-btn').addEventListener('click', () => {
+  if(video.paused){ video.play(); $('#pause-btn').textContent = 'Pause'; } else { video.pause(); $('#pause-btn').textContent = 'Play'; }
+});
+$('#voice-btn').addEventListener('click', () => {
+  db.settings.voice = !db.settings.voice; save(); syncVoice();
+  if(db.settings.voice) speak('Voice calls on.');
+});
+function syncVoice(){ const b = $('#voice-btn'); b.textContent = 'Voice calls: ' + (db.settings.voice ? 'on' : 'off'); b.classList.toggle('on', db.settings.voice); b.setAttribute('aria-pressed', db.settings.voice); }
+syncVoice();
+
+function enterMode(m){
+  mode = mode === m ? null : m;
+  $('#hoop-btn').classList.toggle('on', mode === 'hoop');
+  $('#color-btn').classList.toggle('on', mode === 'color');
+  setHint(mode === 'hoop' ? 'Drag a box around the rim (just the ring, not the backboard)' : mode === 'color' ? 'Tap the ball to teach the tracker its colour' : '');
+}
+$('#hoop-btn').addEventListener('click', () => enterMode('hoop'));
+$('#color-btn').addEventListener('click', () => enterMode('color'));
+
+function normPt(e){ const r = overlay.getBoundingClientRect(); return {x: Math.min(1,Math.max(0,(e.clientX - r.left)/r.width)), y: Math.min(1,Math.max(0,(e.clientY - r.top)/r.height))}; }
+overlay.addEventListener('pointerdown', e => {
+  if(mode === 'hoop'){ drag = {a: normPt(e), b: normPt(e)}; overlay.setPointerCapture(e.pointerId); }
+  else if(mode === 'color'){ sampleColor(normPt(e)); }
+});
+overlay.addEventListener('pointermove', e => { if(drag) drag.b = normPt(e); });
+overlay.addEventListener('pointerup', () => {
+  if(!drag) return;
+  let {a, b} = drag; drag = null;
+  let x0 = Math.min(a.x,b.x), x1 = Math.max(a.x,b.x), y0 = Math.min(a.y,b.y), y1 = Math.max(a.y,b.y);
+  if(x1 - x0 < .02){ const cx = (x0+x1)/2; x0 = cx - .045; x1 = cx + .045; }
+  if(y1 - y0 < .02){ const cy = (y0+y1)/2; y0 = cy - .02; y1 = cy + .03; }
+  hoop = {x0, y0, x1, y1};
+  if(source !== 'demo'){ db.settings.hoop = hoop; save(); }
+  enterMode(null); toast('Hoop locked. Start shooting!');
+});
+
+function rgb2hsv(r,g,b){
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), d = mx - mn;
+  let h = 0;
+  if(d){ h = mx === r ? ((g-b)/d) % 6 : mx === g ? (b-r)/d + 2 : (r-g)/d + 4; h *= 60; if(h < 0) h += 360; }
+  return [h, mx ? d/mx : 0, mx/255];
+}
+function sampleColor(p){
+  if(!PW) return;
+  const cx = Math.round(p.x*PW), cy = Math.round(p.y*PH);
+  const d = pctx.getImageData(Math.max(0,cx-2), Math.max(0,cy-2), 5, 5).data;
+  let r=0,g=0,b=0,n=0; for(let i = 0; i < d.length; i += 4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; }
+  const [h,s,v] = rgb2hsv(r/n, g/n, b/n);
+  if(s < .15){ toast("That spot looks grey — tap right on the ball"); return; }
+  ball = {h: Math.round(h), tol: 16, sMin: Math.max(.18, s*.55), vMin: Math.max(.12, v*.45)};
+  if(source !== 'demo'){ db.settings.ball = ball; save(); }
+  updateSwatch(); enterMode(null); toast('Ball colour learned');
+}
+
+/* segmentation: colour match AND moving vs a running background */
+function detect(){
+  const data = pctx.getImageData(0, 0, PW, PH).data;
+  const n = PW*PH, first = !bg.inited;
+  for(let i = 0, j = 0; i < n; i++, j += 4){
+    const r = data[j], g = data[j+1], b = data[j+2];
+    const lum = .299*r + .587*g + .114*b;
+    if(first) bg[i] = lum;
+    const moving = Math.abs(lum - bg[i]) > 14;
+    bg[i] += (lum - bg[i]) * .05;
+    let hit = 0;
+    if(moving){
+      const [h,s,v] = rgb2hsv(r,g,b);
+      let dh = Math.abs(h - ball.h); if(dh > 180) dh = 360 - dh;
+      hit = dh <= ball.tol && s >= ball.sMin && v >= ball.vMin ? 1 : 0;
+    }
+    mask[i] = hit;
+  }
+  bg.inited = true;
+  // connected components; keep the blob that best matches size + continuity
+  let best = null; const stack = [];
+  for(let i = 0; i < n; i++){
+    if(mask[i] !== 1) continue;
+    let cnt = 0, sx = 0, sy = 0, minX = PW, maxX = 0, minY = PH, maxY = 0;
+    mask[i] = 2; stack.push(i);
+    while(stack.length){
+      const k = stack.pop(), x = k % PW, y = (k / PW) | 0;
+      cnt++; sx += x; sy += y;
+      if(x < minX) minX = x; if(x > maxX) maxX = x; if(y < minY) minY = y; if(y > maxY) maxY = y;
+      if(x > 0 && mask[k-1] === 1){ mask[k-1] = 2; stack.push(k-1); }
+      if(x < PW-1 && mask[k+1] === 1){ mask[k+1] = 2; stack.push(k+1); }
+      if(y > 0 && mask[k-PW] === 1){ mask[k-PW] = 2; stack.push(k-PW); }
+      if(y < PH-1 && mask[k+PW] === 1){ mask[k+PW] = 2; stack.push(k+PW); }
+    }
+    if(cnt < 3) continue;
+    const w = maxX - minX + 1, h = maxY - minY + 1, aspect = w / h;
+    if(aspect > 3 || aspect < .33) continue;             // balls are round-ish
+    const c = {x: (sx/cnt + .5)/PW, y: (sy/cnt + .5)/PH, size: cnt, r: Math.max(w,h)/2/PW};
+    let score = Math.min(cnt, 80) * (cnt / (w*h) + .3);
+    if(lastBall){ const d = Math.hypot(c.x - lastBall.x, c.y - lastBall.y); score -= d * 120; }
+    if(!best || score > best.score){ c.score = score; best = c; }
+  }
+  return best;
+}
+
+/* shot state machine — up above the rim, then down through (make) or past (miss) */
+function judge(p, now){
+  if(!hoop || now < cooldownUntil) return;
+  const w = hoop.x1 - hoop.x0, h = hoop.y1 - hoop.y0, cx = (hoop.x0 + hoop.x1)/2;
+  const near = Math.abs(p.x - cx) < w * 3;
+  if(shot.phase === 'idle'){
+    if(p.y < hoop.y0 - h*.4 && near){ shot = {phase:'up', t0: now, entered:false, close:false, prev:p}; }
+    return;
+  }
+  const prev = shot.prev; shot.prev = p;
+  const inX = p.x > hoop.x0 - w*.12 && p.x < hoop.x1 + w*.12;
+  if(Math.abs(p.x - cx) < w*1.6 && Math.abs(p.y - hoop.y0) < h*2.5) shot.close = true;
+  if(inX && p.y >= hoop.y0 - h*.3 && p.y <= hoop.y1 && prev && p.y >= prev.y - .002) shot.entered = true;
+  if(p.y > hoop.y1 + h*.15){
+    if(shot.entered && inX) finish(true);
+    else if(shot.close || near) finish(false);
+    else shot = {phase:'idle'};
+    return;
+  }
+  if(now - shot.t0 > 3200){ shot.close ? finish(false) : (shot = {phase:'idle'}); }
+}
+function finish(made){
+  shot = {phase:'idle'}; cooldownUntil = performance.now() + 1100;
+  record(made, true);
+}
+
+function loop(){
+  if(!running) return;
+  requestAnimationFrame(loop);
+  const now = performance.now();
+  if(source === 'demo') demo.step(now);
+  const src = source === 'demo' ? demoCv : video;
+  if(source !== 'demo' && (video.readyState < 2 || video.paused || video.ended)) { draw(null, now); return; }
+  pctx.drawImage(src, 0, 0, PW, PH);
+  const b = detect();
+  if(b){ lastBall = b; lostFrames = 0; trail.push({x:b.x, y:b.y, t:now}); judge(b, now); }
+  else if(++lostFrames > 8){ lastBall = null; }
+  while(trail.length && now - trail[0].t > 1400) trail.shift();
+  if(shot.phase === 'up' && now - shot.t0 > 3200){ shot.close ? finish(false) : (shot = {phase:'idle'}); }
+  draw(b, now);
+}
+
+function draw(b, now){
+  const W = overlay.width, H = overlay.height, d = window.devicePixelRatio || 1;
+  octx.clearRect(0, 0, W, H);
+  const hz = drag ? {x0:Math.min(drag.a.x,drag.b.x), x1:Math.max(drag.a.x,drag.b.x), y0:Math.min(drag.a.y,drag.b.y), y1:Math.max(drag.a.y,drag.b.y)} : hoop;
+  if(hz){
+    octx.save(); octx.strokeStyle = '#7BA5E6'; octx.lineWidth = 2*d; octx.setLineDash([6*d, 5*d]);
+    octx.strokeRect(hz.x0*W, hz.y0*H, (hz.x1-hz.x0)*W, (hz.y1-hz.y0)*H);
+    octx.setLineDash([]); octx.fillStyle = '#7BA5E6'; octx.font = `600 ${12*d}px Barlow, sans-serif`;
+    octx.fillText('HOOP', hz.x0*W, hz.y0*H - 5*d); octx.restore();
+  }
+  if(trail.length > 1){
+    octx.save(); octx.lineCap = 'round'; octx.lineJoin = 'round';
+    for(let i = 1; i < trail.length; i++){
+      const a = trail[i-1], c = trail[i];
+      if(Math.hypot(c.x-a.x, c.y-a.y) > .25) continue;
+      octx.strokeStyle = `rgba(240,114,53,${(i/trail.length)*.9})`; octx.lineWidth = (2 + 4*i/trail.length)*d;
+      octx.beginPath(); octx.moveTo(a.x*W, a.y*H); octx.lineTo(c.x*W, c.y*H); octx.stroke();
+    }
+    octx.restore();
+  }
+  if(b){
+    const r = Math.max(10*d, b.r*W*1.4);
+    octx.save(); octx.strokeStyle = '#FFFFFF'; octx.lineWidth = 2*d;
+    octx.beginPath(); octx.arc(b.x*W, b.y*H, r, 0, Math.PI*2); octx.stroke(); octx.restore();
+  }
+  if(shot.phase === 'up'){
+    octx.save(); octx.fillStyle = 'rgba(14,20,28,.75)'; const tw = 110*d;
+    octx.fillRect(W - tw - 10*d, 10*d, tw, 26*d); octx.fillStyle = '#F07235'; octx.font = `700 ${13*d}px Barlow, sans-serif`;
+    octx.fillText('SHOT IN AIR', W - tw, 28*d); octx.restore();
+  }
+}
+
+/* ---------- demo shooter: renders a synthetic gym the tracker watches ---------- */
+const demo = (() => {
+  const c = demoCv.getContext('2d');
+  let s = 11; const rnd = () => (s = (s*16807) % 2147483647) / 2147483647;
+  let cur = null, wait = 0;
+  const RIM = {x:.725, y:.37, w:.07};
+  function plan(now){
+    const make = rnd() < .55;
+    const sx = .12 + rnd()*.25, sy = .72 + rnd()*.08;
+    const side = rnd() < .5 ? -1 : 1;
+    const tx = make ? RIM.x + (rnd()-.5)*.012 : RIM.x + side * (RIM.w*.5 + .004);
+    cur = {make, sx, sy, tx, ty: RIM.y - .01, t0: now, dur: 1100 + rnd()*300, apex: .04 + rnd()*.08, bounce: side};
+  }
+  function pos(now){
+    const t = (now - cur.t0) / cur.dur;
+    if(t <= 1){
+      const x = cur.sx + (cur.tx - cur.sx)*t;
+      const y0 = cur.sy, y1 = cur.ty, top = cur.apex;
+      const y = (1-t)*(1-t)*y0 + 2*(1-t)*t*top + t*t*y1;
+      return {x, y};
+    }
+    const k = (now - cur.t0 - cur.dur) / 1000;
+    if(cur.make) return {x: cur.tx + .004*Math.sin(k*20)*Math.exp(-k*6), y: cur.ty + k*.55 + k*k*.6};
+    return {x: cur.tx + cur.bounce*k*.35, y: cur.ty - k*.25 + k*k*1.4};
+  }
+  function scene(){
+    const W = demoCv.width, H = demoCv.height;
+    const g = c.createLinearGradient(0,0,0,H); g.addColorStop(0,'#2b3544'); g.addColorStop(.62,'#3a4658'); g.addColorStop(.62,'#a88a66'); g.addColorStop(1,'#7d6650');
+    c.fillStyle = g; c.fillRect(0,0,W,H);
+    c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 3; for(let i = 0; i < 6; i++){ c.beginPath(); c.moveTo(0, H*.62 + i*40); c.lineTo(W, H*.62 + i*40); c.stroke(); }
+    c.fillStyle = 'rgba(255,255,255,.92)'; c.fillRect(W*.67, H*.14, W*.12, H*.24);
+    c.strokeStyle = '#d23b2b'; c.lineWidth = 4; c.strokeRect(W*.705, H*.24, W*.045, H*.12);
+    c.fillStyle = '#555c66'; c.fillRect(W*.79, H*.2, W*.012, H*.5);
+    // net
+    c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 2;
+    for(let i = 0; i <= 6; i++){ const x = RIM.x - RIM.w/2 + i*RIM.w/6; c.beginPath(); c.moveTo(x*W, RIM.y*H); c.lineTo((RIM.x + (x-RIM.x)*.6)*W, (RIM.y+.1)*H); c.stroke(); }
+    // shooter silhouette
+    c.fillStyle = '#1b2029'; const sx = (cur ? cur.sx : .2)*W;
+    c.beginPath(); c.arc(sx, H*.64, 16, 0, Math.PI*2); c.fill(); c.fillRect(sx - 18, H*.66, 36, H*.2);
+  }
+  function drawRim(){ const W = demoCv.width, H = demoCv.height; c.strokeStyle = '#e0561c'; c.lineWidth = 6; c.beginPath(); c.ellipse(RIM.x*W, RIM.y*H, RIM.w/2*W, 7, 0, 0, Math.PI*2); c.stroke(); }
+  return {
+    reset(){ cur = null; wait = performance.now() + 700; },
+    step(now){
+      if(!cur && now > wait) plan(now);
+      scene(); drawRim();
+      if(cur){
+        const p = pos(now);
+        if(p.y > 1.1 || p.x < -.1 || p.x > 1.1){ cur = null; wait = now + 900 + rnd()*600; return; }
+        const W = demoCv.width, H = demoCv.height, r = 14;
+        c.fillStyle = '#ea6a1f'; c.beginPath(); c.arc(p.x*W, p.y*H, r, 0, Math.PI*2); c.fill();
+        c.strokeStyle = '#3b1a08'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(p.x*W - r, p.y*H); c.lineTo(p.x*W + r, p.y*H); c.moveTo(p.x*W, p.y*H - r); c.lineTo(p.x*W, p.y*H + r); c.stroke();
+        if(cur.make && p.y > RIM.y) drawRim();
+      }
+    }
+  };
+})();
+
+/* ---------- boot ---------- */
+let tab = 'track'; try{ tab = localStorage.getItem(KEY + '.tab') || 'track'; }catch(e){}
+renderAll(); showView(tab); sizeOverlay();
+document.addEventListener('visibilitychange', async () => { if(!document.hidden && running && !wakeLock){ try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){} } });
+})();
+</script>
+</body>
+</html>
