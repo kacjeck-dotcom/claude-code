@@ -5,10 +5,10 @@
 <title>Swish Lab</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1A2130">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Swish Lab">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,6 +212,22 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 .tiles{display:block}
 .mm .btn{border-radius:999px}
 .mm .undo{border-radius:999px}
+
+/* app polish */
+.page-head{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.page-head .muted{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.page-head h2{font-size:34px}
+.stage .empty{background:#fff;color:var(--ink);gap:10px}
+.stage .empty h2{color:var(--ink);font-size:26px}
+.stage .empty p{color:var(--muted);opacity:1;font-size:15px}
+.start-ico{width:64px;height:64px;border-radius:20px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px -10px #8B5CF6}
+.start-ico svg{width:34px;height:34px}
+.start-btn{width:min(320px,100%);padding:16px 20px !important;font-size:17px !important;border-radius:16px !important;margin-top:4px}
+.alt-row{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:15px}
+.alt{background:none;border:0;padding:6px 2px;color:var(--accent);font-weight:600;cursor:pointer;font-size:15px}
+#install-hint{color:var(--muted)}
+.stage:has(.empty:not([hidden])){box-shadow:var(--shadow)}
+@media (max-width:600px){ .track-grid > div:first-child{margin-inline:0 !important} .stage{border-radius:20px !important} .stage:has(.empty:not([hidden])){min-height:360px} .tool-row,.status{padding-inline:0 !important} }
 /* native-app feel */
 html,body{overscroll-behavior:none}
 body{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -292,6 +308,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 <main class="wrap">
   <!-- TRACK -->
   <section class="view" id="view-track">
+    <div class="page-head"><span class="muted" id="today"></span><h2>Train</h2></div>
     <div class="track-grid">
       <div>
         <div class="stage" id="stage">
@@ -301,12 +318,14 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
           <div class="hint" id="hint" hidden></div>
           <div class="flash" id="flash"></div>
           <div class="empty" id="empty">
-            <h2 style="color:#EDE6DA">Point. Shoot. Track.</h2>
-            <p>Set your phone on the baseline or behind the shooter with the hoop in frame. Swish Lab spots the ball and calls every make and miss.</p>
-            <div class="row">
-              <button class="btn primary" id="cam-btn" type="button">Start camera</button>
-              <label class="btn ghost" style="border-color:#3A4654;color:#EDE6DA">Upload a clip<input id="file" type="file" accept="video/*" class="sr"></label>
-              <button class="btn ghost" id="demo-btn" type="button" style="border-color:#3A4654;color:#EDE6DA">Watch the demo</button>
+            <div class="start-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+            <h2>Ready to shoot?</h2>
+            <p>Prop your phone on the wing, behind the 3-point line, with you and the hoop in view.</p>
+            <button class="btn primary start-btn" id="cam-btn" type="button">Start session</button>
+            <div class="alt-row">
+              <label class="alt">Analyze a video<input id="file" type="file" accept="video/*" class="sr"></label>
+              <span aria-hidden="true">·</span>
+              <button class="alt" id="demo-btn" type="button">See a demo</button>
             </div>
             <p class="blocked" id="blocked" hidden>The camera and AI are blocked in this preview. Open the full app on your phone: <a id="app-link" href="https://kacjeck-dotcom.github.io/claude-code/basketball-app/" target="_blank" rel="noopener">kacjeck-dotcom.github.io/claude-code/basketball-app</a></p>
             <p id="install-hint" hidden style="font-size:13px">Tip: install it like an app. iPhone: Share → <b>Add to Home Screen</b>. <button class="btn primary" id="install-btn" type="button" hidden style="padding:6px 12px;font-size:13px">Install app</button></p>
@@ -887,7 +906,7 @@ function renderGoal(){
 }
 $('#goal-plus').addEventListener('click', () => { db.settings.goal = (db.settings.goal || 1000) + 250; save(); renderGoal(); });
 $('#goal-minus').addEventListener('click', () => { db.settings.goal = Math.max(250, (db.settings.goal || 1000) - 250); save(); renderGoal(); });
-function renderAll(){ renderGoal(); renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
+function renderAll(){ $('#today').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'}); renderGoal(); renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
 
 $('#make-btn').addEventListener('click', () => record(true, false));
 $('#miss-btn').addEventListener('click', () => record(false, false));
@@ -949,7 +968,7 @@ async function begin(kind, keep){
     hoop = db.settings.hoop || null;
   }
   try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){}
-  if(kind !== 'demo') loadAI().then(aiLoop); else loadTF();
+  if(kind !== 'demo'){ $('#form-card').hidden = false; loadAI().then(aiLoop); } else loadTF();
   hoopAuto = false;
   if(kind !== 'demo'){
     if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; setHint('Line the rim up inside the blue box, or tap Set hoop to draw it'); }
@@ -1269,6 +1288,7 @@ function analyzeForm(t, side){
   speak(`Form ${score}. ${tip}`);
 }
 function renderForm(res){
+  $('#form-card').hidden = !(res || (db.current.forms || []).length || (running && source !== 'demo'));
   if(!res){ const f = db.current.forms || []; res = f[f.length-1]; if(!res) return; }
   $('#form-score').textContent = res.score;
   $('#form-score').style.color = res.score >= 80 ? 'var(--make)' : res.score >= 60 ? '#B7791F' : 'var(--miss)';
@@ -1277,6 +1297,7 @@ function renderForm(res){
 }
 
 function renderCoach(){
+  $('#coach').hidden = !db.current.shots.some(s => s.fb);
   const fbs = db.current.shots.filter(s => s.fb);
   const last = fbs[fbs.length-1];
   if(!last){ $('#coach-angle').textContent = '–'; return; }
