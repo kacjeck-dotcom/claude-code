@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Swish Lab">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&display=swap">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
 :root{
@@ -245,6 +246,39 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 .hc-top span{font-size:12px;opacity:.8}
 .hc-top .btn{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border-radius:999px;width:42px;height:42px;padding:0}
 .hc-msg{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);background:rgba(255,255,255,.95);color:#0E1116;border-radius:16px;padding:12px 14px;font-weight:600;text-align:center}
+/* HomeCourt-style: italic condensed display, dark programs, HUD */
+:root{--hcf:"Barlow Condensed","Arial Narrow",Impact,sans-serif}
+.page-head h2,#view-stats h2,#view-history h2,#view-highlights h2,#view-workouts h2,.hc-hero h2,.car-head h3,.pl h2,.stage .empty h2{font-family:var(--hcf) !important;font-style:italic;font-weight:800 !important;text-transform:uppercase !important;letter-spacing:.01em !important}
+.page-head h2{font-size:40px !important;line-height:.95}
+.hcv{background:#0A0B0F;color:#F4F6FA;margin-inline:-16px;padding:0 16px 24px;border-radius:0}
+.hc-hero{position:relative;margin-inline:-16px;min-height:300px;overflow:hidden;display:flex;align-items:flex-end}
+.hc-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
+.hc-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,0) 30%,#0A0B0F 95%)}
+.hc-hero-txt{position:relative;z-index:1;padding:16px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.hc-hero h2{font-size:48px !important;line-height:.9;margin:0}
+.hc-hero p{margin:0;color:#B8BFCC;max-width:36ch}
+.lvl{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9CA3AF}
+.hcv .chip{border-color:#2A2F3A;color:#E5E7EB}
+.hcv .chip[aria-pressed="true"]{background:#fff;color:#0A0B0F;border-color:#fff}
+.lvl-row{margin-top:4px}
+.car-head{display:flex;flex-direction:column;margin:18px 0 8px}
+.car-head h3{font-size:28px !important;margin:0}
+.car-head span{color:#9CA3AF;font-size:14px}
+.car{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-16px;padding:0 16px 6px;scrollbar-width:none}
+.card-dr{flex:none;width:220px;scroll-snap-align:start;background:none;border:0;color:inherit;text-align:left;padding:0;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.card-dr .thumb{position:relative;display:block;border-radius:14px;overflow:hidden;aspect-ratio:16/10}
+.card-dr .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.card-dr .thumb i{position:absolute;right:8px;bottom:8px;font-style:normal;font-size:12px;font-weight:700;background:rgba(0,0,0,.6);padding:2px 8px;border-radius:99px}
+.card-dr b{font-family:var(--hcf);font-style:italic;font-size:20px;font-weight:800;text-transform:uppercase;line-height:1}
+.card-dr:active{transform:scale(.97)}
+.hud{position:absolute;inset:0;z-index:4;pointer-events:none;font-family:var(--hcf);font-style:italic;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.hud > b{position:absolute;top:10px;font-size:clamp(22px,6vw,38px);font-weight:800;background:rgba(0,0,0,.35);padding:2px 12px;border-radius:10px}
+#hud-count{left:10px} #hud-time{right:10px}
+.hud-stats{position:absolute;left:12px;right:12px;top:32%;display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:center;opacity:0;transition:opacity .3s}
+.hud-stats.show{opacity:1}
+.hud-stats div{display:flex;flex-direction:column;align-items:center;transform:skewX(-6deg)}
+.hud-stats div b{font-size:clamp(24px,7vw,44px);font-weight:800;line-height:1}
+.hud-stats div span{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 /* app polish */
 .page-head{display:flex;flex-direction:column;gap:2px;margin-top:4px}
 .page-head .muted{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
@@ -349,6 +383,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
           <canvas id="overlay"></canvas>
           <div class="hint" id="hint" hidden></div>
           <div class="flash" id="flash"></div>
+          <div class="hud" id="hud" hidden><b id="hud-count">0/0</b><b id="hud-time">00:00</b><div class="hud-stats" id="hud-stats"></div></div>
           <div class="bubble" id="bubble" hidden><span class="bot" aria-hidden="true">🏀</span><span id="bubble-text"></span></div>
           <div class="empty" id="empty">
             <div class="start-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg></div>
@@ -455,19 +490,15 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
   </section>
 
   <!-- DRILLS -->
-  <section class="view" id="view-drills" hidden>
-    <div class="page-head"><h2>Drills</h2><span class="muted" style="text-transform:none;letter-spacing:0;font-size:15px">Guided workouts with a coach voice, timers and how-to videos.</span></div>
-    <div class="row" role="group" aria-label="Level">
-      <button class="chip" data-lvl="Beginner" type="button" aria-pressed="true">Beginner</button>
+  <section class="view hcv" id="view-drills" hidden>
+    <div class="hc-hero" id="hc-hero"></div>
+    <div class="row lvl-row" role="group" aria-label="Level">
+      <button class="chip" data-lvl="all" type="button" aria-pressed="true">All levels</button>
+      <button class="chip" data-lvl="Beginner" type="button" aria-pressed="false">Beginner</button>
       <button class="chip" data-lvl="Intermediate" type="button" aria-pressed="false">Intermediate</button>
       <button class="chip" data-lvl="Advanced" type="button" aria-pressed="false">Advanced</button>
     </div>
-    <div class="row" role="group" aria-label="Type">
-      <button class="chip" data-dt="all" type="button" aria-pressed="true">All</button>
-      <button class="chip" data-dt="Dribbling" type="button" aria-pressed="false">Dribbling</button>
-      <button class="chip" data-dt="Shooting" type="button" aria-pressed="false">Shooting</button>
-    </div>
-    <div class="dr-list" id="dr-list"></div>
+    <div id="dr-list"></div>
   </section>
   <div class="modal" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="pl-name">
     <div class="sheet pl">
@@ -738,20 +769,27 @@ const DRILLS = [
   {id:'step', anim:'shoot', lvl:'Advanced', type:'Shooting', name:'Step-Back Threes', desc:'Create space off the bounce and shoot the three.', steps:[S('Step-back from the right wing',60,'Push off hard. Land balanced.'),S('Step-back from the left wing',60,'Gather, step back, rise.'),S('Side-step from the top',60,'Stay square in the air.')], q:'step back three drill', track:true},
   {id:'sprint', anim:'shoot', lvl:'Advanced', type:'Shooting', name:'Sprint 3s', desc:'Shoot a three, sprint to half-court and back. Game conditioning.', steps:[S('Sprint 3s, round 1',60,'Shoot tired, shoot the same.'),REST(30),S('Sprint 3s, round 2',60,'Legs are your jump shot.'),REST(30),S('Sprint 3s, final round',60,'Last one. Empty the tank!')], q:'sprint threes shooting drill', track:true}
 ];
-let drLvl = 'Beginner', drType = 'all';
+let drLvl = 'all', drType = 'all';
+const thumbCache = {};
+function thumb(kind){ if(thumbCache[kind]) return thumbCache[kind]; const cv = document.createElement('canvas'); cv.width = 480; cv.height = 300; drawFig(cv, kind, .55, true); return thumbCache[kind] = cv.toDataURL('image/jpeg', .8); }
 const drMins = d => Math.round(d.steps.reduce((a, s) => a + s.secs, 0) / 60 * 10) / 10;
 function renderDrills(){
   $$('[data-lvl]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lvl === drLvl ? 'true' : 'false'));
-  $$('[data-dt]').forEach(b => b.setAttribute('aria-pressed', b.dataset.dt === drType ? 'true' : 'false'));
-  const done = db.settings.drillsDone || {};
-  $('#dr-list').innerHTML = DRILLS.filter(d => d.lvl === drLvl && (drType === 'all' || d.type === drType)).map(d => `
-    <article class="panel dr"><div class="cover ${d.type}"><b style="font-size:19px">${esc(d.name)}</b><span>${d.type}</span></div>
-      <div class="body"><p>${esc(d.desc)}</p><div class="muted" style="font-size:13px;font-weight:600">${drMins(d)} min · ${d.steps.filter(s => s.name !== 'Rest').length} sets${done[d.id] ? ` · done ${done[d.id]}×` : ''}</div>
-      <div class="row"><button class="btn primary" data-drill="${d.id}" type="button">Start</button>
-        <a class="btn ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.q)}" target="_blank" rel="noopener">Watch how ▶</a></div></div></article>`).join('');
+  const done = db.settings.drillsDone || {}, hs = db.settings.handles || {};
+  const feat = DRILLS.find(d => d.id === 'btl');
+  $('#hc-hero').innerHTML = `<img src="${thumb(feat.anim)}" alt=""><div class="hc-hero-txt"><span class="lvl">Featured program</span><h2>Handles Lab</h2>
+    <p>Pound, cross and attack. Train with the camera and chase the targets.</p><button class="btn primary" data-drill="${feat.id}" type="button">Start training</button></div>`;
+  const rows = [['Ball Handling', 'Dribbling', 'Tighten your handle. Camera targets on every drill.'], ['Shooting', 'Shooting', 'Form, footwork and game-speed shots.']];
+  $('#dr-list').innerHTML = rows.map(([title, type, sub]) => {
+    const list = DRILLS.filter(d => d.type === type && (drLvl === 'all' || d.lvl === drLvl));
+    if(!list.length) return '';
+    return `<div class="car-head"><h3>${title}</h3><span>${sub}</span></div><div class="car">${list.map(d => `
+      <button class="card-dr" data-drill="${d.id}" type="button"><span class="thumb"><img src="${thumb(d.anim)}" alt=""><i>${drMins(d)} min</i></span>
+        <b>${esc(d.name)}</b><span class="lvl">${d.lvl}${done[d.id] ? ` · done ${done[d.id]}×` : ''}${hs[d.id] ? ` · best ${hs[d.id]} hits` : ''}</span></button>`).join('')}</div>`;
+  }).join('');
 }
 $$('[data-lvl]').forEach(b => b.addEventListener('click', () => { drLvl = b.dataset.lvl; renderDrills(); }));
-$$('[data-dt]').forEach(b => b.addEventListener('click', () => { drType = b.dataset.dt; renderDrills(); }));
+
 const PL = {d:null, i:0, left:0, t:null};
 function plShow(){
   const d = PL.d, st = d.steps[PL.i], nx = d.steps[PL.i+1];
@@ -770,7 +808,7 @@ function plStep(i){
   speak(`${d.steps[i].name}. ${d.steps[i].cue}`);
 }
 function plStop(){ clearInterval(PL.t); PL.t = null; $('#pl-go').textContent = 'Start'; }
-$('#dr-list').addEventListener('click', e => {
+$('#view-drills').addEventListener('click', e => {
   const b = e.target.closest('[data-drill]'); if(!b) return;
   const d = DRILLS.find(x => x.id === b.dataset.drill); PL.d = d; PL.i = 0; PL.left = d.steps[0].secs; plStop();
   $('#pl-name').textContent = d.name; $('#pl-meta').textContent = `${d.lvl} · ${d.type} · ${drMins(d)} min`;
@@ -794,21 +832,27 @@ $('#pl-close').addEventListener('click', () => { plStop(); $('#player').hidden =
 let demoRaf = 0;
 function drawDrillDemo(){
   cancelAnimationFrame(demoRaf);
-  const cv = $('#pl-demo'), c = cv.getContext('2d'), W = cv.width, H = cv.height, kind = PL.d && PL.d.anim;
-  const t = performance.now() / 1000, floor = H * .9, cx = W / 2;
+  drawFig($('#pl-demo'), PL.d && PL.d.anim, performance.now() / 1000);
+  if(!$('#player').hidden) demoRaf = requestAnimationFrame(drawDrillDemo);
+}
+function drawFig(cv, kind, t, dark){
+  const c = cv.getContext('2d'), W = cv.width, H = cv.height, floor = H * .9, cx = W / 2;
   c.clearRect(0, 0, W, H);
+  if(dark){ const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#1B1F2A'); g.addColorStop(1, '#0A0B0F'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(255,255,255,.06)'; c.lineWidth = 2; for(let i = -H; i < W; i += 28){ c.beginPath(); c.moveTo(i, 0); c.lineTo(i + H, H); c.stroke(); } }
   c.fillStyle = '#D9C3A0'; c.fillRect(0, floor, W, H - floor);
   const shoot = kind === 'shoot', lay = kind === 'layup';
   let dx = kind === 'hesi' ? Math.sin(t * 1.3) * 90 * (Math.sin(t * 2.6) > 0 ? 1 : .3) : lay ? Math.sin(t * 1.5) * 60 : 0;
   const ph = (t % 1.6) / 1.6, dip = shoot ? (ph < .35 ? Math.sin(ph / .35 * Math.PI) * 18 : 0) : 14;
   const x = cx + dx, hip = floor - 92 + dip, sh = hip - 70, head = sh - 26;
-  c.strokeStyle = '#1F2937'; c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round';
+  const ink = dark ? '#F4F6FA' : '#1F2937';
+  c.strokeStyle = ink; c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round';
   const line = (...p) => { c.beginPath(); c.moveTo(p[0], p[1]); for(let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i+1]); c.stroke(); };
   line(x - 16, floor, x - 20, hip + 46, x - 10, hip); line(x + 16, floor, x + 22, hip + 46, x + 10, hip);
   line(x, hip, x, sh);
-  c.fillStyle = '#1F2937'; c.beginPath(); c.arc(x, head, 17, 0, 7); c.fill();
+  c.fillStyle = ink; c.beginPath(); c.arc(x, head, 17, 0, 7); c.fill();
   const ball = (bx, by, r = 15, col = '#FF7A1A') => { c.fillStyle = col; c.beginPath(); c.arc(bx, by, r, 0, 7); c.fill();
-    if(col === '#FF7A1A'){ c.strokeStyle = '#7C2D12'; c.lineWidth = 2; c.beginPath(); c.moveTo(bx - r, by); c.lineTo(bx + r, by); c.moveTo(bx, by - r); c.lineTo(bx, by + r); c.stroke(); c.strokeStyle = '#1F2937'; c.lineWidth = 9; } };
+    if(col === '#FF7A1A'){ c.strokeStyle = '#7C2D12'; c.lineWidth = 2; c.beginPath(); c.moveTo(bx - r, by); c.lineTo(bx + r, by); c.moveTo(bx, by - r); c.lineTo(bx, by + r); c.stroke(); c.strokeStyle = ink; c.lineWidth = 9; } };
   const bounce = (f, top, bot) => { const k = Math.abs(((t * f) % 2) - 1); return bot - (bot - top) * k; };
   const low = hip + 10;
   if(shoot){
@@ -821,7 +865,7 @@ function drawDrillDemo(){
   } else if(lay){
     const k = (t % 1.8) / 1.8, bx = x + 20, by = k < .5 ? bounce(3, low, floor - 15) : sh - 60 - (k - .5) * 60;
     line(x, sh + 6, x + 20, sh + 40, bx, by - 10); line(x, sh + 6, x - 22, sh + 42); ball(bx, by);
-    c.strokeStyle = '#EF4444'; c.lineWidth = 5; line(cx + 70, 40, cx + 120, 40); c.strokeStyle = '#1F2937'; c.lineWidth = 9;
+    c.strokeStyle = '#EF4444'; c.lineWidth = 5; line(cx + 70, 40, cx + 120, 40); c.strokeStyle = ink; c.lineWidth = 9;
   } else {
     const f = kind === 'pound' ? 5 : kind === 'twoball' ? 4 : 3;
     const side = kind === 'cross' || kind === 'btl' || kind === 'hesi' ? (Math.floor(t * f / 2) % 2 ? -1 : 1) : 1;
@@ -834,7 +878,6 @@ function drawDrillDemo(){
     if(kind === 'twoball') ball(x - 40, bounce(f, low, floor - 15) === by ? by : floor - 15 - (by - low), 15);
     if(kind === 'tennis') ball(x - 34, sh - 40 - Math.abs(Math.sin(t * 2)) * 60, 8, '#D9F99D');
   }
-  if(!$('#player').hidden) demoRaf = requestAnimationFrame(drawDrillDemo);
 }
 
 /* ---------- Handles: front camera, pound the ball into the circles (pose + ball AI) ---------- */
@@ -918,6 +961,19 @@ function hcClose(){ HC.on = false; HC.end = 0; if(HC.stream){ HC.stream.getTrack
 $('#hc-close').addEventListener('click', hcClose);
 $('#pl-cam').addEventListener('click', () => hcStart(PL.d));
 
+/* ---------- HomeCourt-style HUD ---------- */
+let hudT, hudStart = 0;
+function hudTick(){
+  const on = running && source; $('#hud').hidden = !on; if(!on) return;
+  const sm = summarize(db.current.shots); $('#hud-count').textContent = `${sm.made}/${sm.att}`;
+  $('#hud-time').textContent = fmtTime(Date.now() - hudStart).padStart(5, '0');
+}
+setInterval(hudTick, 500);
+function hudStats(items){
+  const el = $('#hud-stats'); el.innerHTML = items.filter(x => x[0] != null).map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  el.classList.add('show'); clearTimeout(hudT); hudT = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
 /* ---------- recording shots ---------- */
 function record(made, auto, fb){
   const cur = db.current, sp = db.settings.spot;
@@ -929,6 +985,7 @@ function record(made, auto, fb){
   beep(made); flash(made);
   speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
   const q = hypeShot(made); if(q && running) setTimeout(() => hype(q), 400);
+  if(fb && running) setTimeout(() => hudStats([[fb.angle + '°', 'Release angle'], [fb.arc ? fb.arc + 'x' : null, 'Arc height']]), 900);
   advanceWorkout(made);
   if(!cur.demo) save();
   renderScore(); renderShots(); renderCoach(); renderGoal();
@@ -1293,7 +1350,7 @@ async function begin(kind, keep){
   const ms = kind === 'camera' ? stream : kind === 'demo' ? (demoCv.captureStream && demoCv.captureStream(30)) : (video.captureStream ? video.captureStream() : video.mozCaptureStream && video.mozCaptureStream());
   clipsStart(ms);
   renderScore();
-  loop();
+  hudStart = Date.now(); loop();
 }
 function stopSource(quiet){
   running = false; clipsStop();
@@ -1601,6 +1658,8 @@ function analyzeForm(t, side){
   renderForm(res);
   const lastFb = [...db.current.shots].reverse().find(x => x.fb), comp = nbaComp(res, lastFb && lastFb.fb.angle);
   res.comp = comp;
+  const rv = n => { const r = res.rows.find(x => x.name === n); return r && r.v != null ? Math.round(r.v) : null; };
+  hudStats([[tempo ? (tempo/1000).toFixed(2) + 's' : null, 'Release time'], [rv('Knee bend') != null ? rv('Knee bend') + '°' : null, 'Leg angle'], [rv('Arm extension') != null ? rv('Arm extension') + '°' : null, 'Elbow angle'], [score, 'Form score']]);
   speak(`Form ${score}. ${tip}`);
   setTimeout(() => hype(`That jumper looked like ${comp.name}: ${comp.why}`), 1800);
   renderForm(res);
