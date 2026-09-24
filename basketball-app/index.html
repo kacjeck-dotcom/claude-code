@@ -498,7 +498,7 @@ nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,13
 .ct-txt{flex:1;min-width:0;display:flex;flex-direction:column}.ct-txt b{font:italic 800 22px/1 var(--hcf);text-transform:uppercase}.ct-txt span{font-size:14px;color:#C9CFDA;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px}
 .ct-go{font-size:30px;color:#C4B5FD}
 nav.tabs button{min-width:0;overflow:hidden}
-@media (max-width:380px){nav.tabs .wrap{padding-inline:2px}nav.tabs button{font-size:clamp(8px,2.6vw,10.5px) !important;letter-spacing:-.01em !important;text-transform:none !important;padding-inline:0 !important}}
+@media (max-width:480px){nav.tabs .wrap{padding-inline:2px}nav.tabs button{font-size:clamp(8px,2.6vw,11px) !important;letter-spacing:-.01em !important;text-transform:none !important;padding-inline:0 !important}}
 /* workout intro page */
 .wi{position:fixed;inset:0;z-index:66;background:#0A0B0F;color:#fff;overflow:auto}
 .wi-wrap{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
@@ -530,6 +530,10 @@ body.imm{overflow:hidden}
 body.imm::before{content:"";position:fixed;inset:0;background:#000;z-index:64}
 body.imm #stage{position:fixed;inset:0;margin:auto !important;z-index:65;width:min(100vw,calc(100vh * var(--ar,.5625)));height:min(100vh,calc(100vw / var(--ar,.5625)));width:min(100vw,calc(100dvh * var(--ar,.5625)));height:min(100dvh,calc(100vw / var(--ar,.5625)));max-width:none;border-radius:0 !important;box-shadow:none}
 body.imm .hud,body.imm .flash{position:fixed;inset:0}
+body.imm #stage{width:100vw !important;height:100vh !important;height:100dvh !important;aspect-ratio:auto !important}
+body.imm #stage video,body.imm #stage canvas#overlay,body.imm #stage canvas#demo{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100vh * var(--ar,.5625)));height:max(100vh,calc(100vw / var(--ar,.5625)));width:max(100vw,calc(100dvh * var(--ar,.5625)));height:max(100dvh,calc(100vw / var(--ar,.5625)))}
+body.imm.tools-open #tools{flex-wrap:wrap;background:rgba(10,11,15,.94);padding:12px;border-radius:0 0 18px 18px;gap:8px;overflow:visible;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.imm-title b{font-size:clamp(17px,5.4vw,24px) !important}
 body.imm .stage .hint{position:fixed;left:12px;right:12px;max-width:none;text-align:center}
 body.imm .bubble{position:fixed;left:12px;right:12px}
 body.imm .board,body.imm nav.tabs,body.imm #status{display:none !important}
@@ -1306,11 +1310,12 @@ async function hcDetect(){
       try{
         const poses = await ai.pose.estimatePoses(v);
         if(poses[0]) poses[0].keypoints.forEach(k => { if(/wrist/.test(k.name) && k.score > .3) pts.push({x: 1 - k.x/vw, y: k.y/vh, w:1}); });
-        if(ai.coco){ (await ai.coco.detect(v, 4, .2)).filter(o => o.class === 'sports ball').forEach(o => pts.push({x: 1 - (o.bbox[0] + o.bbox[2]/2)/vw, y: (o.bbox[1] + o.bbox[3]/2)/vh, b:1})); }
+        await idle(30);
+        if(ai.coco && (HC.cocoN = (HC.cocoN || 0) + 1) % 3 === 0){ (await ai.coco.detect(v, 4, .2)).filter(o => o.class === 'sports ball').forEach(o => pts.push({x: 1 - (o.bbox[0] + o.bbox[2]/2)/vw, y: (o.bbox[1] + o.bbox[3]/2)/vh, b:1})); }
       }catch(e){}
       HC.pts = pts;
     }
-    await new Promise(r => requestAnimationFrame(r));
+    await idle(60);
   }
 }
 function hcLoop(){
@@ -1367,7 +1372,7 @@ function hcFinish(){
   speak(`${HC.score} points. ${line}`);
 }
 function hcClose(){ HC.on = false; HC.end = 0; if(HC.stream){ HC.stream.getTracks().forEach(t => t.stop()); HC.stream = null; } $('#hc').hidden = true; }
-$('#hc-close').addEventListener('click', hcClose);
+fastTap($('#hc-close'), hcClose);
 $('#pl-cam').addEventListener('click', () => hcStart(PL.d));
 
 /* ---------- HomeCourt-style HUD ---------- */
@@ -1627,13 +1632,23 @@ function workoutTick(){
   if(left < 10000 && wp.warned !== wp.step){ wp.warned = wp.step; speak('10 seconds!'); }
   if(left <= 0){ finishStation(true); }
 }
-document.addEventListener('click', e => {
+// Fire on finger-up instead of waiting for the full click, so busy camera screens still react instantly.
+// The browser's own click still follows the finger-up, and lands on whatever is now under the finger
+// (the profile button sits where the close button was), so that one follow-up click is swallowed.
+let ghostUntil = 0;
+document.addEventListener('click', e => { if(Date.now() < ghostUntil){ ghostUntil = 0; e.stopPropagation(); e.preventDefault(); } }, true);
+function fastTap(el, fn){
+  el.addEventListener('pointerup', e => { if(e.pointerType === 'mouse') return; ghostUntil = Date.now() + 700; fn(e); });
+  el.addEventListener('click', e => { fn(e); });
+}
+function immAction(e){
   const b = e.target.closest('[data-imm]'); if(!b) return;
   const a = b.dataset.imm;
   if(a === 'go') spotGo(); else if(a === 'make') record(true, false); else if(a === 'miss') record(false, false); else if(a === 'undo') undo();
-});
-$('#imm-tools').addEventListener('click', e => { const on = document.body.classList.toggle('tools-open'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
-$('#imm-close').addEventListener('click', () => {
+}
+fastTap($('#imm-bottom'), immAction); fastTap($('#imm-next'), immAction);
+fastTap($('#imm-tools'), e => { const on = document.body.classList.toggle('tools-open'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
+fastTap($('#imm-close'), () => {
   if(db.current.workout && db.current.shots.length && !confirm('End this workout? The shots you took are saved.')) return;
   const demo = source === 'demo'; immOff(); stopSource(false); if(!demo) endSession(false);
 });
@@ -1677,7 +1692,7 @@ $('#ft-chip').addEventListener('click', () => {
 });
 function renderWorkoutLive(){
   const wp = db.current.workout, box = $('#wo-live');
-  if(!wp){ box.hidden = true; return; }
+  if(!wp){ box.hidden = true; $('#hud-goal').hidden = true; return; }
   const w = woById(wp.id), st = w.steps[wp.step];
   box.hidden = false;
   $('#wo-live-name').textContent = w.name;
@@ -1915,7 +1930,7 @@ function updateSwatch(){ $('#swatch').style.background = `hsl(${ball.h} ${Math.r
 updateSwatch();
 
 function sizeOverlay(){
-  const r = $('#stage').getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  const r = overlay.getBoundingClientRect(), d = window.devicePixelRatio || 1;
   overlay.width = Math.round(r.width*d); overlay.height = Math.round(r.height*d);
   $('#stage').classList.toggle('short', !IMM.on && r.height > 0 && r.height < 340); // full-screen mode always has room
 }
@@ -2198,16 +2213,20 @@ async function loadAI(){
     aiStatus('AI on: form analysis and ball detection. Keep your whole body and the rim in frame.');
   }catch(e){}
 }
+// A pause that lets the phone handle taps and draw frames before the next heavy AI step.
+const idle = ms => new Promise(r => setTimeout(r, ms));
 async function aiLoop(){
   if(aiBusy || ai.state !== 'ready') return;
   aiBusy = true;
+  let lastCoco = 0;
   try{
     while(running && source !== 'demo'){
       if(video.readyState >= 2 && !video.paused && !video.ended){
         const now = performance.now();
         const poses = await ai.pose.estimatePoses(video);
         if(poses[0]) handlePose(poses[0], now);
-        if(ai.coco){
+        await idle(40);                                   // let taps and drawing run between models
+        if(ai.coco && now - lastCoco > 320){ lastCoco = now;
           const dets = await ai.coco.detect(video, 6, .2);
           const balls = dets.filter(d => d.class === 'sports ball');
           if(balls.length){
@@ -2218,7 +2237,7 @@ async function aiLoop(){
           }
         }
       }
-      await new Promise(r => requestAnimationFrame(r));
+      await idle(80);
     }
   }catch(e){ aiStatus('AI stopped: ' + e.message); }
   aiBusy = false;
