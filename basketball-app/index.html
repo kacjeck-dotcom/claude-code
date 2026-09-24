@@ -163,6 +163,31 @@ td.num,th.num{text-align:right}
 .toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 [hidden]{display:none!important}
+
+.board .wrap{flex-wrap:nowrap;gap:12px}
+.brand{font-size:20px;white-space:nowrap}
+.brand svg{width:22px;height:22px}
+.tally{gap:14px}
+.board .end{padding:6px 12px;font-size:13px;flex:none}
+.eyebrow{display:none}
+.spot-label .eyebrow,.sheet .eyebrow{display:inline;text-transform:none;letter-spacing:0;font-size:14px}
+#view-track .panel .eyebrow{display:inline;text-transform:none;letter-spacing:0;font-size:15px;color:var(--ink);font-weight:700}
+h2{text-transform:none;font-size:30px;letter-spacing:0}
+h3{text-transform:none;letter-spacing:0;font-size:20px}
+.banner{font-size:13px;padding:8px 12px;background:transparent;border:1px dashed var(--line)}
+.banner .btn{padding:5px 10px;font-size:13px}
+/* stats hero */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.ring{width:132px;height:132px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 38px/1 var(--display);color:var(--ink)}
+.ring b small{font:600 12px var(--body);color:var(--muted);margin-top:4px}
+.minis{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.minis div b{display:block;font:800 26px/1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.minis div span{font-size:13px;color:var(--muted)}
+.tiles{display:block}
+.mm .btn{border-radius:999px}
+.mm .undo{border-radius:999px}
 /* native-app feel */
 html,body{overscroll-behavior:none}
 body{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -180,7 +205,7 @@ nav.tabs button{position:relative;font-size:10.5px;padding:8px 2px 10px}
 nav.tabs button svg{width:24px;height:24px;transition:transform .2s}
 nav.tabs button[aria-selected="true"] svg{transform:translateY(-1px) scale(1.08)}
 nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
-.view:not([hidden]){animation:viewIn .22s ease-out}
+
 @keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .mm .btn{border-radius:18px;padding:20px 10px}
 #cam-btn{padding:14px 26px;font-size:17px;border-radius:999px}
@@ -191,6 +216,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
   .board .end{padding:5px 10px;font-size:13px}
   .track-grid > div:first-child{margin-inline:-16px}
   .stage{border-radius:0}
+  .stage:has(.empty:not([hidden])){aspect-ratio:auto !important;min-height:430px}
   .tool-row,.status{padding-inline:16px}
   .tool-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
   .tool-row .btn{white-space:nowrap;flex:none}
@@ -237,7 +263,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
       <div><b id="t-streak">0</b><span>Streak</span></div>
       <div><b id="t-time">0:00</b><span>Time</span></div>
     </div>
-    <button class="end" id="end-btn" type="button">End session</button>
+    <button class="end" id="end-btn" type="button" aria-label="End session">End</button>
   </div>
 </header>
 
@@ -717,15 +743,14 @@ function renderStats(){
   const sm = summarize(shots);
   $('#ex-banner-stats').innerHTML = exampleBanner();
   const tile = (label, val, sub) => `<div class="tile"><span>${label}</span><b>${val}</b><small>${sub}</small></div>`;
-  $('#tiles').innerHTML = [
-    tile('FG%', fmtPct(pct(sm.made, sm.att)), `${sm.made}/${sm.att} all shots`),
-    tile('3PT%', fmtPct(pct(...sm.three)), `${sm.three[0]}/${sm.three[1]}`),
-    tile('FT%', fmtPct(pct(...sm.ft)), `${sm.ft[0]}/${sm.ft[1]}`),
-    tile('eFG%', fmtPct(sm.efg), 'weights threes 1.5×'),
-    tile('Best streak', sm.best, 'makes in a row'),
-    tile('Sessions', sess.length, `${sm.pts} points scored`),
-    (() => { const f = sess.flatMap(x => x.forms || []); return tile('Form score', f.length ? Math.round(f.reduce((a,x)=>a+x.score,0)/f.length) : '–', `${f.length} shots analyzed`); })()
-  ].join('');
+  const fgp = pct(sm.made, sm.att), forms = sess.flatMap(x => x.forms || []), C = 2*Math.PI*52;
+  const mini = (v, l) => `<div><b>${v}</b><span>${l}</span></div>`;
+  $('#tiles').innerHTML = `<div class="panel hero">
+    <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="12"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-(fgp||0)/100)}"/></svg>
+      <b>${fmtPct(fgp)}<small>${sm.made}/${sm.att} FG</small></b></div>
+    <div class="minis">${mini(fmtPct(pct(...sm.three)), '3-pointers')}${mini(fmtPct(pct(...sm.ft)), 'Free throws')}
+      ${mini(forms.length ? Math.round(forms.reduce((a,x)=>a+x.score,0)/forms.length) : '–', 'Form score')}${mini(sm.best, 'Best streak')}</div></div>`;
 
   const byZone = {};
   for(const s of shots){ const z = byZone[s.zone] || (byZone[s.zone] = [0,0]); z[1]++; if(s.made) z[0]++; }
