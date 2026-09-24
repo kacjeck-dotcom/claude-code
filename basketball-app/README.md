@@ -31,7 +31,8 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
   Your spot moves on its own as you finish each station.
 - **Stats.** FG%, 3PT%, FT%, eFG%, best streak, a hot-zone map and your FG% trend across sessions.
 - **History.** Every session is saved in your browser, with a per-session shot chart and a summary you can copy.
-- **Voice calls and sounds.** Optionally hear "Make, 7 for 10" after every shot, so you never have to look at the phone.
+- **Full-screen camera.** Every session (free shooting, workouts, drills, video analysis and the demo) runs full screen. At the top: ✕ to end, the session name and a tools button for Set hoop, Tap the ball, voice and Stop. At the bottom: Make, Undo and Miss. Ending a session shows its report.
+- **Voice calls and sounds.** Hear "Make, 7 for 10" after every shot, so you never have to look at the phone. Minor lines are skipped when the voice falls behind. Turn voice calls and funny voices on or off on your profile page.
 - **Manual buttons.** Big Make/Miss/Undo buttons for when you'd rather log by hand.
 
 ## Run it

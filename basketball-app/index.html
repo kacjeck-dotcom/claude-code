@@ -496,6 +496,8 @@ nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,13
 .wi-res div:not(.hit) .n{background:rgba(255,255,255,.12);color:#fff}.wi-res .hit .n{background:linear-gradient(180deg,#34D399,#16A34A);color:#fff}
 .wi-res em{font-style:normal;font-weight:700}.wi-res span:last-child{text-align:right;color:#9AA3B2}
 #report .sheet > .row:first-child{flex-wrap:nowrap;align-items:flex-start}#report-title{font-size:clamp(26px,7vw,34px) !important}
+.pl > .row:first-child{flex-wrap:nowrap;align-items:flex-start}
+@media (min-width:781px){#home-picks .car{margin-inline:0;padding-inline:0}.imm-bottom{grid-template-columns:minmax(0,220px) 58px minmax(0,220px);justify-content:center}}
 /* full-screen camera workout */
 body.imm{overflow:hidden}
 body.imm::before{content:"";position:fixed;inset:0;background:#000;z-index:64}
@@ -699,7 +701,7 @@ body.imm .stage .hint{top:calc(env(safe-area-inset-top,0px) + 124px)}
   <!-- WORKOUTS -->
   <section class="view" id="view-workouts" hidden>
     <div><div class="eyebrow">Guided drills</div><h2>Workouts</h2></div>
-    <p class="muted" style="margin:0;max-width:62ch">Pick a drill and head to Track. Your spot moves for you as you finish each station, and every shot lands on your chart.</p>
+    <p class="muted" style="margin:0;max-width:62ch">Tap a workout to see its spots and targets. The camera counts your shots and the coach calls out every spot.</p>
     <div class="wo-list" id="wo-list"></div>
   </section>
 
@@ -1539,8 +1541,11 @@ function immOff(){
   requestAnimationFrame(sizeOverlay);
 }
 function renderImm(){
-  const wp = db.current.workout, w = wp && woById(wp.id); if(!w) return;
-  $('#imm-name').textContent = w.name; $('#imm-step').textContent = `Spot ${wp.step + 1} of ${w.steps.length}`;
+  const wp = db.current.workout, w = wp && woById(wp.id), sp = db.settings.spot;
+  if(w){ $('#imm-name').textContent = w.name; $('#imm-step').textContent = `Spot ${wp.step + 1} of ${w.steps.length}`; return; }
+  $('#imm-name').textContent = source === 'demo' ? 'Demo' : source === 'file' ? 'Video analysis' : 'Free shooting';
+  $('#imm-step').textContent = source === 'demo' ? 'Simulated shooter' : 'Shooting from ' + zoneOf(sp.x, sp.y, sp.ft);
+  $('#imm-close').setAttribute('aria-label', 'End session');
 }
 // "Next spot" card: where to go, the target, a count-in, and the station clock waits until it's done.
 function showNextSpot(first){
@@ -1579,8 +1584,8 @@ document.addEventListener('click', e => {
 });
 $('#imm-tools').addEventListener('click', e => { const on = document.body.classList.toggle('tools-open'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
 $('#imm-close').addEventListener('click', () => {
-  if(db.current.shots.length && !confirm('End this workout? The shots you took are saved.')) return;
-  immOff(); stopSource(false); endSession(false);
+  if(db.current.workout && db.current.shots.length && !confirm('End this workout? The shots you took are saved.')) return;
+  const demo = source === 'demo'; immOff(); stopSource(false); if(!demo) endSession(false);
 });
 
 /* ---------- rendering: scoreboard + track ---------- */
@@ -1878,6 +1883,7 @@ async function begin(kind, keep){
   if(!keep) stopSource(true);
   source = kind; running = true; paused = false;
   $('#empty').hidden = true; $('#tools').hidden = false;
+  if(!IMM.on) immOn();
   $('#pause-btn').hidden = kind !== 'file';
   trail = []; shot = {phase:'idle'}; lastBall = null;
   if(kind === 'demo'){
@@ -1896,7 +1902,7 @@ async function begin(kind, keep){
   if(kind !== 'demo'){ $('#form-card').hidden = false; loadAI().then(aiLoop); } else loadTF();
   hoopAuto = false;
   if(kind !== 'demo'){
-    if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; setHint('Line the rim up inside the blue box, or tap Set hoop to draw it'); }
+    if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; setHint('Line the rim up inside the blue box. To draw it yourself: tools (top right) → Set hoop'); }
     else setHint('');
     setTimeout(hoopPredict, 1800);
     if(!(IMM.on && db.current.workout)) countdown();
@@ -1916,6 +1922,7 @@ function stopSource(quiet){
   try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
   if(!quiet){
     try{ speechSynthesis.cancel(); }catch(e){}
+    if(IMM.on) immOff();
     const wasDemo = source === 'demo' && db.current.demo;
     source = null;
     if(wasDemo){ db.current = newSession(); renderAll(); toast("Demo over — demo shots aren't saved"); } $('#empty').hidden = false; $('#tools').hidden = true; demoCv.hidden = true; setHint(''); setStatus('');
@@ -3064,6 +3071,7 @@ function renderProfile(){
       ${kv('Position', labelOf(POSITIONS, p.position))}${kv('Shoots', p.hand === 'left' ? 'Left-handed' : 'Right-handed')}${kv('Playstyle', labelOf(STYLES, p.style))}${kv('Plays', `${p.days}× a week, ${p.mins} min`)}</div>
     <div class="sub-h">Goals</div><div class="row">${(p.goals || []).map(g => `<span class="chip" aria-pressed="true">${esc(labelOf(GOALS, g))}</span>`).join('')}</div>
     <div class="sub-h">Your plan</div><p class="muted" style="margin:0">${plan.goal.toLocaleString()} shots a week · ${plan.lvl} drills · Workout: ${esc(wo.name)}</p>
+    <div class="sub-h">Settings</div><div class="row"><button class="chip" data-pf="voice" type="button" aria-pressed="${!!db.settings.voice}">Voice calls</button><button class="chip" data-pf="funny" type="button" aria-pressed="${funnyOn()}">Funny voices</button></div>
     <div class="sub-h">Backup</div><p class="muted" style="margin:0 0 10px;font-size:14px">Save a backup file to keep your stats safe or move this player to another phone. Clips aren't included. Last backup: ${db.settings.backedUp ? agoTxt(db.settings.backedUp) : 'never'}.</p>
     <div class="row"><button class="btn" data-pf="backup" type="button">Back up</button><button class="btn" data-pf="restore" type="button">Restore a backup</button></div>
     <div class="row" style="margin-top:16px"><button class="btn primary" data-pf="edit" type="button">Edit profile</button><button class="btn" data-pf="switch" type="button">Switch player</button><button class="btn" data-pf="logout" type="button">Log out</button></div>
@@ -3076,6 +3084,8 @@ $('#profile').addEventListener('click', e => {
   const act = b.dataset.pf, p = profile();
   if(act === 'close') $('#profile').hidden = true;
   else if(act === 'backup') doBackup();
+  else if(act === 'voice'){ db.settings.voice = !db.settings.voice; save(); syncVoice(); renderProfile(); }
+  else if(act === 'funny'){ db.settings.funny = !funnyOn(); save(); syncFunny(); renderProfile(); }
   else if(act === 'restore') $('#restore-file').click();
   else if(act === 'edit'){ $('#profile').hidden = true; obStart('edit'); }
   else if(act === 'switch'){ $('#profile').hidden = true; authOpen('login'); }
@@ -3120,6 +3130,13 @@ async function doRestore(file){
 $('#restore-file').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if(f) doRestore(f); });
 const agoTxt = t => { const d = Math.floor((Date.now() - t) / 864e5); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; };
 
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(!$('#wo-intro').hidden) closeIntro();
+  else if(!$('#profile').hidden) $('#profile').hidden = true;
+  else if(!$('#report').hidden) $('#report').hidden = true;
+  else if(!$('#player').hidden) $('#pl-close').click();
+});
 /* ---------- boot ---------- */
 let tab = 'track'; try{ tab = localStorage.getItem(KEY + '.tab') || 'track'; }catch(e){}
 $('#empty').style.setProperty('--ph', `url(${PHOTOS.shot3})`);
