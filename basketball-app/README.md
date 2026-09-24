@@ -16,7 +16,15 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
 - **No setup to start.** The hoop box appears on its own (line the rim up inside it), followed by a 3-2-1 countdown.
 
 - **Funny voices.** Misses get a line from a character voice: grandma, robot, chipmunk, angry coach or movie-trailer guy. If the AI calls a shot wrong and you press Undo, it apologises in one of those voices. Turn it off with the "Funny voices" button in the camera tools. The demo doesn't talk.
-- **AI Coach.** The AI Coach section at the bottom of Track pulls it all together. It shows your form score, average arc and most common miss from the current or last session, plus the latest form check and shot feedback. It tells you what to work on next, with a button that starts the matching drill or workout. It also lists what the coach remembers: your last session, average, best session, longest streak, hot spot, weakest spot and main form fix. When a session starts, the coach greets you with one of those. It calls out new records as they happen, and the session report compares the session with your average. All of this is worked out from your own history on the phone. It is not a chatbot.
+- **AI Coach tab.** The Coach tab in the middle of the bottom bar is your coach's own page:
+  - **Today's advice** from your history, with a button that starts the right drill or workout.
+  - **Ask your coach:** a chat with quick questions ("How's my shooting?", "What should I work on?", "Where am I best?", "How's my form?", "Am I getting better?", "My records", "Plan my week", "Hype me up"). You can also type a question. Answers come from your own sessions and are read out loud when voice calls are on.
+  - **Your numbers:** form score, arc and top miss, plus the latest form check and shot feedback.
+  - **This week's plan:** built from how many days you play, with Start buttons and a tick for each day you've trained.
+  - **Coach remembers:** your records and weak spots.
+  - **Coach voice** switches.
+
+  A card on Track shows the coach's current advice and opens the tab. When a session starts, the coach greets you, calls out new records as they happen, and the session report compares the session with your average. All of this is worked out on the phone from your own data. It is not a chatbot, and it only answers questions about your game.
 - **Your spot.** The camera can see makes and misses, but not where you're standing. Workouts set your spot for you. In free shooting, open tools → Spot (or tap the spot name at the top) to say where you're shooting from, so your shot chart and zones stay right.
 - **AI form check.** A pose-detection model (MoveNet) watches your body. After every shot you get a
   0–100 form score covering knee bend, arm extension, release height, follow-through and balance/drift,
