@@ -5,10 +5,10 @@
 <title>Swish Lab</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#0A0B0F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Swish Lab">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -381,6 +381,93 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 .hbar .track{background:var(--surface-2);border-radius:99px;overflow:hidden}
 .sub-h{font:700 15px/1.2 var(--display);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 6px;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* ===== dark theme across the whole app, matching Drills and the start screens ===== */
+:root{--bg:#0A0B0F;--surface:#14161D;--surface-2:#1E212B;--ink:#F4F6FA;--muted:#9AA3B2;--line:#272B36;--accent:#A78BFA;--court:#22D3EE;--make:#22C55E;--miss:#F43F5E;--stage:#000;
+  --shadow:0 14px 30px -20px rgba(0,0,0,.95);color-scheme:dark}
+html{background:#0A0B0F !important}
+body{background:radial-gradient(130% 55% at 50% -12%,#1C1438 0%,#0A0B0F 60%) fixed #0A0B0F !important}
+.board{background:rgba(10,11,15,.82) !important;color:#fff !important;border-bottom:1px solid rgba(255,255,255,.06)}
+.board .end{background:rgba(255,255,255,.1);color:#fff !important}
+.tally b{font:italic 800 26px/1 var(--hcf) !important;letter-spacing:.01em !important}
+.tally span{color:#8A93A3}
+nav.tabs{background:rgba(10,11,15,.9) !important;border-top:1px solid rgba(255,255,255,.06) !important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+nav.tabs button{color:#6B7280}
+nav.tabs button[aria-selected="true"]{color:#fff}
+nav.tabs button[aria-selected="true"] svg{color:#C4B5FD}
+nav.tabs button[aria-selected="true"]::before{background:var(--grad);left:24%;right:24%}
+.panel,.tile{background:linear-gradient(180deg,#171A23,#111319);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow)}
+h2,h3,.tile b,.sheet .big,.ring b,.minis div b,.spot-label b,.sess-pct,.goal .num,.kv b,.pl-time,.mm .btn{font-family:var(--hcf) !important;font-style:italic;letter-spacing:.01em !important}
+h2,h3{text-transform:uppercase !important;font-weight:800 !important}
+h3{font-size:22px}
+.page-head h2{font-size:44px !important}
+.btn{background:rgba(255,255,255,.08);color:#fff}
+.btn:hover{filter:brightness(1.2)}
+.btn.ghost{background:transparent;border-color:rgba(255,255,255,.18)}
+.chip{border-color:#2A2F3A;color:#E5E7EB}
+.chip[aria-pressed="true"]{background:#fff !important;color:#0A0B0F !important;border-color:#fff !important}
+.court .floor{fill:#161922}.court .ln{stroke:rgba(255,255,255,.24)}.court .rim{stroke:#FF8A3D}
+.stage .empty{background:linear-gradient(180deg,rgba(10,11,15,.15) 0%,rgba(10,11,15,.7) 50%,#0A0B0F 92%),var(--ph,none) center 25%/cover,#0A0B0F !important;color:#fff;justify-content:flex-end;padding-bottom:26px}
+.stage .empty .start-ico{display:none}
+.stage .empty h2{color:#fff;font-size:48px !important;line-height:.9}
+.stage .empty p{color:#C9CFDA}
+.stage:has(.empty:not([hidden])){box-shadow:none}
+.alt{color:#C4B5FD}#install-hint{color:#9AA3B2}
+.goal .num{font-size:56px !important}
+.goal .bar,.pl .bar{background:rgba(255,255,255,.08)}
+.wo-live{background:var(--grad) !important;color:#fff;border:0}
+.modal{background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet{background:#14161D;border:1px solid rgba(255,255,255,.08)}
+.kv div,.pf-grid div,.comp{background:rgba(255,255,255,.06)}
+.pl-demo{background:linear-gradient(180deg,#1A1D26,#101218)}
+.hcv{background:transparent}
+.toast{background:#fff;color:#0A0B0F}
+.sess-pct{font-size:40px}
+.hl video,.clips3 video{background:#000}
+.tag{background:rgba(255,255,255,.08)}
+.wo{padding:0;overflow:hidden;gap:10px}.wo > :not(.wo-cover){margin-inline:16px}.wo > .btn{margin-bottom:16px}
+.wo-cover{position:relative;height:170px;overflow:hidden;display:flex;align-items:flex-end}
+.wo-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.1) contrast(1.05)}
+.wo-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,0) 25%,rgba(17,19,25,.96) 95%)}
+.wo-title{position:relative;z-index:1;padding:0 16px 4px}.wo-title h3{font-size:30px !important;line-height:.95;margin-top:2px}
+.wo .meta{gap:10px;flex-wrap:wrap;color:#C9CFDA}.wo .meta span{white-space:nowrap}
+.wo-rec{position:absolute;z-index:2;left:12px;top:12px;background:var(--grad);color:#fff;font:italic 800 15px var(--hcf);text-transform:uppercase;padding:4px 10px;border-radius:99px}
+.wo-cover .tg{position:absolute;z-index:2;right:14px;top:14px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFE680,#FFB21A 70%);box-shadow:0 0 0 4px rgba(255,255,255,.55),0 0 0 7px #FF6A00;display:flex;align-items:center;justify-content:center;font:italic 800 20px var(--hcf);color:#7A3A00}
+.wo svg.court{max-width:200px}
+.goal{align-items:stretch;text-align:left;gap:12px}
+.goal-head{display:flex;justify-content:space-between;align-items:baseline}.goal-head h3{font-size:26px !important}.goal-head .muted{font-size:13px;font-weight:600}
+.goal-body{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.goal-ring{width:128px;height:128px}.goal-ring b{font-size:40px !important;line-height:1}.goal-ring b small{font-style:normal;font-size:11px !important;margin-top:4px;white-space:nowrap}
+.goal-adj{justify-content:flex-end;gap:8px;font-size:13px}.goal-adj .btn{width:36px;height:36px;padding:0;border-radius:50%;font-size:18px}
+.minis div b{font-size:28px !important}.minis div span{font-size:12px}
+#home-picks .car-head{margin-top:4px}#home-picks .car{margin-inline:-16px}
+#tiles .hero{background:radial-gradient(120% 120% at 0% 0%,#2E1D57 0%,#15121F 55%,#111319 100%);border-color:rgba(167,139,250,.22)}
+.ring svg{filter:drop-shadow(0 0 10px rgba(167,139,250,.35))}
+.sess .panel{padding:14px 16px}
+.sess-head{gap:12px}.sess-pct{min-width:0;width:84px;flex:none;font-size:38px !important}
+.sess-head .grow{display:flex;flex-direction:column;gap:2px}
+.sess-head .title{font:italic 800 21px/1.05 var(--hcf);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sess-head .sub{font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sess-head .sub b{color:#fff}.sess-head .sub2{color:#6B7280}
+.sess-head .tag{margin-left:2px}
+.empty-hero{position:relative;border-radius:20px;overflow:hidden;min-height:340px;display:flex;align-items:flex-end;border:1px solid rgba(255,255,255,.06)}
+.empty-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.empty-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,.05) 20%,rgba(10,11,15,.92) 70%)}
+.empty-hero > div{position:relative;z-index:1;padding:20px}.empty-hero h3{font-size:34px !important;margin:0 0 6px}.empty-hero p{color:#C9CFDA;margin:0 0 14px;max-width:40ch}
+nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,139,250,.7))}
+.sess > *{min-width:0}.sess-head{min-width:0}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.card-head h3{font-size:24px !important;margin:0}.card-head .muted{font-size:13px;text-align:right}
+.score-big{font:italic 800 34px/1 var(--hcf)}
+.mm{grid-template-columns:1fr 1fr 62px;gap:10px}
+.mm .btn{display:flex;align-items:center;justify-content:center;gap:8px;font-size:28px !important;padding:18px 8px !important;border-radius:18px !important;text-transform:uppercase !important;color:#fff}
+.mm .btn svg{width:24px;height:24px;flex:none}
+.mm .make{background:linear-gradient(180deg,#34D399,#15A34A) !important;box-shadow:0 12px 26px -14px #22C55E}
+.mm .miss{background:linear-gradient(180deg,#FB7185,#DC2650) !important;box-shadow:0 12px 26px -14px #F43F5E}
+.mm .undo{background:rgba(255,255,255,.08) !important;padding:0 !important}.mm .undo svg{width:26px;height:26px}
+.log-card .dots{margin-top:14px;gap:6px}.log-card .dots i{width:13px;height:13px;box-shadow:0 0 0 2px rgba(255,255,255,.04)}
+.zone-pill{font:italic 800 18px/1 var(--hcf);text-transform:uppercase;background:linear-gradient(90deg,#FF9A3D,#FF5E3A);color:#fff;padding:6px 12px;border-radius:99px;white-space:nowrap}
+.court .paint{fill:rgba(139,92,246,.13)}
+.spot-card .court{border-radius:14px}
+#ft-chip{white-space:nowrap}
+.panel h3,.spot-label b{letter-spacing:.01em}
 /* sign up, log in and onboarding */
 .auth{position:fixed;inset:0;z-index:90;background:#0B0D12;color:#fff;overflow:auto;-webkit-overflow-scrolling:touch}
 .auth-in{min-height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px calc(env(safe-area-inset-bottom,0px) + 18px)}
@@ -432,7 +519,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 .pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pf-grid div{background:var(--surface-2);border-radius:10px;padding:8px 10px}
 .pf-grid span{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}.pf-grid b{font-size:16px}
 .linkbtn{border:0;background:none;color:var(--miss);font:inherit;text-decoration:underline;padding:0;cursor:pointer}
-.auth .linkbtn{color:#FCA5A5}
+.auth .linkbtn{color:#FCA5A5}.auth .linkbtn.plain{color:#C4B5FD}
 </style>
 </head>
 <body>
@@ -504,33 +591,38 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
           <div class="row" style="margin-top:12px"><button class="btn" id="wo-quit" type="button" style="background:rgba(255,255,255,.12);color:inherit">Quit workout</button></div>
         </div>
         <div class="panel goal" id="goal-card">
-          <b style="font-size:18px">Your weekly shots goal</b>
-          <span class="muted" style="font-size:14px" id="goal-range"></span>
-          <div class="num" id="goal-num">0 / 1,000</div>
-          <div class="bar"><i id="goal-bar" style="width:0%"></i></div>
-          <div class="row" style="justify-content:center;margin-top:6px"><button class="btn" id="goal-minus" type="button" aria-label="Lower goal">−</button><span class="muted" style="font-size:14px">Shots/week</span><button class="btn" id="goal-plus" type="button" aria-label="Raise goal">+</button></div>
+          <div class="goal-head"><h3>This week</h3><span class="muted" id="goal-range"></span></div>
+          <div class="goal-body">
+            <div class="ring goal-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="goal-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#E879F9"/></linearGradient></defs>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="11"/><circle id="goal-arc" cx="60" cy="60" r="52" fill="none" stroke="url(#goal-grad)" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg>
+              <b id="goal-num">0<small>of 1,000 shots</small></b></div>
+            <div class="minis" id="goal-minis"></div>
+          </div>
+          <div class="row goal-adj"><span class="muted">Weekly goal</span><button class="btn" id="goal-minus" type="button" aria-label="Lower goal">−</button><button class="btn" id="goal-plus" type="button" aria-label="Raise goal">+</button></div>
         </div>
-        <div class="panel">
+        <div id="home-picks"></div>
+        <div class="panel log-card">
+          <div class="card-head"><h3>Log a shot</h3><span class="muted">Or let the camera call it</span></div>
           <div class="mm">
-            <button class="btn make" id="make-btn" type="button">Make</button>
-            <button class="btn miss" id="miss-btn" type="button">Miss</button>
-            <button class="btn undo" id="undo-btn" type="button">Undo</button>
+            <button class="btn make" id="make-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Make</button>
+            <button class="btn miss" id="miss-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>Miss</button>
+            <button class="btn undo" id="undo-btn" type="button" aria-label="Undo last shot" title="Undo last shot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
           </div>
           <div class="dots" id="dots" aria-label="Recent shots"></div>
         </div>
         <div class="panel" id="form-card">
-          <div class="spot-label"><span class="eyebrow">AI form check</span><b id="form-score" style="font-size:34px">–</b></div>
+          <div class="card-head"><h3>AI form check</h3><b id="form-score" class="score-big">–</b></div>
           <p id="form-tip" style="margin:0">Start the camera with your whole body in frame. After each shot you get a form score and one thing to fix.</p>
           <div id="form-rows" style="margin-top:10px"></div>
           <p class="muted" id="ai-status" style="margin:10px 0 0;font-size:13px"></p>
         </div>
         <div class="panel coach" id="coach">
-          <div class="spot-label"><span class="eyebrow">Coach</span><b id="coach-angle">–</b></div>
+          <div class="card-head"><h3>Coach</h3><b id="coach-angle" class="score-big">–</b></div>
           <p id="coach-tip" style="margin:0">Track a shot with the camera and you'll get feedback on your arc and misses here.</p>
           <p class="muted" id="coach-sum" style="margin:8px 0 0;font-size:14px"></p>
         </div>
-        <div class="panel">
-          <div class="spot-label"><span class="eyebrow">Shooting from</span><b id="spot-name">Top 3</b></div>
+        <div class="panel spot-card">
+          <div class="card-head"><h3>Your spot</h3><b class="zone-pill" id="spot-name">Top 3</b></div>
           <div id="spot-court"></div>
           <div class="row" style="margin-top:10px">
             <button class="chip" id="ft-chip" type="button" aria-pressed="false">Free-throw line</button>
@@ -632,6 +724,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
     <button role="tab" data-view="history" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
   </div>
 </nav>
+<input type="file" id="restore-file" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true">
 <div class="auth" id="auth" hidden role="dialog" aria-modal="true" aria-label="Your Swish Lab profile"><div class="auth-in" id="auth-in"></div></div>
 <div class="modal" id="profile" hidden role="dialog" aria-modal="true" aria-labelledby="pf-name"><div class="sheet" id="pf-body"></div></div>
 <div class="modal" id="report" hidden role="dialog" aria-modal="true" aria-labelledby="report-title">
@@ -691,6 +784,7 @@ const ptsOf = z => z === 'Free Throw' ? 1 : z.includes('3') ? 3 : 2;
 function courtSVG(inner, cls){
   return `<svg class="court ${cls||''}" viewBox="-2.5 -1 55 43" role="img" aria-label="Half court">
     <rect class="floor" x="-2.5" y="-1" width="55" height="43" rx="1.2"/>
+    <rect class="paint" x="17" y="0" width="16" height="19"/>
     <rect class="ln" x="0" y="0" width="50" height="47"/>
     <rect class="ln" x="17" y="0" width="16" height="19"/>
     <circle class="ln" cx="25" cy="19" r="6"/>
@@ -955,16 +1049,16 @@ function plStep(i){
   speak(`${d.steps[i].name}. ${d.steps[i].cue}`);
 }
 function plStop(){ clearInterval(PL.t); PL.t = null; $('#pl-go').textContent = 'Start'; }
-$('#view-drills').addEventListener('click', e => {
-  const b = e.target.closest('[data-drill]'); if(!b) return;
-  const d = DRILLS.find(x => x.id === b.dataset.drill); PL.d = d; PL.i = 0; PL.left = d.steps[0].secs; plStop();
+$('#view-drills').addEventListener('click', e => { const b = e.target.closest('[data-drill]'); if(b) openDrill(DRILLS.find(x => x.id === b.dataset.drill)); });
+function openDrill(d){
+  PL.d = d; PL.i = 0; PL.left = d.steps[0].secs; plStop();
   if(d.type === 'Dribbling'){ hcStart(d); return; }
   if(d.cam){ startWorkout('dr-' + d.id); if(source !== 'camera') startCamera(); return; }
   $('#pl-name').textContent = d.name; $('#pl-meta').textContent = `${d.lvl} · ${d.type} · ${drMins(d)} min`;
   $('#pl-video').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(d.q);
   $('#player').hidden = false; plShow();
   $('#pl-cam').hidden = d.type !== 'Dribbling'; drawDrillDemo();
-});
+}
 $('#pl-go').addEventListener('click', () => {
   if(PL.t){ plStop(); $('#pl-go').textContent = 'Resume'; return; }
   if(PL.i === 0 && PL.left === PL.d.steps[0].secs) speak(`${PL.d.steps[0].name}. ${PL.d.steps[0].cue}`);
@@ -981,7 +1075,7 @@ $('#pl-close').addEventListener('click', () => { plStop(); $('#player').hidden =
 let demoRaf = 0;
 function drawDrillDemo(){
   cancelAnimationFrame(demoRaf);
-  drawFig($('#pl-demo'), PL.d && PL.d.anim, performance.now() / 1000);
+  drawFig($('#pl-demo'), PL.d && PL.d.anim, performance.now() / 1000, true);
   if(!$('#player').hidden) demoRaf = requestAnimationFrame(drawDrillDemo);
 }
 function drawFig(cv, kind, t, dark){
@@ -1255,7 +1349,8 @@ function renderShots(){
 function renderSpot(){
   const sp = db.settings.spot;
   const marks = db.current.shots.slice(-30).map(s => `<circle cx="${s.x}" cy="${s.y}" r=".9" fill="${s.made?'var(--make)':'var(--miss)'}" opacity=".7"/>`).join('');
-  $('#spot-court').innerHTML = courtSVG(marks + `<circle cx="${sp.x}" cy="${sp.y}" r="2" fill="none" stroke="var(--accent)" stroke-width=".6"/><circle cx="${sp.x}" cy="${sp.y}" r=".8" fill="var(--accent)"/>`, 'spotpick');
+  $('#spot-court').innerHTML = courtSVG(marks + `<circle cx="${sp.x}" cy="${sp.y}" r="2" fill="none" stroke="#FF8A3D" stroke-width=".5"><animate attributeName="r" values="1.6;3.6;1.6" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.8s" repeatCount="indefinite"/></circle>
+    <circle cx="${sp.x}" cy="${sp.y}" r="1.9" fill="none" stroke="#FF8A3D" stroke-width=".6"/><circle cx="${sp.x}" cy="${sp.y}" r=".9" fill="#FF8A3D"/>`, 'spotpick');
   $('#spot-name').textContent = zoneOf(sp.x, sp.y, sp.ft);
   $('#ft-chip').setAttribute('aria-pressed', sp.ft ? 'true' : 'false');
 }
@@ -1306,9 +1401,10 @@ function renderWorkouts(){
     const done = db.sessions.filter(s => s.workout === w.id);
     const last = done[done.length-1];
     const lastTxt = last ? (() => { const sm = summarize(last.shots); return `Last: ${fmtPct(pct(sm.made, sm.att))} on ${fmtDate(last.start)}`; })() : 'Not tried yet';
+    const ph = ['shot4','shot5','shot3','shot1','drib2','shot5'][WORKOUTS.indexOf(w) % 6];
     return `<article class="panel wo">
-      <div class="meta">${w.id === rec ? '<span style="color:var(--accent);font-weight:700">For you</span>' : ''}<span>${esc(w.level)}</span><span>${goal}</span><span>${w.steps.length} station${w.steps.length>1?'s':''}</span></div>
-      <h3 style="font-size:24px">${esc(w.name)}</h3>
+      <div class="wo-cover"><img src="${PHOTOS[ph]}" alt="" loading="lazy">${w.id === rec ? '<span class="wo-rec">For you</span>' : ''}<span class="tg">${total || w.steps.reduce((a,s)=>a+(s.makes||0),0)}</span>
+        <div class="wo-title"><div class="meta"><span>${esc(w.level)}</span><span>${goal}</span><span>${w.steps.length} station${w.steps.length>1?'s':''}</span></div><h3>${esc(w.name)}</h3></div></div>
       ${pts ? courtSVG(pts) : ''}
       <p>${esc(w.desc)}</p>
       <div class="muted" style="font-size:14px">${lastTxt}</div>
@@ -1341,8 +1437,8 @@ function renderStats(){
   const fgp = pct(sm.made, sm.att), forms = sess.flatMap(x => x.forms || []), C = 2*Math.PI*52;
   const mini = (v, l) => `<div><b>${v}</b><span>${l}</span></div>`;
   $('#tiles').innerHTML = `<div class="panel hero">
-    <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="12"/>
-      <circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-(fgp||0)/100)}"/></svg>
+    <div class="ring"><svg viewBox="0 0 120 120"><defs><linearGradient id="fg-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#E879F9"/></linearGradient></defs><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="url(#fg-grad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-(fgp||0)/100)}"/></svg>
       <b>${fmtPct(fgp)}<small>${sm.made}/${sm.att} FG</small></b></div>
     <div class="minis">${mini(fmtPct(pct(...sm.three)), '3-pointers')}${mini(fmtPct(pct(...sm.ft)), 'Free throws')}
       ${mini(forms.length ? Math.round(forms.reduce((a,x)=>a+x.score,0)/forms.length) : '–', 'Form score')}${mini(sm.best, 'Best streak')}</div></div>`;
@@ -1393,7 +1489,7 @@ const openSess = new Set(); const armedDelete = new Set();
 function renderHistory(){
   $('#ex-banner-hist').innerHTML = exampleBanner();
   const list = db.sessions.slice().sort((a,b) => b.start - a.start);
-  if(!list.length){ $('#sess-list').innerHTML = '<div class="panel muted">No sessions yet. Head to Track and put up some shots.</div>'; return; }
+  if(!list.length){ $('#sess-list').innerHTML = emptyHero(PHOTOS.shot1, 'No sessions yet', 'Every session you track lands here with your shot chart, zones and form.', 'Start a session', 'track'); return; }
   $('#sess-list').innerHTML = list.map(s => {
     const sm = summarize(s.shots), p = pct(sm.made, sm.att);
     const w = s.workout && woById(s.workout);
@@ -1410,8 +1506,9 @@ function renderHistory(){
         </div></div>` : '';
     return `<article class="panel"><button class="sess-head" data-toggle="${s.id}" type="button" aria-expanded="${open}">
         <span class="sess-pct" style="color:${p >= 50 ? 'var(--make)' : 'var(--ink)'}">${fmtPct(p)}</span>
-        <span class="grow"><span class="title">${w ? esc(w.name) : 'Free shooting'}</span>${s.example ? '<span class="tag">Example</span>' : ''}
-          <br><span class="sub">${fmtDate(s.start)} · ${sm.made}/${sm.att} · 3PT ${fmtPct(pct(...sm.three))} · ${fmtTime((s.end||s.start) - s.start)}${sessExtras(s)}</span></span>
+        <span class="grow"><span class="title">${w ? esc(w.name) : 'Free shooting'}</span>
+          <span class="sub">${fmtDate(s.start)} · <b>${sm.made}/${sm.att}</b>${s.example ? '<span class="tag">Example</span>' : ''}</span>
+          <span class="sub sub2">3PT ${fmtPct(pct(...sm.three))} · ${fmtTime((s.end||s.start) - s.start)}${sessExtras(s)}</span></span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(${open?180:0}deg);transition:.2s"><path d="M6 9l6 6 6-6"/></svg>
       </button>${body}</article>`;
   }).join('');
@@ -1448,11 +1545,36 @@ function renderGoal(){
   const now = new Date(), d = (now.getDay() + 6) % 7, start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - d).getTime(), end = start + 7*864e5;
   const n = db.sessions.filter(x => !x.example).concat([db.current]).flatMap(x => x.shots).filter(x => x.t >= start && x.t < end).length;
   const g = db.settings.goal || 1000;
-  $('#goal-num').textContent = `${n.toLocaleString()} / ${g.toLocaleString()}`;
-  $('#goal-bar').style.width = Math.min(100, n/g*100) + '%';
+  const wk = db.sessions.filter(x => !x.example).concat([db.current]).flatMap(x => x.shots).filter(x => x.t >= start && x.t < end), made = wk.filter(x => x.made).length;
+  const nSess = db.sessions.filter(x => !x.example && x.start >= start && x.start < end).length + (db.current.shots.length && !db.current.demo ? 1 : 0);
+  $('#goal-num').innerHTML = `${n.toLocaleString()}<small>of ${g.toLocaleString()} shots</small>`;
+  $('#goal-arc').setAttribute('stroke-dashoffset', 326.7 * (1 - Math.min(1, n / g)));
+  const streak = dayStreak(), mini = (v, l) => `<div><b>${v}</b><span>${l}</span></div>`;
+  $('#goal-minis').innerHTML = mini(fmtPct(pct(made, n)), 'FG%') + mini(nSess, nSess === 1 ? 'Session' : 'Sessions') + mini(streak ? streak + ' 🔥' : '0', 'Day streak') + mini(made.toLocaleString(), 'Makes');
+  renderPicks();
   const f = t => new Date(t).toLocaleDateString(undefined, {month:'short', day:'numeric'});
   $('#goal-range').textContent = `${f(start)} – ${f(end - 864e5)}`;
 }
+// Days in a row with at least one shot, counting today or yesterday as the latest day.
+function dayStreak(){
+  const days = new Set(db.sessions.filter(x => !x.example).concat([db.current]).flatMap(x => x.shots).map(x => new Date(x.t).toDateString()));
+  const d = new Date(); if(!days.has(d.toDateString())) d.setDate(d.getDate() - 1);
+  let n = 0; while(days.has(d.toDateString())){ n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+// "Up next for you" on Track: the plan's workout and top drills as photo cards.
+function renderPicks(){
+  const pr = profile(), el = $('#home-picks'); if(!el) return;
+  if(!pr){ el.innerHTML = ''; return; }
+  const plan = makePlan(pr), w = woById(plan.workout), tot = w.steps.reduce((a, st) => a + (st.shots || st.makes || 0), 0);
+  el.innerHTML = `<div class="car-head"><h3>Up next for you</h3><span>From your plan</span></div><div class="car">
+    <button class="card-dr" data-pick-wo="${w.id}" type="button"><span class="thumb"><img src="${PHOTOS.shot4}" alt=""><span class="tg" style="right:10%;top:14%">${tot}</span><i>Workout</i></span><b>${esc(w.name)}</b><span class="lvl">${esc(w.level)}</span></button>
+    ${plan.drills.slice(0, 4).map(d => `<button class="card-dr" data-pick-dr="${d.id}" type="button"><span class="thumb"><img src="${photoFor(d)}" alt="">${d.type === 'Dribbling' ? TARGETS : ''}<i>${drMins(d)} min</i></span><b>${esc(d.name)}</b><span class="lvl">${d.type} · ${d.lvl}</span></button>`).join('')}</div>`;
+}
+$('#home-picks').addEventListener('click', e => {
+  const w = e.target.closest('[data-pick-wo]'), d = e.target.closest('[data-pick-dr]');
+  if(w) startWorkout(w.dataset.pickWo); else if(d) openDrill(DRILLS.find(x => x.id === d.dataset.pickDr));
+});
 $('#goal-plus').addEventListener('click', () => { db.settings.goal = (db.settings.goal || 1000) + 250; save(); renderGoal(); });
 $('#goal-minus').addEventListener('click', () => { db.settings.goal = Math.max(250, (db.settings.goal || 1000) - 250); save(); renderGoal(); });
 function renderAll(){ const pr = profile(); $('#today').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'}) + (pr ? ` · Let's go, ${pr.name}` : ''); syncMe(); renderGoal(); renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
@@ -2126,8 +2248,10 @@ async function renderHighlights(){
         ${c.angle ? `<span class="muted">${c.angle}° arc</span>` : ''}${c.demo ? '<span class="tag">Demo</span>' : ''}<span class="muted" style="margin-left:auto">${fmtDate(c.t)}</span></div>
       <div class="row"><button class="btn" data-hl-save="${c.id}" type="button">Save</button><button class="btn" data-hl-share="${c.id}" type="button">Share</button>
         <button class="btn ghost" data-hl-del="${c.id}" type="button">Delete</button></div></article>`;
-  }).join('') : `<div class="panel muted">${list.length ? 'No clips match this filter.' : 'Every shot you track with the camera is recorded as a clip and lands here automatically. Try the demo to see it.'}</div>`;
+  }).join('') : list.length ? '<div class="panel muted">No clips match this filter.</div>' : emptyHero(PHOTOS.shot5, 'Your highlight reel', 'Every shot you track with the camera is saved here as a clip you can replay, save or share.', 'Watch the demo', 'demo');
 }
+const emptyHero = (img, title, text, cta, go) => `<div class="empty-hero"><img src="${img}" alt=""><div><h3>${title}</h3><p>${text}</p><button class="btn primary" data-go="${go}" type="button">${cta}</button></div></div>`;
+document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if(!b) return; showView('track'); if(b.dataset.go === 'demo') begin('demo'); });
 function clipFile(c){ const ext = /mp4/.test(c.blob.type) ? 'mp4' : 'webm'; return new File([c.blob], `swishlab-${c.made ? 'make' : 'miss'}-${c.t}.${ext}`, {type: c.blob.type}); }
 $$('[data-hl]').forEach(b => b.addEventListener('click', () => { hlFilter = b.dataset.hl; renderHighlights(); }));
 $('#hl-grid').addEventListener('click', async e => {
@@ -2530,10 +2654,11 @@ function renderAuth(){
     body = `<div class="ob-hero"><img src="${PHOTOS.shot1}" alt="Player shooting a jump shot"><span class="tg" style="right:14%;top:22%">3</span></div>
       <div class="ob-brand">Swish<br>Lab</div><ul class="ob-feats"><li>AI shot tracking and form checks</li><li>Camera drills for handles, moves and finishing</li><li>A plan built around your game</li></ul>`;
     foot = `<button class="btn primary big" data-act="signup" type="button">Sign up, it's free</button>${PROF.list.length ? '<button class="btn ghosty big" data-act="login" type="button">Log in</button>' : ''}
-      <p class="ob-note">No email needed. Your profile and stats stay on this phone.</p>`;
+      <p class="ob-note">No email needed. Your profile and stats stay on this phone.<br>New phone? <button class="linkbtn plain" data-act="restore" type="button">Restore from a backup</button></p>`;
   } else if(s === 'login'){
     body = `<h1>Who's hooping?</h1><p>Pick your player.</p><div class="ob-opts">${PROF.list.map(x => `<button class="ob-opt" type="button" data-act="pick" data-id="${esc(x.id)}"><span class="avatar">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b><span>${esc(x.meta || '')}${x.pin ? ' · PIN' : ''}</span></div></button>`).join('')}
-      <button class="ob-opt" type="button" data-act="signup"><span class="avatar add">+</span><div><b>New player</b><span>Sign up on this phone</span></div></button></div>`;
+      <button class="ob-opt" type="button" data-act="signup"><span class="avatar add">+</span><div><b>New player</b><span>Sign up on this phone</span></div></button>
+      <button class="ob-opt" type="button" data-act="restore"><span class="avatar add">⤓</span><div><b>Restore from a backup</b><span>Bring a player over from another phone</span></div></button></div>`;
   } else if(s === 'pin'){
     const x = PROF.list.find(y => y.id === OB.pinFor) || {};
     body = `<div class="ob-center"><span class="avatar big">${esc(initials(x.name))}</span><h1 style="margin-top:10px">Hi, ${esc(x.name || '')}</h1><p>Enter your 4-digit PIN.</p>
@@ -2627,6 +2752,7 @@ $('#auth').addEventListener('click', async e => {
   const b = e.target.closest('[data-act]'); if(!b) return;
   const act = b.dataset.act;
   if(act === 'signup') obStart('signup');
+  else if(act === 'restore') $('#restore-file').click();
   else if(act === 'login'){ OB.screen = 'login'; renderAuth(); }
   else if(act === 'back') obBack();
   else if(act === 'next') obNext();
@@ -2671,6 +2797,8 @@ function renderProfile(){
       ${kv('Position', labelOf(POSITIONS, p.position))}${kv('Shoots', p.hand === 'left' ? 'Left-handed' : 'Right-handed')}${kv('Playstyle', labelOf(STYLES, p.style))}${kv('Plays', `${p.days}× a week, ${p.mins} min`)}</div>
     <div class="sub-h">Goals</div><div class="row">${(p.goals || []).map(g => `<span class="chip" aria-pressed="true">${esc(labelOf(GOALS, g))}</span>`).join('')}</div>
     <div class="sub-h">Your plan</div><p class="muted" style="margin:0">${plan.goal.toLocaleString()} shots a week · ${plan.lvl} drills · Workout: ${esc(wo.name)}</p>
+    <div class="sub-h">Backup</div><p class="muted" style="margin:0 0 10px;font-size:14px">Save a backup file to keep your stats safe or move this player to another phone. Clips aren't included. Last backup: ${db.settings.backedUp ? agoTxt(db.settings.backedUp) : 'never'}.</p>
+    <div class="row"><button class="btn" data-pf="backup" type="button">Back up</button><button class="btn" data-pf="restore" type="button">Restore a backup</button></div>
     <div class="row" style="margin-top:16px"><button class="btn primary" data-pf="edit" type="button">Edit profile</button><button class="btn" data-pf="switch" type="button">Switch player</button><button class="btn" data-pf="logout" type="button">Log out</button></div>
     <p class="muted" style="margin-top:18px;font-size:13px">Your profile and stats are saved on this phone only. <button class="linkbtn" data-pf="delete" type="button">Delete this player</button></p>`;
 }
@@ -2680,14 +2808,54 @@ $('#profile').addEventListener('click', e => {
   const b = e.target.closest('[data-pf]'); if(!b) return;
   const act = b.dataset.pf, p = profile();
   if(act === 'close') $('#profile').hidden = true;
+  else if(act === 'backup') doBackup();
+  else if(act === 'restore') $('#restore-file').click();
   else if(act === 'edit'){ $('#profile').hidden = true; obStart('edit'); }
   else if(act === 'switch'){ $('#profile').hidden = true; authOpen('login'); }
   else if(act === 'logout'){ if(running) stopSource(false); if(db.current.shots.length && !db.current.demo) endSession(true); PROF.active = null; saveProf(); location.reload(); }
   else if(act === 'delete' && confirm(`Delete ${p.name} and all of their stats and clips on this phone? This can't be undone.`)) deleteProfile(PROF.active);
 });
 
+/* ---- backup file: move a player to another phone, or keep their stats safe ---- */
+function backupFile(){
+  const p = profile(), e = PROF.list.find(x => x.id === PROF.active) || {};
+  const data = JSON.parse(JSON.stringify(db));
+  data.sessions = data.sessions.filter(s => !s.example);
+  if(data.current && (data.current.demo || !data.current.shots.length)) data.current = null;
+  const out = {app:'swishlab', v:1, exported: Date.now(), player: {name: p.name, meta: e.meta || profMeta(p), pin: e.pin || null, created: e.created || Date.now()}, data};
+  const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'player';
+  return new File([JSON.stringify(out)], `swishlab-${slug}-${new Date().toISOString().slice(0, 10)}.json`, {type: 'application/json'});
+}
+async function doBackup(){
+  const f = backupFile(), done = () => { db.settings.backedUp = Date.now(); save(); renderProfile(); };
+  if(navigator.canShare && navigator.canShare({files: [f]})){
+    try{ await navigator.share({files: [f], title: 'Swish Lab backup'}); done(); return; }catch(e){ if(e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  done(); toast('Backup saved to your downloads');
+}
+async function doRestore(file){
+  let b = null; try{ b = JSON.parse(await file.text()); }catch(e){}
+  const d = b && b.data;
+  if(!b || b.app !== 'swishlab' || !b.player || !d || !Array.isArray(d.sessions) || !d.settings || !d.settings.profile){ toast("That file isn't a Swish Lab backup"); return; }
+  const same = PROF.list.find(x => x.created === b.player.created && x.name === b.player.name);
+  if(same && !confirm(`Replace ${same.name} on this phone with the backup from ${fmtDate(b.exported)}?`)) return;
+  const id = same ? same.id : 'p' + Date.now().toString(36);
+  ['hoop', 'hoopai', 'myai'].forEach(k => delete d.settings[k]); // camera setup and trained models belong to the old phone
+  d.current = null;
+  try{ localStorage.setItem(keyFor(id), JSON.stringify(d)); }catch(e){ toast('Not enough space on this phone to restore that backup'); return; }
+  if(keyFor(id) === KEY) dead = true; // the open page must not write its old copy back over the restore
+  PROF.list = PROF.list.filter(x => x.id !== id).concat({name: b.player.name, meta: b.player.meta, pin: b.player.pin || null, created: b.player.created || Date.now(), id});
+  PROF.active = id; saveProf();
+  location.reload();
+}
+$('#restore-file').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if(f) doRestore(f); });
+const agoTxt = t => { const d = Math.floor((Date.now() - t) / 864e5); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; };
+
 /* ---------- boot ---------- */
 let tab = 'track'; try{ tab = localStorage.getItem(KEY + '.tab') || 'track'; }catch(e){}
+$('#empty').style.setProperty('--ph', `url(${PHOTOS.shot3})`);
 renderAll(); showView(tab); sizeOverlay();
 if(!PROF.active || !profile()) authOpen('welcome');
 document.addEventListener('visibilitychange', async () => { if(!document.hidden && running && !wakeLock){ try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){} } });
