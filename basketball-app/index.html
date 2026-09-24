@@ -13,22 +13,46 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
 <style>
 :root{
-  --bg:#0B0D12; --surface:#161A22; --surface-2:#1F2530; --ink:#F4F6FA; --muted:#8B93A3;
-  --line:#2A3140; --accent:#FF6A1A; --accent-ink:#FFFFFF; --court:#3D8BFF;
-  --make:#22D07A; --miss:#FF4D5E; --stage:#000000; --shadow:0 10px 30px -14px rgba(0,0,0,.8);
-  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
-  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:dark;
+  --bg:#F3F6F8; --surface:#FFFFFF; --surface-2:#EEF1F5; --ink:#0E1116; --muted:#6B7280;
+  --line:#E3E7EE; --accent:#7C3AED; --accent-ink:#FFFFFF; --court:#14B8C4;
+  --make:#16A34A; --miss:#EF4444; --stage:#0B0D12; --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px -12px rgba(16,24,40,.18);
+  --grad:linear-gradient(90deg,#8B5CF6,#C026D3);
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,system-ui,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+  color-scheme:light;
 }
-.board{background:#000 !important;color:#F4F6FA !important;border-bottom:1px solid #1F2530}
-.board .end{border-color:#FF6A1A !important;color:#FF6A1A !important}
-.panel,.tile{border:1px solid var(--line)}
-.btn.primary,.mm .btn{box-shadow:0 6px 20px -8px currentColor}
-.tile b,.sheet .big{color:var(--accent)}
-nav.tabs{background:#000}
+body{background:linear-gradient(180deg,#FFFFFF 0%,#F3F6F8 40%,#E6F7F5 100%) fixed}
+.board{background:rgba(255,255,255,.85) !important;color:var(--ink) !important;border-bottom:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.board .end{border:0 !important;background:var(--surface-2);color:var(--ink) !important;font-weight:600}
+.tally span{opacity:1;color:var(--muted);letter-spacing:.02em;text-transform:none;font-size:11px}
+.tally b,.brand{font-family:var(--display);font-weight:800;letter-spacing:-.02em;text-transform:none}
+.brand{font-size:20px}
+h2,h3,.tile b,.sheet .big,.ring b,.minis div b,.spot-label b,.mm .btn{font-family:var(--display) !important;letter-spacing:-.02em !important;text-transform:none !important}
+h2{font-weight:800}
+.panel,.tile{border:0;box-shadow:var(--shadow)}
+.btn.primary,.btn.on{background:var(--grad) !important;color:#fff !important;box-shadow:0 8px 20px -10px #8B5CF6}
+.btn{background:var(--surface-2)}
+.chip{border-color:var(--line)}
+.chip[aria-pressed="true"]{background:var(--court);border-color:var(--court);color:#fff}
+.mm .btn{font-weight:800 !important;font-size:22px !important}
+.pill.ok{background:#F59E0B}
+nav.tabs{background:rgba(255,255,255,.92) !important;border-top:1px solid var(--line) !important}
+nav.tabs button{text-transform:none;letter-spacing:0;font-size:11px;font-weight:600}
+nav.tabs button[aria-selected="true"]{color:var(--accent)}
+nav.tabs button[aria-selected="true"]::before{display:none}
+.wo-live{background:var(--grad);color:#fff}
+.bar > i{background:#fff}
+.wo-live .bar{background:rgba(255,255,255,.3)}
+.stage{box-shadow:var(--shadow)}
+.board .wrap{min-width:0}
+.tally{min-width:0}
+@media (max-width:600px){.brand{font-size:0 !important;gap:0}.tally{gap:10px !important}.brand svg{width:28px;height:28px}.tally{margin-left:auto}}
+.goal{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.goal .num{font:800 40px/1 var(--display);letter-spacing:-.03em}
+.goal .bar{width:100%;height:10px;background:var(--surface-2);margin-top:6px}
+.goal .bar > i{background:var(--grad)}
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
 body{margin:0;color:var(--ink);font:16px/1.45 var(--body);-webkit-font-smoothing:antialiased;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
@@ -196,11 +220,9 @@ input,textarea,table{-webkit-user-select:text;user-select:text}
 .btn:active,.chip:active,.sess-head:active{transform:scale(.96)}
 .panel,.tile{border-radius:18px}
 .btn{border-radius:14px}
-.board{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:rgba(0,0,0,.82) !important}
 .board .wrap{padding-block:8px}
 .brand{font-size:22px}
 .tally b{font-size:22px}
-nav.tabs{background:rgba(10,12,16,.86) !important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06)}
 nav.tabs button{position:relative;font-size:10.5px;padding:8px 2px 10px}
 nav.tabs button svg{width:24px;height:24px;transition:transform .2s}
 nav.tabs button[aria-selected="true"] svg{transform:translateY(-1px) scale(1.08)}
@@ -307,6 +329,13 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
           <div class="muted" id="wo-live-step" style="margin-top:4px"></div>
           <div class="bar"><i id="wo-live-bar" style="width:0%"></i></div>
           <div class="row" style="margin-top:12px"><button class="btn" id="wo-quit" type="button" style="background:rgba(255,255,255,.12);color:inherit">Quit workout</button></div>
+        </div>
+        <div class="panel goal" id="goal-card">
+          <b style="font-size:18px">Your weekly shots goal</b>
+          <span class="muted" style="font-size:14px" id="goal-range"></span>
+          <div class="num" id="goal-num">0 / 1,000</div>
+          <div class="bar"><i id="goal-bar" style="width:0%"></i></div>
+          <div class="row" style="justify-content:center;margin-top:6px"><button class="btn" id="goal-minus" type="button" aria-label="Lower goal">−</button><span class="muted" style="font-size:14px">Shots/week</span><button class="btn" id="goal-plus" type="button" aria-label="Raise goal">+</button></div>
         </div>
         <div class="panel">
           <div class="mm">
@@ -570,7 +599,7 @@ function record(made, auto, fb){
   speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
   advanceWorkout(made);
   if(!cur.demo) save();
-  renderScore(); renderShots(); renderCoach();
+  renderScore(); renderShots(); renderCoach(); renderGoal();
 }
 function flash(made){
   const f = $('#flash');
@@ -847,7 +876,18 @@ function showView(v){
   if(v === 'track') requestAnimationFrame(sizeOverlay);
 }
 $$('nav.tabs [data-view]').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
-function renderAll(){ renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
+function renderGoal(){
+  const now = new Date(), d = (now.getDay() + 6) % 7, start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - d).getTime(), end = start + 7*864e5;
+  const n = db.sessions.filter(x => !x.example).concat([db.current]).flatMap(x => x.shots).filter(x => x.t >= start && x.t < end).length;
+  const g = db.settings.goal || 1000;
+  $('#goal-num').textContent = `${n.toLocaleString()} / ${g.toLocaleString()}`;
+  $('#goal-bar').style.width = Math.min(100, n/g*100) + '%';
+  const f = t => new Date(t).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  $('#goal-range').textContent = `${f(start)} – ${f(end - 864e5)}`;
+}
+$('#goal-plus').addEventListener('click', () => { db.settings.goal = (db.settings.goal || 1000) + 250; save(); renderGoal(); });
+$('#goal-minus').addEventListener('click', () => { db.settings.goal = Math.max(250, (db.settings.goal || 1000) - 250); save(); renderGoal(); });
+function renderAll(){ renderGoal(); renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
 
 $('#make-btn').addEventListener('click', () => record(true, false));
 $('#miss-btn').addEventListener('click', () => record(false, false));
