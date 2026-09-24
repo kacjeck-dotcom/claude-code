@@ -16,27 +16,19 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
 <style>
 :root{
-  --bg:#EFE4D2; --surface:#FBF6EE; --surface-2:#F4EADB; --ink:#1A2130; --muted:#5E6472;
-  --line:#C9B99E; --accent:#E2571B; --accent-ink:#FFFFFF; --court:#24508F;
-  --make:#1D8A57; --miss:#C3362B; --stage:#0E141C; --shadow:0 1px 0 rgba(26,33,48,.06),0 8px 24px -12px rgba(26,33,48,.25);
+  --bg:#0B0D12; --surface:#161A22; --surface-2:#1F2530; --ink:#F4F6FA; --muted:#8B93A3;
+  --line:#2A3140; --accent:#FF6A1A; --accent-ink:#FFFFFF; --court:#3D8BFF;
+  --make:#22D07A; --miss:#FF4D5E; --stage:#000000; --shadow:0 10px 30px -14px rgba(0,0,0,.8);
   --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#131920; --surface:#1C242E; --surface-2:#232D39; --ink:#EDE6DA; --muted:#98A0AC;
-    --line:#3A4654; --accent:#F07235; --accent-ink:#1A1109; --court:#7BA5E6;
-    --make:#3DBA7F; --miss:#EA5A4E; --stage:#080B10; --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.7);
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#131920; --surface:#1C242E; --surface-2:#232D39; --ink:#EDE6DA; --muted:#98A0AC;
-  --line:#3A4654; --accent:#F07235; --accent-ink:#1A1109; --court:#7BA5E6;
-  --make:#3DBA7F; --miss:#EA5A4E; --stage:#080B10; --shadow:0 1px 0 rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.7);
   color-scheme:dark;
 }
+.board{background:#000 !important;color:#F4F6FA !important;border-bottom:1px solid #1F2530}
+.board .end{border-color:#FF6A1A !important;color:#FF6A1A !important}
+.panel,.tile{border:1px solid var(--line)}
+.btn.primary,.mm .btn{box-shadow:0 6px 20px -8px currentColor}
+.tile b,.sheet .big{color:var(--accent)}
+nav.tabs{background:#000}
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
 body{margin:0;color:var(--ink);font:16px/1.45 var(--body);-webkit-font-smoothing:antialiased;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
