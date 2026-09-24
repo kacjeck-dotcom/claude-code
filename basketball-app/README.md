@@ -1,10 +1,12 @@
 # Swish Lab — free basketball shot tracker
 
 A free, open alternative to paid AI shot-tracking apps (like Ball AI / HomeCourt).
-One HTML file, no account, no server, no subscription. Everything runs on your device.
+One HTML file, no email, no server, no subscription. Everything runs on your device.
 
 ## Features
 
+- **Player profiles.** Sign up with a name, then answer 8 quick questions: age and level, height and weight, position, shooting hand, playstyle, up to 3 goals, and how many days and minutes a week you play. You get a plan: a weekly shots goal, a drill level, a "For you" row of drills and a recommended workout. Height sets the release-height stat, weight gives calories burned in each session report, and shooting hand tells the form check which arm to watch first.
+  Several players can share one phone. Each one logs in from the "Who's hooping?" screen, with an optional 4-digit PIN, and keeps their own stats and clips. Tap your initials in the top corner to open your profile, where you can edit it, switch player, log out or delete the player. Profiles live only on this phone: nothing is sent anywhere, and a PIN only locks the profile on this phone. It is not an online password.
 - **Installs like an app.** Open the web address on your phone and choose Add to Home Screen. It gets its own icon, opens full screen, and works offline after the first load.
 - **Highlight clips.** Every tracked shot is recorded as a short clip (Clips tab) that you can play, save or share. The session report shows your top makes.
 - **Your own AI.** A make/miss model and a hoop-finder model train on your phone from your own shots.

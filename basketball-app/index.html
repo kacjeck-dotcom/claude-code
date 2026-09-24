@@ -381,12 +381,65 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 .hbar .track{background:var(--surface-2);border-radius:99px;overflow:hidden}
 .sub-h{font:700 15px/1.2 var(--display);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 6px;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* sign up, log in and onboarding */
+.auth{position:fixed;inset:0;z-index:90;background:#0B0D12;color:#fff;overflow:auto;-webkit-overflow-scrolling:touch}
+.auth-in{min-height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px calc(env(safe-area-inset-bottom,0px) + 18px)}
+.auth-top{display:flex;align-items:center;gap:14px;min-height:40px}
+.auth-back{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:26px;line-height:1;flex:none;cursor:pointer}
+.ob-prog{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}.ob-prog i{display:block;height:100%;background:var(--grad);transition:width .3s}
+.ob-count{font-size:13px;font-weight:700;color:rgba(255,255,255,.6)}
+#auth-body{flex:1;padding-top:22px}
+.auth h1{font:italic 800 clamp(34px,9vw,48px)/1 var(--hcf);text-transform:uppercase;margin:0 0 10px}
+.auth p{color:rgba(255,255,255,.72);margin:0 0 18px;line-height:1.45}
+.auth h3{font:700 12px var(--body);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:22px 0 10px}
+.ob-kicker{font:700 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:#C4B5FD;margin-bottom:8px}
+.ob-in{width:100%;font:600 19px var(--body);padding:14px 16px;border-radius:14px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;outline:none;box-sizing:border-box}
+.ob-in:focus{border-color:#A78BFA}select.ob-in option{color:#0E1116}
+.ob-in.pin{letter-spacing:.6em;text-align:center;font-size:30px;max-width:240px;display:block;margin:0 auto}
+.ob-opts{display:grid;gap:10px}.ob-opts.two{grid-template-columns:1fr 1fr}
+.ob-opt{display:flex;align-items:center;gap:12px;text-align:left;padding:13px 16px;border-radius:16px;border:1.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;font:inherit;cursor:pointer;min-width:0}
+.ob-opt > i{font:italic 800 22px var(--hcf);width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex:none}
+.ob-opt > div{display:flex;flex-direction:column;min-width:0}.ob-opt b{font-size:17px}.ob-opt > div span{font-size:14px;color:rgba(255,255,255,.62)}
+.ob-opt[aria-pressed="true"]{border-color:#A78BFA;background:rgba(139,92,246,.22);box-shadow:0 0 0 1px #A78BFA}
+.ob-pills{display:flex;flex-wrap:wrap;gap:8px}.ob-pills .ob-opt{padding:10px 16px;border-radius:999px;min-width:54px;justify-content:center;font-weight:700}
+.auth-foot{padding-top:18px;display:grid;gap:10px}
+.auth .btn.big{width:100%;padding:16px;font-size:17px;border-radius:16px}
+.auth .btn.ghosty{background:rgba(255,255,255,.1);color:#fff}
+.auth .btn:disabled{opacity:.35;box-shadow:none}
+.ob-note{font-size:13px;text-align:center;margin:4px 0 0 !important}
+.ob-hero{position:relative;margin:-14px -20px 0;height:50vh;min-height:260px;overflow:hidden}
+.ob-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.ob-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,18,0) 35%,#0B0D12)}
+.ob-hero .tg{position:absolute;z-index:2;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFE680,#FFB21A 70%);box-shadow:0 0 0 4px rgba(255,255,255,.55),0 0 0 7px #FF6A00;display:flex;align-items:center;justify-content:center;font:italic 800 28px var(--hcf);color:#7A3A00}
+.ob-brand{font:italic 800 clamp(48px,14vw,72px)/.9 var(--hcf);text-transform:uppercase;margin:-40px 0 12px;position:relative;z-index:2}
+.ob-feats{display:grid;gap:8px;margin:0 0 6px;padding:0;list-style:none;color:rgba(255,255,255,.8)}.ob-feats li::before{content:"✓ ";color:#A78BFA;font-weight:800}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font:italic 800 20px var(--hcf);color:#fff;flex:none}
+.avatar.big{width:76px;height:76px;font-size:34px}.avatar.add{background:rgba(255,255,255,.1)}
+.ob-center{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.shake{animation:shake .35s}@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.ob-build{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:62vh;gap:10px}
+.ob-spin{width:66px;height:66px;border-radius:50%;border:6px solid rgba(255,255,255,.12);border-top-color:#C026D3;animation:obspin .9s linear infinite;margin-bottom:12px}@keyframes obspin{to{transform:rotate(1turn)}}
+.ob-build ul{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px;text-align:left}.ob-build li{color:rgba(255,255,255,.4);transition:color .3s}.ob-build li.done{color:#fff}.ob-build li.done::before{content:"✓ ";color:var(--make)}
+.plan-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.plan-tiles div{background:rgba(255,255,255,.07);border-radius:14px;padding:12px}
+.plan-tiles b{display:block;font:italic 800 26px/1 var(--hcf)}.plan-tiles span{font-size:12px;color:rgba(255,255,255,.65)}
+.plan-dr{display:flex;gap:12px;align-items:center;padding:8px;border-radius:14px;background:rgba(255,255,255,.05);margin-bottom:8px}
+.plan-dr img{width:84px;height:56px;object-fit:cover;border-radius:10px;flex:none}.plan-dr > div{min-width:0;padding:4px}
+.plan-dr b{display:block;font:italic 800 19px/1.05 var(--hcf);text-transform:uppercase}.plan-dr span{font-size:13px;color:rgba(255,255,255,.65)}
+.me{width:34px;height:34px;border-radius:50%;border:0;background:var(--grad);color:#fff;font:italic 800 16px var(--hcf);flex:none;padding:0;cursor:pointer}
+.me:not([hidden]) ~ .brand svg{display:none}
+.pf-head{display:flex;gap:14px;align-items:center}.pf-head h2{margin:0}
+.kv.pf-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.pf-stats div{padding:8px}.pf-stats b{font-size:20px}.pf-stats span{font-size:10px;letter-spacing:.06em}
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pf-grid div{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.pf-grid span{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}.pf-grid b{font-size:16px}
+.linkbtn{border:0;background:none;color:var(--miss);font:inherit;text-decoration:underline;padding:0;cursor:pointer}
+.auth .linkbtn{color:#FCA5A5}
 </style>
 </head>
 <body>
 
 <header class="board">
   <div class="wrap">
+    <button class="me" id="me-btn" type="button" aria-label="Your profile" hidden></button>
     <div class="brand">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E2571B"/><path d="M2 12h20M12 2v20M5 5c3 3 3 11 0 14M19 5c-3 3-3 11 0 14" stroke="#1A2130" stroke-width="1.3" fill="none"/></svg>
       Swish Lab
@@ -579,6 +632,8 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
     <button role="tab" data-view="history" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
   </div>
 </nav>
+<div class="auth" id="auth" hidden role="dialog" aria-modal="true" aria-label="Your Swish Lab profile"><div class="auth-in" id="auth-in"></div></div>
+<div class="modal" id="profile" hidden role="dialog" aria-modal="true" aria-labelledby="pf-name"><div class="sheet" id="pf-body"></div></div>
 <div class="modal" id="report" hidden role="dialog" aria-modal="true" aria-labelledby="report-title">
   <div class="sheet">
     <div class="row" style="justify-content:space-between"><div><div class="eyebrow" id="report-date"></div><h2 id="report-title">Session report</h2></div>
@@ -600,11 +655,17 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const HOOP = {x:25, y:5.25};
-const KEY = 'swishlab.v1';
+// Player profiles live on this phone only. Each player's data sits under its own key; the first player keeps the original key.
+const PKEY = 'swishlab.profiles';
+const PROF = (() => { try{ return JSON.parse(localStorage.getItem(PKEY)) || {active:null, list:[]}; }catch(e){ return {active:null, list:[]}; } })();
+const saveProf = () => { try{ localStorage.setItem(PKEY, JSON.stringify(PROF)); }catch(e){} };
+const keyFor = id => !id || id === 'main' ? 'swishlab.v1' : 'swishlab.v1.' + id;
+const KEY = keyFor(PROF.active);
+let dead = false; // set while a player is being deleted, so nothing writes their data back
 
 /* ---------- storage ---------- */
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || null; }catch(e){ return null; } }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){} }
+function save(){ if(dead) return; try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){} }
 
 function newSession(demo){ return {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), start: Date.now(), shots: [], workout: null, demo: !!demo}; }
 
@@ -864,9 +925,10 @@ function renderDrills(){
   const feat = DRILLS.find(d => d.id === 'btl');
   $('#hc-hero').innerHTML = `<img src="${PHOTOS.drib3}" alt="Player dribbling a basketball">${TARGETS}<div class="hc-hero-txt"><span class="lvl">Featured program</span><h2>Handles Lab</h2>
     <p>Prop your phone up, face the front camera and pound the ball into the targets.</p><button class="btn primary" data-drill="${feat.id}" type="button">Start training</button></div>`;
-  const rows = [['Ball Handling', 'Dribbling', 'Tighten your handle. Camera targets on every drill.'], ['Shooting', 'Shooting', 'The camera counts your makes at every spot.'], ['Moves', 'Moves', 'Pump fakes, step-throughs, jabs, spins and post moves.'], ['Finishing', 'Finishing', 'Layups, reverses, euros and floaters at the rim.']];
-  $('#dr-list').innerHTML = rows.map(([title, type, sub]) => {
-    const list = DRILLS.filter(d => d.type === type && (drLvl === 'all' || d.lvl === drLvl));
+  const pr = profile();
+  const rows = [...(pr ? [[`For you, ${pr.name}`, null, 'Picked from your goals, position and playstyle.', makePlan(pr).drills]] : []), ['Ball Handling', 'Dribbling', 'Tighten your handle. Camera targets on every drill.'], ['Shooting', 'Shooting', 'The camera counts your makes at every spot.'], ['Moves', 'Moves', 'Pump fakes, step-throughs, jabs, spins and post moves.'], ['Finishing', 'Finishing', 'Layups, reverses, euros and floaters at the rim.']];
+  $('#dr-list').innerHTML = rows.map(([title, type, sub, picks]) => {
+    const list = (picks || DRILLS.filter(d => d.type === type)).filter(d => drLvl === 'all' || d.lvl === drLvl);
     if(!list.length) return '';
     return `<div class="car-head"><h3>${title}</h3><span>${sub}</span></div><div class="car">${list.map(d => `
       <button class="card-dr" data-drill="${d.id}" type="button"><span class="thumb"><img src="${photoFor(d)}" alt="">${d.type === 'Dribbling' ? TARGETS : d.cam ? `<span class="tg" style="right:10%;top:14%">${d.cam.reduce((a, c) => a + c.makes, 0)}</span><span class="pts">makes</span>` : ''}<i>${drMins(d)} min</i></span>
@@ -1236,7 +1298,8 @@ $('#wo-quit').addEventListener('click', () => { db.current.workout = null; save(
 
 /* ---------- workouts view ---------- */
 function renderWorkouts(){
-  $('#wo-list').innerHTML = WORKOUTS.map(w => {
+  const pr = profile(), rec = pr && makePlan(pr).workout;
+  $('#wo-list').innerHTML = WORKOUTS.slice().sort((a, b) => (b.id === rec) - (a.id === rec)).map(w => {
     const total = w.steps.reduce((a,s) => a + (s.shots || 0), 0);
     const goal = total ? `${total} shots` : `${w.steps.reduce((a,s)=>a+(s.makes||0),0)} makes`;
     const pts = w.steps.filter(s => !s.free).map(s => `<circle cx="${s.x}" cy="${s.y}" r="1.6" fill="var(--accent)"/>`).join('');
@@ -1244,7 +1307,7 @@ function renderWorkouts(){
     const last = done[done.length-1];
     const lastTxt = last ? (() => { const sm = summarize(last.shots); return `Last: ${fmtPct(pct(sm.made, sm.att))} on ${fmtDate(last.start)}`; })() : 'Not tried yet';
     return `<article class="panel wo">
-      <div class="meta"><span>${esc(w.level)}</span><span>${goal}</span><span>${w.steps.length} station${w.steps.length>1?'s':''}</span></div>
+      <div class="meta">${w.id === rec ? '<span style="color:var(--accent);font-weight:700">For you</span>' : ''}<span>${esc(w.level)}</span><span>${goal}</span><span>${w.steps.length} station${w.steps.length>1?'s':''}</span></div>
       <h3 style="font-size:24px">${esc(w.name)}</h3>
       ${pts ? courtSVG(pts) : ''}
       <p>${esc(w.desc)}</p>
@@ -1392,7 +1455,7 @@ function renderGoal(){
 }
 $('#goal-plus').addEventListener('click', () => { db.settings.goal = (db.settings.goal || 1000) + 250; save(); renderGoal(); });
 $('#goal-minus').addEventListener('click', () => { db.settings.goal = Math.max(250, (db.settings.goal || 1000) - 250); save(); renderGoal(); });
-function renderAll(){ $('#today').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'}); renderGoal(); renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
+function renderAll(){ const pr = profile(); $('#today').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'}) + (pr ? ` · Let's go, ${pr.name}` : ''); syncMe(); renderGoal(); renderForm(); renderCoach(); renderScore(); renderShots(); renderWorkoutLive(); renderWorkouts(); renderStats(); renderHistory(); }
 
 $('#make-btn').addEventListener('click', () => record(true, false));
 $('#miss-btn').addEventListener('click', () => record(false, false));
@@ -1719,7 +1782,7 @@ function handlePose(pose, now){
   lastPose = {kp, t: now}; poseBuf.push(lastPose);
   while(poseBuf.length && now - poseBuf[0].t > 3500) poseBuf.shift();
   if(now < formCooldown) return;
-  for(const side of ['left','right']){
+  for(const side of profile()?.hand === 'left' ? ['left','right'] : ['right','left']){
     const w = kp[side+'_wrist'], e = kp[side+'_elbow'], sh = kp[side+'_shoulder'], n = kp.nose;
     if(!ok(w, e, sh, n)) continue;
     if(w.y < n.y && w.y < sh.y && ang(sh, e, w) > 135){
@@ -2052,6 +2115,7 @@ let hlFilter = 'makes', hlCache = [], hlUrls = [];
 async function renderHighlights(){
   let list = []; try{ list = await IDB.all('clips'); }catch(e){}
   hlUrls.forEach(u => URL.revokeObjectURL(u)); hlUrls = [];
+  const mine = new Set(db.sessions.map(x => x.id).concat(db.current.id)); list = list.filter(c => c.demo || mine.has(c.sessionId));
   list.sort((a,b) => b.t - a.t); hlCache = list;
   $$('[data-hl]').forEach(b => b.setAttribute('aria-pressed', b.dataset.hl === hlFilter ? 'true' : 'false'));
   const f = list.filter(c => hlFilter === 'all' || (hlFilter === 'makes') === c.made);
@@ -2091,7 +2155,8 @@ async function showReport(sess){
   $('#report-date').textContent = fmtDate(sess.start) + (w ? ' · ' + w.name : '');
   $('#report-body').innerHTML = `
     <div class="row" style="align-items:baseline;gap:14px;margin-top:10px"><span class="big" style="color:${pct(sm.made,sm.att) >= 50 ? 'var(--make)' : 'var(--ink)'}">${fmtPct(pct(sm.made, sm.att))}</span>
-      <span class="muted">${sm.made} of ${sm.att} · best streak ${sm.best}</span></div>
+      <span class="muted">${sm.made} of ${sm.att} · best streak ${sm.best}${(() => { const pr = profile(), mins = sess.shots.length ? (sess.shots[sess.shots.length-1].t - sess.shots[0].t) / 6e4 : 0;
+        return pr && pr.weightLb && mins >= 2 ? ` · ~${Math.round(4.5 * pr.weightLb * .4536 * mins / 60)} cal` : ''; })()}</span></div>
     <div class="kv"><div><span>Form</span><b>${avgF ?? '–'}</b></div><div><span>Avg arc</span><b>${avgA != null ? avgA + '°' : '–'}</b></div>
       <div><span>Top miss</span><b>${top && top[1] ? (top[0] === 'rim' ? 'Rim-out' : top[0][0].toUpperCase() + top[0].slice(1)) : '–'}</b></div></div>
     ${courtSVG(sess.shots.map(x => `<circle cx="${x.x}" cy="${x.y}" r=".8" fill="${x.made ? 'var(--make)' : 'var(--miss)'}" opacity=".7"/>`).join(''))}
@@ -2373,9 +2438,258 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); instal
 $('#install-btn').addEventListener('click', async () => { if(!installEvt) return; installEvt.prompt(); installEvt = null; $('#install-btn').hidden = true; });
 if('serviceWorker' in navigator && !inFrame && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 
+/* ================= player profiles: sign up, log in, onboarding, personal plan ================= */
+const LEVELS = [['new','Just starting','New to the game','Beginner'],['rec','Play for fun','Pickup games and rec league','Beginner'],['school','School team','Middle school or JV','Intermediate'],
+  ['elite','Varsity or AAU','High-level competition','Advanced'],['college','College or pro','The next level','Advanced']];
+const POSITIONS = [['PG','Point guard','Runs the offense','PG'],['SG','Shooting guard','Scores from the perimeter','SG'],['SF','Small forward','Wing who does a bit of everything','SF'],
+  ['PF','Power forward','Strong inside and at the elbows','PF'],['C','Center','Protects the rim, scores in the post','C'],['any','Not sure yet','Keep my plan balanced','?']];
+const STYLES = [['shooter','Shooter','Spot-ups and pull-ups','🎯'],['slasher','Slasher','Attack the rim','⚡'],['playmaker','Playmaker','Handles and passing','🧠'],
+  ['post','Post player','Back to the basket','💪'],['defender','Lockdown defender','Shut down their best player','🔒'],['allround','All-around','A bit of everything','⭐']];
+const GOALS = [['shoot','Knock down more shots','','🎯'],['handle','Tighter handles','','🏀'],['finish','Finish at the rim','','🔥'],['ft','Ice-cold free throws','','🧊'],
+  ['team','Make the team','','🏆'],['shape','Get in game shape','','🫁'],['fun','Have fun and stay active','','😄']];
+const OB_STEPS = ['name','age','body','position','hand','style','goals','freq','pin'];
+const OB = {screen:null, mode:'signup', i:0, a:{}, pinFor:null};
+const profile = () => db.settings.profile || null;
+const initials = n => (n || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const labelOf = (list, v) => (list.find(x => x[0] === v) || [])[1] || '–';
+const nums = (a, b, step = 1) => Array.from({length: Math.floor((b - a) / step) + 1}, (_, i) => a + i * step);
+const fmtHt = (inch, metric) => metric ? Math.round(inch * 2.54) + ' cm' : fmtIn(inch);
+const fmtWt = (lb, metric) => metric ? Math.round(lb * .4536) + ' kg' : lb + ' lb';
+const profMeta = p => [p.position !== 'any' ? p.position : null, labelOf(STYLES, p.style), fmtHt(p.heightIn, p.units === 'metric')].filter(Boolean).join(' · ');
+const obSteps = () => OB.mode === 'edit' ? OB_STEPS.filter(s => s !== 'pin') : OB_STEPS;
+async function pinHash(pin){
+  const txt = 'swishlab:' + pin;
+  try{ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+  catch(e){ let h = 5381; for(const c of txt) h = (h * 33 ^ c.charCodeAt(0)) >>> 0; return 'd' + h.toString(16); }
+}
+
+// Personal plan: drill level, weekly shots goal, drills and a workout picked from the answers.
+function recommendDrills(p, lvl){
+  const L = ['Beginner','Intermediate','Advanced'], want = L.indexOf(lvl), g = p.goals || [], w = {Dribbling:0, Shooting:0, Moves:0, Finishing:0};
+  const add = o => Object.entries(o).forEach(([t, n]) => w[t] += n);
+  if(g.includes('shoot')) add({Shooting:3}); if(g.includes('handle')) add({Dribbling:3}); if(g.includes('finish')) add({Finishing:3});
+  if(g.includes('ft')) add({Shooting:1}); if(g.includes('team')) add({Moves:2, Shooting:1}); if(g.includes('fun')) add({Dribbling:1});
+  add({shooter:{Shooting:2}, slasher:{Finishing:2, Moves:1}, playmaker:{Dribbling:2, Moves:1}, post:{Moves:2, Finishing:1}, defender:{Dribbling:1, Finishing:1},
+    allround:{Shooting:1, Dribbling:1, Moves:1, Finishing:1}}[p.style] || {});
+  add({PG:{Dribbling:2}, SG:{Shooting:2}, SF:{Moves:1, Shooting:1}, PF:{Finishing:1, Moves:1}, C:{Finishing:2}}[p.position] || {});
+  const big = p.style === 'post' || ['PF','C'].includes(p.position), shape = g.includes('shape');
+  const bonus = {sprint: shape ? 3 : 0, zig: shape ? 2 : 0, upunder: big ? 2 : 0, fade: big ? 2 : 0, stepthru: big ? 1 : 0, weak: g.includes('finish') ? 1 : 0, form: g.includes('ft') ? 1 : 0};
+  const score = d => w[d.type] + (bonus[d.id] || 0) + [3, 0, -4][Math.abs(L.indexOf(d.lvl) - want)] + (d.cam || d.type === 'Dribbling' ? .5 : 0);
+  const ranked = DRILLS.map((d, i) => ({d, s: score(d) - i / 1000})).sort((a, b) => b.s - a.s), per = {}, out = [];
+  for(const {d} of ranked){ if((per[d.type] || 0) >= 2) continue; per[d.type] = (per[d.type] || 0) + 1; out.push(d); if(out.length === 6) break; }
+  return out;
+}
+function recommendWorkout(p, lvl){
+  const g = p.goals || [];
+  if(g.includes('ft')) return 'ft50';
+  if(lvl === 'Beginner') return 'form';
+  if(g.includes('shape')) return 'make100';
+  if(p.style === 'shooter' || p.position === 'SG') return lvl === 'Advanced' ? 'atw' : 'corner';
+  return 'elbows';
+}
+function makePlan(p){
+  const lvl = (LEVELS.find(l => l[0] === p.level) || LEVELS[0])[3];
+  const spm = {new:3, rec:4, school:5, elite:6, college:6}[p.level] || 4;
+  const goal = Math.max(100, Math.min(5000, Math.round((p.days || 3) * (p.mins || 30) * spm * .6 / 50) * 50));
+  return {lvl, goal, drills: recommendDrills(p, lvl), workout: recommendWorkout(p, lvl)};
+}
+function applyProfile(d, p){ const plan = makePlan(p); d.settings.profile = p; d.settings.heightIn = p.heightIn; d.settings.goal = plan.goal; }
+
+/* ---- screens ---- */
+const obOpts = (k, list, cls = '', multi = false) => `<div class="ob-opts ${cls}">${list.map(([v, label, sub, ico]) => {
+  const on = multi ? (OB.a[k] || []).includes(v) : OB.a[k] === v;
+  return `<button type="button" class="ob-opt" data-k="${k}" data-v="${v}"${multi ? ' data-multi="1"' : ''} aria-pressed="${on}">${ico ? `<i aria-hidden="true">${ico}</i>` : ''}<div><b>${esc(label)}</b>${sub ? `<span>${esc(sub)}</span>` : ''}</div></button>`; }).join('')}</div>`;
+const obPills = (k, list) => `<div class="ob-pills">${list.map(([v, label]) => `<button type="button" class="ob-opt" data-k="${k}" data-v="${v}" aria-pressed="${OB.a[k] === v}">${label}</button>`).join('')}</div>`;
+const OB_OK = {name: a => !!(a.name || '').trim(), age: a => !!a.level, body: () => true, position: a => !!a.position, hand: a => !!a.hand, style: a => !!a.style,
+  goals: a => (a.goals || []).length > 0, freq: a => !!a.days && !!a.mins, pin: a => !a.pin || /^\d{4}$/.test(a.pin)};
+const OB_Q = {
+  name: a => `<h1>What should we call you?</h1><p>Your player name, for your profile and your coach's shout-outs.</p>
+    <input class="ob-in" data-in="name" maxlength="24" autocomplete="nickname" autocapitalize="words" placeholder="Your name" aria-label="Your name" value="${esc(a.name || '')}">`,
+  age: a => `<h1>How old are you${a.name ? ', ' + esc(a.name.trim()) : ''}?</h1><p>Your age and level set how hard your drills and goals are.</p>
+    <select class="ob-in" data-in="age" aria-label="Age">${nums(6, 70).map(v => `<option value="${v}"${v === a.age ? ' selected' : ''}>${v} years old</option>`).join('')}</select>
+    <h3>What level do you play at?</h3>${obOpts('level', LEVELS)}`,
+  body: a => { const m = a.units === 'metric'; return `<h1>Your size</h1><p>Height makes your release-height numbers accurate. Weight is used to estimate calories burned.</p>
+    ${obPills('units', [['us', 'ft / lb'], ['metric', 'cm / kg']])}
+    <h3>Height</h3><select class="ob-in" data-in="heightIn" aria-label="Height">${nums(48, 90).map(v => `<option value="${v}"${v === a.heightIn ? ' selected' : ''}>${fmtHt(v, m)}</option>`).join('')}</select>
+    <h3>Weight</h3><select class="ob-in" data-in="weightLb" aria-label="Weight">${nums(50, 350, 5).map(v => `<option value="${v}"${v === a.weightLb ? ' selected' : ''}>${fmtWt(v, m)}</option>`).join('')}</select>`; },
+  position: () => `<h1>What position do you play?</h1><p>Your drills lean toward what your position needs.</p>${obOpts('position', POSITIONS)}`,
+  hand: () => `<h1>Which hand do you shoot with?</h1><p>The form check watches your shooting arm first.</p>${obOpts('hand', [['right','Right hand','','R'],['left','Left hand','','L']], 'two')}`,
+  style: () => `<h1>What's your playstyle?</h1><p>Pick the one that sounds most like you.</p>${obOpts('style', STYLES)}`,
+  goals: () => `<h1>What are your goals?</h1><p>Pick up to 3. Your plan is built around them.</p>${obOpts('goals', GOALS, '', true)}`,
+  freq: () => `<h1>How much do you play?</h1><p>This sets your weekly shots goal. You can change it any time.</p>
+    <h3>Days a week</h3>${obPills('days', nums(1, 7).map(v => [v, v]))}<h3>Minutes per session</h3>${obPills('mins', [15, 30, 45, 60, 90].map(v => [v, v === 90 ? '90+' : v]))}`,
+  pin: a => `<h1>Lock your profile?</h1><p>Optional. A 4-digit PIN keeps other people on this phone out of your profile. It only works on this phone. It isn't an online password.</p>
+    <input class="ob-in pin" data-in="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" placeholder="••••" aria-label="4-digit PIN" value="${esc(a.pin || '')}">`
+};
+function obProfile(){ const a = OB.a; return {name: a.name.trim(), age: a.age, level: a.level, heightIn: a.heightIn, weightLb: a.weightLb, units: a.units, position: a.position, hand: a.hand, style: a.style, goals: a.goals, days: a.days, mins: a.mins}; }
+function renderAuth(){
+  const s = OB.screen, st = obSteps();
+  let top = `<div class="auth-top"><button class="auth-back" data-act="back" aria-label="Back" type="button">‹</button>${s === 'q' ? `<div class="ob-prog"><i style="width:${(OB.i + 1) / st.length * 100}%"></i></div><span class="ob-count">${OB.i + 1}/${st.length}</span>` : ''}</div>`, body = '', foot = '';
+  if(s === 'welcome'){
+    top = '';
+    body = `<div class="ob-hero"><img src="${PHOTOS.shot1}" alt="Player shooting a jump shot"><span class="tg" style="right:14%;top:22%">3</span></div>
+      <div class="ob-brand">Swish<br>Lab</div><ul class="ob-feats"><li>AI shot tracking and form checks</li><li>Camera drills for handles, moves and finishing</li><li>A plan built around your game</li></ul>`;
+    foot = `<button class="btn primary big" data-act="signup" type="button">Sign up, it's free</button>${PROF.list.length ? '<button class="btn ghosty big" data-act="login" type="button">Log in</button>' : ''}
+      <p class="ob-note">No email needed. Your profile and stats stay on this phone.</p>`;
+  } else if(s === 'login'){
+    body = `<h1>Who's hooping?</h1><p>Pick your player.</p><div class="ob-opts">${PROF.list.map(x => `<button class="ob-opt" type="button" data-act="pick" data-id="${esc(x.id)}"><span class="avatar">${esc(initials(x.name))}</span><div><b>${esc(x.name)}</b><span>${esc(x.meta || '')}${x.pin ? ' · PIN' : ''}</span></div></button>`).join('')}
+      <button class="ob-opt" type="button" data-act="signup"><span class="avatar add">+</span><div><b>New player</b><span>Sign up on this phone</span></div></button></div>`;
+  } else if(s === 'pin'){
+    const x = PROF.list.find(y => y.id === OB.pinFor) || {};
+    body = `<div class="ob-center"><span class="avatar big">${esc(initials(x.name))}</span><h1 style="margin-top:10px">Hi, ${esc(x.name || '')}</h1><p>Enter your 4-digit PIN.</p>
+      <input class="ob-in pin" data-in="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" aria-label="PIN">
+      <p class="ob-note" style="margin-top:22px !important">Forgot it? A PIN can't be recovered. <button class="linkbtn" data-act="forgot" type="button">Delete this player</button> to start over.</p></div>`;
+  } else if(s === 'q'){
+    const q = st[OB.i];
+    body = OB_Q[q](OB.a);
+    foot = `<button class="btn primary big" id="ob-next" data-act="next" type="button">Continue</button>`;
+  } else if(s === 'building'){
+    top = '';
+    body = `<div class="ob-build"><div class="ob-spin" aria-hidden="true"></div><h1>Building your plan</h1><ul><li>Reading your goals</li><li>Matching drills to your position and playstyle</li><li>Setting your weekly shots goal</li><li>Tuning the form check to your height</li></ul></div>`;
+  } else if(s === 'plan'){
+    const p = obProfile(), plan = makePlan(p), wo = woById(plan.workout);
+    body = `<div class="ob-kicker">Your plan is ready</div><h1>Let's work, ${esc(p.name)}.</h1><p>Built from your goals, position, playstyle and how much you play.</p>
+      <div class="plan-tiles"><div><b>${plan.goal.toLocaleString()}</b><span>shots a week</span></div><div><b>${p.days}×</b><span>a week, ${p.mins} min</span></div><div><b>${plan.lvl}</b><span>drill level</span></div></div>
+      <h3>Start with these drills</h3>${plan.drills.slice(0, 3).map(d => `<div class="plan-dr"><img src="${photoFor(d)}" alt=""><div><b>${esc(d.name)}</b><span>${d.type} · ${d.lvl}${d.cam || d.type === 'Dribbling' ? ' · 📷 Camera' : ''}</span></div></div>`).join('')}
+      <h3>Workout for you</h3><div class="plan-dr"><div><b>${esc(wo.name)}</b><span>${esc(wo.desc)}</span></div></div>`;
+    foot = `<button class="btn primary big" data-act="start" type="button">${OB.mode === 'edit' ? 'Save profile' : 'Start training'}</button>`;
+  }
+  $('#auth-in').innerHTML = top + `<div id="auth-body">${body}</div>` + (foot ? `<div class="auth-foot">${foot}</div>` : '');
+  $('#auth').scrollTop = 0; obSync();
+  const f = $('#auth [data-in="name"], #auth [data-in="pin"]'); if(f) f.focus({preventScroll:true});
+}
+function obSync(){
+  const n = $('#ob-next'); if(!n) return; const q = obSteps()[OB.i];
+  n.disabled = !OB_OK[q](OB.a);
+  if(q === 'pin') n.textContent = OB.a.pin ? 'Continue' : 'Skip';
+}
+function authOpen(screen){ OB.screen = screen; $('#auth').hidden = false; document.documentElement.style.overflow = 'hidden'; renderAuth(); }
+function closeAuth(){ $('#auth').hidden = true; document.documentElement.style.overflow = ''; OB.screen = null; }
+function obStart(mode){
+  OB.mode = mode; OB.i = 0; OB.screen = 'q';
+  OB.a = mode === 'edit' ? JSON.parse(JSON.stringify(profile())) : {age:16, heightIn:70, weightLb:150, units: /^en-US$|^en$/.test(navigator.language || 'en-US') ? 'us' : 'metric'};
+  authOpen('q');
+}
+function obNext(){
+  const st = obSteps(); if(!OB_OK[st[OB.i]](OB.a)) return;
+  if(OB.i + 1 < st.length){ OB.i++; renderAuth(); return; }
+  OB.screen = 'building'; renderAuth();
+  const lines = $$('#auth .ob-build li'); lines.forEach((li, i) => setTimeout(() => li.classList.add('done'), 450 + i * 500));
+  setTimeout(() => { if(OB.screen === 'building'){ OB.screen = 'plan'; renderAuth(); } }, 700 + lines.length * 500);
+}
+function obBack(){
+  if(OB.screen === 'q' && OB.i > 0){ OB.i--; return renderAuth(); }
+  if(OB.screen === 'plan'){ OB.screen = 'q'; OB.i = obSteps().length - 1; return renderAuth(); }
+  if(OB.mode === 'edit') return closeAuth();
+  OB.screen = OB.screen === 'pin' ? 'login' : 'welcome'; renderAuth();
+}
+async function finishOnboarding(){
+  const p = obProfile();
+  if(OB.mode === 'edit'){
+    applyProfile(db, p); const e = PROF.list.find(x => x.id === PROF.active); if(e){ e.name = p.name; e.meta = profMeta(p); } saveProf(); save();
+    closeAuth(); renderAll(); renderDrills(); renderProfile(); toast('Profile updated'); return;
+  }
+  const reuse = PROF.active && keyFor(PROF.active) === KEY && !profile() ? PROF.active : null;
+  const id = reuse || (PROF.list.some(x => x.id === 'main') ? 'p' + Date.now().toString(36) : 'main');
+  const pin = /^\d{4}$/.test(OB.a.pin || '') ? await pinHash(OB.a.pin) : null;
+  PROF.list = PROF.list.filter(x => x.id !== id).concat({id, name: p.name, meta: profMeta(p), pin, created: Date.now()});
+  PROF.active = id; saveProf();
+  if(keyFor(id) === KEY){ applyProfile(db, p); save(); closeAuth(); renderAll(); renderDrills(); setTimeout(() => hype(`Welcome to Swish Lab, ${p.name}! Let's get to work.`, true), 400); return; }
+  const fresh = {sessions: seedExamples(), current: null, settings: {}}; applyProfile(fresh, p);
+  try{ localStorage.setItem(keyFor(id), JSON.stringify(fresh)); }catch(e){}
+  location.reload();
+}
+function logIn(id){
+  PROF.active = id; saveProf();
+  if(keyFor(id) === KEY && profile()){ closeAuth(); renderAll(); renderDrills(); return; }
+  location.reload();
+}
+async function deleteProfile(id){
+  const k = keyFor(id); let d = null; try{ d = JSON.parse(localStorage.getItem(k)); }catch(e){}
+  const ids = new Set(((d && d.sessions) || []).map(x => x.id).concat(d && d.current ? [d.current.id] : []));
+  try{ await Promise.all((await IDB.all('clips')).filter(c => ids.has(c.sessionId)).map(c => IDB.del('clips', c.id))); }catch(e){}
+  if(k === KEY) dead = true;
+  try{ localStorage.removeItem(k); localStorage.removeItem(k + '.tab'); }catch(e){}
+  PROF.list = PROF.list.filter(x => x.id !== id); if(PROF.active === id) PROF.active = null; saveProf();
+  location.reload();
+}
+$('#auth').addEventListener('click', async e => {
+  const o = e.target.closest('[data-k]');
+  if(o){
+    const k = o.dataset.k, v = /^\d+$/.test(o.dataset.v) ? +o.dataset.v : o.dataset.v;
+    if(o.dataset.multi){ const arr = OB.a[k] = OB.a[k] || [], i = arr.indexOf(v);
+      if(i >= 0) arr.splice(i, 1); else if(arr.length < 3) arr.push(v); else { toast('Pick up to 3 goals'); return; } }
+    else OB.a[k] = v;
+    renderAuth();
+    if(['position','hand','style'].includes(k)) setTimeout(() => OB.screen === 'q' && obSteps()[OB.i] === k && obNext(), 280);
+    return;
+  }
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const act = b.dataset.act;
+  if(act === 'signup') obStart('signup');
+  else if(act === 'login'){ OB.screen = 'login'; renderAuth(); }
+  else if(act === 'back') obBack();
+  else if(act === 'next') obNext();
+  else if(act === 'start') finishOnboarding();
+  else if(act === 'pick'){ const x = PROF.list.find(y => y.id === b.dataset.id); if(!x) return;
+    if(x.pin){ OB.pinFor = x.id; OB.a = {}; OB.screen = 'pin'; renderAuth(); } else logIn(x.id); }
+  else if(act === 'forgot'){ const x = PROF.list.find(y => y.id === OB.pinFor);
+    if(x && confirm(`Delete ${x.name} and all of their stats and clips on this phone? This can't be undone.`)) deleteProfile(x.id); }
+});
+$('#auth').addEventListener('input', async e => {
+  const el = e.target.closest('[data-in]'); if(!el) return;
+  const k = el.dataset.in;
+  if(el.tagName === 'SELECT') OB.a[k] = +el.value;
+  else if(k === 'pin'){ OB.a.pin = el.value.replace(/\D/g, '').slice(0, 4); if(el.value !== OB.a.pin) el.value = OB.a.pin; }
+  else OB.a[k] = el.value;
+  if(OB.screen === 'pin' && OB.a.pin.length === 4){
+    const x = PROF.list.find(y => y.id === OB.pinFor);
+    if(x && await pinHash(OB.a.pin) === x.pin) return logIn(x.id);
+    el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); toast('Wrong PIN'); setTimeout(() => { el.value = ''; OB.a.pin = ''; }, 350);
+    return;
+  }
+  obSync();
+});
+$('#auth').addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.matches('[data-in]') && OB.screen === 'q'){ e.preventDefault(); obNext(); } });
+
+/* ---- profile page ---- */
+function syncMe(){
+  const p = profile(), b = $('#me-btn');
+  b.hidden = !p; if(p) b.textContent = initials(p.name);
+}
+function renderProfile(){
+  const p = profile(); if(!p) return;
+  const real = db.sessions.filter(s => !s.example), shots = real.flatMap(s => s.shots), sm = summarize(shots), m = p.units === 'metric';
+  const dd = Object.values(db.settings.drillsDone || {}).reduce((a, b) => a + b, 0), plan = makePlan(p), wo = woById(plan.workout);
+  const kv = (k, v) => `<div><span>${k}</span><b>${esc(v)}</b></div>`;
+  $('#pf-body').innerHTML = `
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-pf="close" type="button">Close</button></div>
+    <div class="pf-head"><span class="avatar big">${esc(initials(p.name))}</span><div><h2 id="pf-name">${esc(p.name)}</h2><div class="muted">${esc(profMeta(p))}</div></div></div>
+    <div class="kv pf-stats">${kv('Sessions', real.length)}${kv('Shots', shots.length.toLocaleString())}${kv('FG%', fmtPct(pct(sm.made, sm.att)))}${kv('Drills', dd)}</div>
+    <div class="sub-h">Your game</div>
+    <div class="pf-grid">${kv('Age', p.age)}${kv('Level', labelOf(LEVELS, p.level))}${kv('Height', fmtHt(p.heightIn, m))}${kv('Weight', fmtWt(p.weightLb, m))}
+      ${kv('Position', labelOf(POSITIONS, p.position))}${kv('Shoots', p.hand === 'left' ? 'Left-handed' : 'Right-handed')}${kv('Playstyle', labelOf(STYLES, p.style))}${kv('Plays', `${p.days}× a week, ${p.mins} min`)}</div>
+    <div class="sub-h">Goals</div><div class="row">${(p.goals || []).map(g => `<span class="chip" aria-pressed="true">${esc(labelOf(GOALS, g))}</span>`).join('')}</div>
+    <div class="sub-h">Your plan</div><p class="muted" style="margin:0">${plan.goal.toLocaleString()} shots a week · ${plan.lvl} drills · Workout: ${esc(wo.name)}</p>
+    <div class="row" style="margin-top:16px"><button class="btn primary" data-pf="edit" type="button">Edit profile</button><button class="btn" data-pf="switch" type="button">Switch player</button><button class="btn" data-pf="logout" type="button">Log out</button></div>
+    <p class="muted" style="margin-top:18px;font-size:13px">Your profile and stats are saved on this phone only. <button class="linkbtn" data-pf="delete" type="button">Delete this player</button></p>`;
+}
+$('#me-btn').addEventListener('click', () => { renderProfile(); $('#profile').hidden = false; });
+$('#profile').addEventListener('click', e => {
+  if(e.target === e.currentTarget){ e.currentTarget.hidden = true; return; }
+  const b = e.target.closest('[data-pf]'); if(!b) return;
+  const act = b.dataset.pf, p = profile();
+  if(act === 'close') $('#profile').hidden = true;
+  else if(act === 'edit'){ $('#profile').hidden = true; obStart('edit'); }
+  else if(act === 'switch'){ $('#profile').hidden = true; authOpen('login'); }
+  else if(act === 'logout'){ if(running) stopSource(false); if(db.current.shots.length && !db.current.demo) endSession(true); PROF.active = null; saveProf(); location.reload(); }
+  else if(act === 'delete' && confirm(`Delete ${p.name} and all of their stats and clips on this phone? This can't be undone.`)) deleteProfile(PROF.active);
+});
+
 /* ---------- boot ---------- */
 let tab = 'track'; try{ tab = localStorage.getItem(KEY + '.tab') || 'track'; }catch(e){}
 renderAll(); showView(tab); sizeOverlay();
+if(!PROF.active || !profile()) authOpen('welcome');
 document.addEventListener('visibilitychange', async () => { if(!document.hidden && running && !wakeLock){ try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){} } });
 })();
 </script>
