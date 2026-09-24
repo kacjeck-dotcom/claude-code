@@ -1952,8 +1952,9 @@ async function begin(kind, keep){
   if(kind !== 'demo') loadAI().then(aiLoop); else loadTF();
   hoopAuto = false;
   if(kind !== 'demo'){
-    if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; setHint('Line the rim up inside the blue box. To draw it yourself: tools (top right) → Set hoop'); }
-    else setHint('');
+    HF.hist = []; HF.found = false; HF.user = false; HF.lastScan = 0; HF.since = performance.now();
+    if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; }
+    setHint('Looking for the hoop… or tap the rim on the screen');
     setTimeout(hoopPredict, 1800);
     if(!(IMM.on && db.current.workout)) countdown();
     MEM = coachMemory();
@@ -2033,7 +2034,15 @@ function normPt(e){ const r = overlay.getBoundingClientRect(); return {x: Math.m
 overlay.addEventListener('pointerdown', e => {
   if(mode === 'hoop'){ drag = {a: normPt(e), b: normPt(e)}; overlay.setPointerCapture(e.pointerId); }
   else if(mode === 'color'){ sampleColor(normPt(e)); }
+  else if(!mode && running && source !== 'demo' && !HF.found) tapRim(normPt(e));
 });
+// One tap on the rim: snap to the rim around the tap if it can be seen, otherwise a rim-sized box centred on the tap.
+function tapRim(t){
+  const c = hoopScan(video, t), ar = (video.videoWidth || 16) / (video.videoHeight || 9), w = .09;
+  hoop = c ? {x0: c.x0, y0: c.y0, x1: c.x1, y1: c.y1} : {x0: t.x - w / 2, x1: t.x + w / 2, y0: t.y - .012, y1: Math.min(1, t.y + w * .6 * ar)};
+  hoopAuto = false; HF.user = true; HF.found = true; db.settings.hoop = hoop; save(); hoopSample(true); setHint('');
+  toast(c ? 'Hoop locked on the rim ✓' : 'Hoop set. Drag in tools → Set hoop to fine-tune'); bigText('Hoop ✓', 'var(--make)');
+}
 overlay.addEventListener('pointermove', e => { if(drag) drag.b = normPt(e); });
 overlay.addEventListener('pointerup', () => {
   if(!drag) return;
@@ -2041,7 +2050,7 @@ overlay.addEventListener('pointerup', () => {
   let x0 = Math.min(a.x,b.x), x1 = Math.max(a.x,b.x), y0 = Math.min(a.y,b.y), y1 = Math.max(a.y,b.y);
   if(x1 - x0 < .02){ const cx = (x0+x1)/2; x0 = cx - .045; x1 = cx + .045; }
   if(y1 - y0 < .02){ const cy = (y0+y1)/2; y0 = cy - .02; y1 = cy + .03; }
-  hoop = {x0, y0, x1, y1}; hoopAuto = false;
+  hoop = {x0, y0, x1, y1}; hoopAuto = false; HF.user = true; HF.found = true;
   if(source !== 'demo'){ db.settings.hoop = hoop; save(); hoopSample(true); }
   enterMode(null); toast('Hoop locked. Start shooting!');
 });
@@ -2464,6 +2473,7 @@ function loop(){
   pctx.drawImage(src, 0, 0, PW, PH);
   captureCrop(src, now);
   if(source !== 'demo' && hoop && !hoopAuto && now - lastHoopSample > 5000) hoopSample(false);
+  hoopAutoTick(now);
   const b = (source !== 'demo' && cocoBall && now - cocoBall.t < 150) ? cocoBall : detect();
   if(b){ lastBall = b; lostFrames = 0; trail.push({x:b.x, y:b.y, t:now}); judge(b, now); }
   else if(++lostFrames > 8){ lastBall = null; }
@@ -2477,10 +2487,12 @@ function draw(b, now){
   octx.clearRect(0, 0, W, H);
   const hz = drag ? {x0:Math.min(drag.a.x,drag.b.x), x1:Math.max(drag.a.x,drag.b.x), y0:Math.min(drag.a.y,drag.b.y), y1:Math.max(drag.a.y,drag.b.y)} : hoop;
   if(hz){
-    octx.save(); octx.strokeStyle = '#7BA5E6'; octx.lineWidth = 2*d; octx.setLineDash([6*d, 5*d]);
+    const searching = source !== 'demo' && !drag && !HF.found, col = searching ? '#FFB21A' : HF.found && source !== 'demo' ? '#22C55E' : '#7BA5E6';
+    octx.save(); octx.strokeStyle = col; octx.lineWidth = 2*d; octx.setLineDash(searching ? [3*d, 5*d] : [6*d, 5*d]);
+    if(searching) octx.globalAlpha = .45 + .35 * Math.sin(now / 180);
     octx.strokeRect(hz.x0*W, hz.y0*H, (hz.x1-hz.x0)*W, (hz.y1-hz.y0)*H);
-    octx.setLineDash([]); octx.fillStyle = '#7BA5E6'; octx.font = `600 ${12*d}px Barlow, sans-serif`;
-    octx.fillText('HOOP', hz.x0*W, hz.y0*H - 5*d); octx.restore();
+    octx.setLineDash([]); octx.fillStyle = col; octx.font = `600 ${12*d}px Barlow, sans-serif`;
+    octx.fillText(searching ? 'FINDING HOOP…' : 'HOOP', hz.x0*W, hz.y0*H - 5*d); octx.restore();
   }
   if(trail.length > 1){
     octx.save(); octx.lineCap = 'round'; octx.lineJoin = 'round';
@@ -2591,6 +2603,101 @@ const IDB = (() => {
 
 /* ================= countdown ================= */
 let hoopAuto = false, lastHoopSample = 0;
+/* ================= automatic hoop finder =================
+   Looks for the rim: an orange/red shape that is much wider than tall, with a bright backboard above it.
+   A candidate has to show up in the same place on several scans (a moving ball or jersey won't), then the box locks on.
+   It keeps checking every couple of seconds so the box follows the rim if the phone gets bumped. */
+const HF = {cv: document.createElement('canvas'), hist: [], found: false, user: false, lastScan: 0, since: 0};
+HF.ctx = HF.cv.getContext('2d', {willReadFrequently: true});
+// near: a point the player tapped. Then only rims around it count and no backboard is needed.
+function hoopScan(src, near){
+  const sw = src.videoWidth || src.width, sh = src.videoHeight || src.height; if(!sw || !sh) return null;
+  const W = 320, H = Math.max(60, Math.round(320 * sh / sw)); HF.cv.width = W; HF.cv.height = H;
+  try{ HF.ctx.drawImage(src, 0, 0, W, H); }catch(e){ return null; }
+  const d = HF.ctx.getImageData(0, 0, W, H).data, n = W * H, mask = new Uint8Array(n), bright = new Uint8Array(n);
+  for(let i = 0, j = 0; i < n; i++, j += 4){
+    const r = d[j], g = d[j+1], b = d[j+2], mx = Math.max(r, g, b), mn = Math.min(r, g, b), v = mx / 255, sat = mx ? (mx - mn) / mx : 0;
+    if(mx === r && r > 80 && sat > .42 && v > .28){ const hue = 60 * (g - b) / (mx - mn || 1); if(hue > -22 && hue < 34) mask[i] = 1; }   // orange or red
+    if(v > .6 && sat < .3) bright[i] = 1;                                                                                                // backboard-ish
+  }
+  // keep only thin strokes: a rim is a thin ring, while poles, signs, balls and jerseys are thick
+  const thin = new Uint8Array(n), maxRun = Math.max(4, Math.round(H * .03));
+  for(let x = 0; x < W; x++){ let y = 0;
+    while(y < H){ if(!mask[y * W + x]){ y++; continue; } let e = y; while(e < H && mask[e * W + x]) e++; if(e - y <= maxRun) for(let k = y; k < e; k++) thin[k * W + x] = 1; y = e; } }
+  const blobs = (m, minA) => { const lab = new Uint8Array(n), out = [], st = [];
+    for(let i = 0; i < n; i++){ if(!m[i] || lab[i]) continue; const c = {x0: W, y0: H, x1: 0, y1: 0, a: 0}; lab[i] = 1; st.push(i);
+      while(st.length){ const k = st.pop(), x = k % W, y = (k - x) / W; c.a++;
+        if(x < c.x0) c.x0 = x; if(x > c.x1) c.x1 = x; if(y < c.y0) c.y0 = y; if(y > c.y1) c.y1 = y;
+        for(let dy = -1; dy <= 1; dy++) for(let dx = -1; dx <= 1; dx++){ const xx = x + dx, yy = y + dy; if(xx < 0 || xx >= W || yy < 0 || yy >= H) continue; const q = yy * W + xx; if(m[q] && !lab[q]){ lab[q] = 1; st.push(q); } } }
+      if(c.a >= minA) out.push(c); }
+    return out; };
+  const brightIn = (x0, y0, x1, y1) => { x0 = Math.max(0, Math.round(x0)); x1 = Math.min(W - 1, Math.round(x1)); y0 = Math.max(0, Math.round(y0)); y1 = Math.min(H - 1, Math.round(y1));
+    let s = 0, t = 0; for(let y = y0; y <= y1; y++) for(let x = x0; x <= x1; x++){ t++; s += bright[y * W + x]; } return t ? s / t : 0; };
+  const comps = blobs(thin, 3);
+  // rims break into pieces (front arc, back arc, net in between): merge neighbours on the same line
+  comps.sort((a, b) => a.x0 - b.x0);
+  for(let i = 0; i < comps.length; i++) for(let k = i + 1; k < comps.length; k++){
+    const a = comps[i], b = comps[k]; if(!a || !b) continue;
+    const gap = b.x0 - a.x1, dy = Math.abs((a.y0 + a.y1) - (b.y0 + b.y1)) / 2;
+    if(gap <= Math.max(4, (a.x1 - a.x0) * .5) && dy <= maxRun + 2){ comps[i] = {x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), a: a.a + b.a}; comps[k] = null; }
+  }
+  let best = null;
+  for(const c of comps){
+    if(!c) continue;
+    const w = c.x1 - c.x0 + 1, h = c.y1 - c.y0 + 1, asp = w / h, cx = (c.x0 + c.x1) / 2;
+    if(w < 6 || w > W * .35 || asp < 1.8 || c.y0 > H * .8 || c.x0 <= 1 || c.x1 >= W - 2) continue;
+    if(near && Math.hypot(cx / W - near.x, (c.y0 + c.y1) / 2 / H - near.y) > .09) continue;
+    if(!near && (c.y0 + c.y1) / 2 > H * .55) continue;                 // the phone looks up at the hoop: it sits in the top half
+    let cols = 0; for(let x = c.x0; x <= c.x1; x++){ for(let y = c.y0; y <= c.y1; y++) if(thin[y * W + x]){ cols++; break; } }
+    if(cols / w < .7) continue;                                        // a rim is one unbroken line across; clutter is patchy
+    // a backboard sits right above the rim and stands out from what is beside it
+    const above = brightIn(cx - w * 1.2, c.y0 - w * 1.4, cx + w * 1.2, c.y0 - 2);
+    const side = (brightIn(cx - w * 4, c.y0 - w * 1.4, cx - w * 2.2, c.y0 - 2) + brightIn(cx + w * 2.2, c.y0 - w * 1.4, cx + w * 4, c.y0 - 2)) / 2;
+    const board = Math.max(0, above - side * .6);
+    if(!near && board < .25) continue;              // on its own, only trust a rim with a real backboard above it
+    const score = Math.min(asp, 6) / 6 + board * 2 + Math.min(w / (W * .06), 1) * .3;
+    if(!best || score > best.score) best = {score, x0: c.x0, x1: c.x1 + 1, y0: c.y0, w};
+  }
+  if(best && best.score >= (near ? .3 : .8)){
+    const pad = best.w * .05;
+    return {x0: (best.x0 - pad) / W, x1: (best.x1 + pad) / W, y0: best.y0 / H, y1: Math.min(1, (best.y0 + best.w * .6) / H), score: best.score};
+  }
+  if(near) return null;
+  // no orange rim (white, grey or black rims): find the backboard and put the rim at its bottom middle
+  let bb = null;
+  for(const c of blobs(bright, 40)){
+    const w = c.x1 - c.x0 + 1, h = c.y1 - c.y0 + 1, fill = c.a / (w * h);
+    if(w < W * .07 || w > W * .45 || h > H * .5 || w / h < .7 || w / h > 2.4 || fill < .62 || c.y0 <= 1 || c.y1 > H * .7 || c.x0 <= 1 || c.x1 >= W - 2) continue;
+    const around = (brightIn(c.x0 - w * .8, c.y0, c.x0 - 3, c.y1) + brightIn(c.x1 + 3, c.y0, c.x1 + w * .8, c.y1)) / 2;   // board stands out from its surroundings
+    if(around > .35) continue;
+    const score = fill + (1 - around);
+    if(!bb || score > bb.score) bb = {...c, w, h, score};
+  }
+  if(!bb) return null;
+  const rw = bb.w * .3, cx = (bb.x0 + bb.x1) / 2, ry = bb.y1 - bb.h * .08;
+  return {x0: (cx - rw / 2) / W, x1: (cx + rw / 2) / W, y0: ry / H, y1: Math.min(1, (ry + rw * .6) / H), score: .8, board: true};
+}
+function boxIou(a, b){ const ix = Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)), iy = Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0)), i = ix * iy;
+  return i / ((a.x1 - a.x0) * (a.y1 - a.y0) + (b.x1 - b.x0) * (b.y1 - b.y0) - i || 1); }
+// Runs from the camera loop: fast scans until the hoop is found, then a slow check to follow camera bumps.
+function hoopAutoTick(now){
+  if(source === 'demo' || HF.user || drag || mode === 'hoop') return;
+  if(now - HF.lastScan < (HF.found ? 2500 : 300)) return;
+  HF.lastScan = now;
+  const c = hoopScan(video); HF.hist.push(c); if(HF.hist.length > 5) HF.hist.shift();
+  if(!c){
+    if(!HF.found && now - HF.since > 6000) setHint("Can't spot the hoop. Tap the rim on the screen");
+    return;
+  }
+  const agree = HF.hist.filter(o => o && boxIou(o, c) > .45).length;
+  if(agree < 3) return;
+  const pts = HF.hist.filter(o => o && boxIou(o, c) > .45), avg = k => pts.reduce((a, o) => a + o[k], 0) / pts.length;
+  const box = {x0: avg('x0'), y0: avg('y0'), x1: avg('x1'), y1: avg('y1')};
+  if(HF.found && hoop && boxIou(box, hoop) > .6) return;                    // still where we left it
+  const moved = HF.found;
+  hoop = box; hoopAuto = false; HF.found = true; db.settings.hoop = box; save(); setHint('');
+  if(moved) toast('Hoop moved, box updated'); else { toast('Hoop found ✓'); speak('Hoop found.', true); bigText('Hoop ✓', 'var(--make)'); }
+}
 function bigText(text, color){
   const f = $('#flash'); f.textContent = text; f.style.color = color || '#fff'; f.style.textShadow = '0 4px 30px rgba(0,0,0,.6)';
   f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
@@ -2867,6 +2974,7 @@ async function hoopPredict(){
   const box = [b[0], b[1], b[2], b[3]];
   if(box[2] - box[0] < .01 || box[3] - box[1] < .01) return;
   if(!hoop || hoopAuto || iou(box, [hoop.x0, hoop.y0, hoop.x1, hoop.y1]) < .5){
+    if(HF.found) return;
     hoop = {x0: box[0], y0: box[1], x1: box[2], y1: box[3]}; hoopAuto = false;
     setHint(''); toast('Your AI found the hoop. Drag to fix it if it is off');
   }

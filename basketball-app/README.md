@@ -55,7 +55,7 @@ Local test: `npx serve basketball-app` (or `python3 -m http.server`) and open it
 ## Tips for accurate tracking
 
 1. Prop the phone up behind the shooter or on the baseline, so the rim and the ball's whole arc are in frame.
-2. Open the tools button (top right), press **Set hoop** and drag a box around just the rim.
+2. The hoop is found automatically: the box turns green and says "Hoop found". It looks for an orange or red rim with a backboard behind it, and follows the rim if the phone gets bumped. If it can't spot the hoop (a dark rim, or strong sunset light), tap the rim once on the screen. To fine-tune, open the tools button (top right), press **Set hoop** and drag a box around the rim.
 3. In the same tools, press **Tap the ball** and tap the ball once, so the tracker learns its colour under your gym's lighting.
 4. Shoot. A shot is counted when the ball rises above the rim and comes back down: through the box is a make, beside it is a miss.
    If it miscalls one, press **Undo** and log it by hand.
