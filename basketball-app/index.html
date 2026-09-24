@@ -803,14 +803,14 @@ function renderDrills(){
   const done = db.settings.drillsDone || {}, hs = db.settings.handles || {};
   const feat = DRILLS.find(d => d.id === 'btl');
   $('#hc-hero').innerHTML = `<img src="${thumb(feat.anim)}" alt=""><div class="hc-hero-txt"><span class="lvl">Featured program</span><h2>Handles Lab</h2>
-    <p>Pound, cross and attack. Train with the camera and chase the targets.</p><button class="btn primary" data-drill="${feat.id}" type="button">Start training</button></div>`;
+    <p>Prop your phone up, face the front camera and pound the ball into the targets.</p><button class="btn primary" data-drill="${feat.id}" type="button">Start training</button></div>`;
   const rows = [['Ball Handling', 'Dribbling', 'Tighten your handle. Camera targets on every drill.'], ['Shooting', 'Shooting', 'Form, footwork and game-speed shots.']];
   $('#dr-list').innerHTML = rows.map(([title, type, sub]) => {
     const list = DRILLS.filter(d => d.type === type && (drLvl === 'all' || d.lvl === drLvl));
     if(!list.length) return '';
     return `<div class="car-head"><h3>${title}</h3><span>${sub}</span></div><div class="car">${list.map(d => `
       <button class="card-dr" data-drill="${d.id}" type="button"><span class="thumb"><img src="${thumb(d.anim)}" alt=""><i>${drMins(d)} min</i></span>
-        <b>${esc(d.name)}</b><span class="lvl">${d.lvl}${done[d.id] ? ` · done ${done[d.id]}×` : ''}${hs[d.id] ? ` · best ${hs[d.id]} hits` : ''}</span></button>`).join('')}</div>`;
+        <b>${esc(d.name)}</b><span class="lvl">${d.type === 'Dribbling' ? '📷 Camera · ' : ''}${d.lvl}${done[d.id] ? ` · done ${done[d.id]}×` : ''}${hs[d.id] ? ` · best ${hs[d.id]} hits` : ''}</span></button>`).join('')}</div>`;
   }).join('');
 }
 $$('[data-lvl]').forEach(b => b.addEventListener('click', () => { drLvl = b.dataset.lvl; renderDrills(); }));
@@ -836,6 +836,7 @@ function plStop(){ clearInterval(PL.t); PL.t = null; $('#pl-go').textContent = '
 $('#view-drills').addEventListener('click', e => {
   const b = e.target.closest('[data-drill]'); if(!b) return;
   const d = DRILLS.find(x => x.id === b.dataset.drill); PL.d = d; PL.i = 0; PL.left = d.steps[0].secs; plStop();
+  if(d.type === 'Dribbling'){ hcStart(d); return; }
   $('#pl-name').textContent = d.name; $('#pl-meta').textContent = `${d.lvl} · ${d.type} · ${drMins(d)} min`;
   $('#pl-video').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(d.q);
   $('#player').hidden = false; plShow();
@@ -909,13 +910,13 @@ function drawFig(cv, kind, t, dark){
 const HC = {stream:null, on:false, targets:[], score:0, combo:0, best:0, end:0, times:[], busy:false, pts:[], drill:null};
 async function hcStart(d){
   HC.drill = d; $('#hc').hidden = false; $('#player').hidden = true; plStop();
-  $('#hc-msg').textContent = 'Loading the AI… prop your phone up facing you and step back.';
+  $('#hc-msg').innerHTML = `<b>${esc(d.name)}</b><br>Prop your phone up facing you, then step back until your whole body fits. Loading the AI…`;
   try{ HC.stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:1280}, height:{ideal:720}}, audio:false}); }
   catch(e){ $('#hc-msg').textContent = 'Camera blocked. Allow camera access, or open the app from its own web address.'; return; }
   const v = $('#hc-video'); v.srcObject = HC.stream; await v.play().catch(() => {});
   await loadAI();
   if(ai.state !== 'ready'){ $('#hc-msg').textContent = "The AI couldn't load here. Open the app from its own web address."; return; }
-  Object.assign(HC, {on:true, targets:[], score:0, combo:0, best:0, times:[], side:1, pops:[]});
+  Object.assign(HC, {on:true, targets:[], score:0, combo:0, best:0, times:[], side:1, pops:[], move:-1});
   ['3','2','1','Pound it!'].forEach((t, i) => setTimeout(() => { if(HC.on){ $('#hc-msg').textContent = t; speak(t); } }, i * 900));
   setTimeout(() => { if(!HC.on) return; HC.end = performance.now() + 45000; hcSpawn(); $('#hc-msg').textContent = 'Pound the ball into the targets before they run out!'; }, 3600);
   hcLoop(); hcDetect();
@@ -954,7 +955,9 @@ function hcLoop(){
   HC.vis = [Math.max(0, -ox/(vw*sc)), Math.min(1, (W - ox)/(vw*sc))];
   HC.pts.forEach(p => { c.fillStyle = p.b ? '#FF7A1A' : 'rgba(255,255,255,.8)'; c.beginPath(); c.arc(X(p.x), Y(p.y), (p.b ? 12 : 7)*d, 0, 7); c.fill(); });
   if(HC.end){
-    const left = Math.max(0, HC.end - now);
+    const left = Math.max(0, HC.end - now), moves = HC.drill.steps.filter(x => x.name !== 'Rest');
+    const mi = Math.min(moves.length - 1, Math.floor((45000 - left) / (45000 / moves.length)));
+    if(mi !== HC.move){ HC.move = mi; $('#hc-msg').innerHTML = `<b>${esc(moves[mi].name)}</b><br><span style="font-weight:500">${esc(moves[mi].cue)}</span>`; speak(moves[mi].name); }
     $('#hc-time').textContent = fmtTime(left + 999).padStart(5, '0');
     if(left <= 0) return hcFinish();
   }
