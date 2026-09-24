@@ -213,6 +213,12 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 .mm .btn{border-radius:999px}
 .mm .undo{border-radius:999px}
 
+/* AI hype-man bubble */
+.bubble{position:absolute;left:10px;right:10px;bottom:10px;z-index:6;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.95);color:#0E1116;border-radius:16px;padding:10px 14px;font-weight:600;font-size:15px;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);animation:bubIn .25s ease-out}
+.bubble .bot{width:34px;height:34px;flex:none;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:18px}
+@keyframes bubIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.comp{display:flex;gap:10px;align-items:center;background:var(--surface-2);border-radius:14px;padding:10px 12px;margin-top:10px}
+.comp b{font-size:17px}
 /* app polish */
 .page-head{display:flex;flex-direction:column;gap:2px;margin-top:4px}
 .page-head .muted{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
@@ -317,6 +323,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
           <canvas id="overlay"></canvas>
           <div class="hint" id="hint" hidden></div>
           <div class="flash" id="flash"></div>
+          <div class="bubble" id="bubble" hidden><span class="bot" aria-hidden="true">🏀</span><span id="bubble-text"></span></div>
           <div class="empty" id="empty">
             <div class="start-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg></div>
             <h2>Ready to shoot?</h2>
@@ -606,6 +613,51 @@ function speak(text){
   try{ const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
 }
 
+/* ---------- AI hype-man: jokes, streak calls, NBA form comps ---------- */
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const QUIPS = {
+  make: ['Cash money!', 'Nothing but nylon.', 'Wet! Somebody get a mop.', 'Buckets. Write that down.', 'The rim said thank you.', 'Too easy. Do it again.', 'That one had a GPS on it.'],
+  miss: ["Brick! I'm building a house with those.", 'The rim is not your enemy. Probably.', 'Shooters shoot. Next one.', 'Close! Well... kind of.', 'That one needed directions.', 'Air traffic control lost that one.', 'Unlucky. Blame the wind.'],
+  heat3: ["He's heating up!", 'Three in a row, somebody call the fire department!', 'Okay, I see you!'],
+  heat5: ["You're ON FIRE!", 'Five straight! The net is scared of you.', "Can't miss! Can't miss!"],
+  heat10: ['TEN IN A ROW?! Are you a video game?', 'Ten straight. I am calling the scouts.'],
+  cold3: ['Three misses. Shake it off, reset your feet.', 'Cold streak. Legs under you, follow through.', 'We are in a slump. Deep breath. Next one goes in.'],
+  first: ["Let's work! First bucket of the day.", 'And we are on the board!']
+};
+let bubbleT;
+function hype(text, say){
+  const b = $('#bubble'); if(!b) return;
+  $('#bubble-text').textContent = text; b.hidden = false;
+  b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+  clearTimeout(bubbleT); bubbleT = setTimeout(() => { b.hidden = true; }, 4200);
+  if(say !== false) speak(text);
+}
+function hypeShot(made){
+  const shots = db.current.shots; let run = 0, cold = 0;
+  for(let i = shots.length-1; i >= 0 && shots[i].made; i--) run++;
+  for(let i = shots.length-1; i >= 0 && !shots[i].made; i--) cold++;
+  if(made && shots.filter(x => x.made).length === 1) return pick(QUIPS.first);
+  if(run === 10) return pick(QUIPS.heat10);
+  if(run === 5) return pick(QUIPS.heat5);
+  if(run === 3) return pick(QUIPS.heat3);
+  if(cold === 3) return pick(QUIPS.cold3);
+  return Math.random() < .55 ? pick(made ? QUIPS.make : QUIPS.miss) : null;
+}
+// Which NBA shooter does this form resemble? Based on release time, arc, release height, legs and drift.
+function nbaComp(res, angle){
+  const v = n => { const r = res.rows.find(x => x.name === n); return r && r.v != null ? r.v : null; };
+  const t = res.tempo, knee = v('Knee bend'), relH = v('Release height'), drift = v('Balance (drift)'), ext = v('Arm extension');
+  if(drift != null && drift > 80) return {name:'Dirk Nowitzki', why:'that fade-away drift is pure Dirk. One-legged and all.'};
+  if(t && t < 420 && angle && angle >= 45) return {name:'Stephen Curry', why:'lightning release with a high arc. Chef Curry vibes.'};
+  if(t && t < 420) return {name:'Klay Thompson', why:'catch and fire, no wasted motion.'};
+  if(relH != null && relH > 75 && ext != null && ext > 160) return {name:'Kevin Durant', why:'high release, long arm. Nobody is blocking that.'};
+  if(knee != null && knee < 120) return {name:'Ray Allen', why:'deep legs, textbook base. Pure fundamentals.'};
+  if(angle && angle < 38) return {name:'Shaq at the free throw line', why:'flat as a pancake. Put some arc on it, big fella.'};
+  if(t && t > 650) return {name:'Kawhi Leonard', why:'slow, smooth and patient. Board man gets paid.'};
+  if(res.score >= 85) return {name:'Devin Booker', why:'smooth, balanced, all the boxes checked.'};
+  return {name:'DeMar DeRozan', why:'crafty mid-range energy. Keep polishing it.'};
+}
+
 /* ---------- recording shots ---------- */
 function record(made, auto, fb){
   const cur = db.current, sp = db.settings.spot;
@@ -616,6 +668,7 @@ function record(made, auto, fb){
   const sm = summarize(cur.shots);
   beep(made); flash(made);
   speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
+  const q = hypeShot(made); if(q && running) setTimeout(() => hype(q), 400);
   advanceWorkout(made);
   if(!cur.demo) save();
   renderScore(); renderShots(); renderCoach(); renderGoal();
@@ -1285,7 +1338,11 @@ function analyzeForm(t, side){
   (db.current.forms = db.current.forms || []).push(res);
   if(!db.current.demo) save();
   renderForm(res);
+  const lastFb = [...db.current.shots].reverse().find(x => x.fb), comp = nbaComp(res, lastFb && lastFb.fb.angle);
+  res.comp = comp;
   speak(`Form ${score}. ${tip}`);
+  setTimeout(() => hype(`That jumper looked like ${comp.name}: ${comp.why}`), 1800);
+  renderForm(res);
 }
 function renderForm(res){
   $('#form-card').hidden = !(res || (db.current.forms || []).length || (running && source !== 'demo'));
@@ -1293,7 +1350,7 @@ function renderForm(res){
   $('#form-score').textContent = res.score;
   $('#form-score').style.color = res.score >= 80 ? 'var(--make)' : res.score >= 60 ? '#B7791F' : 'var(--miss)';
   $('#form-tip').textContent = res.tip + (res.tempo ? ` (Release time: ${(res.tempo/1000).toFixed(2)}s)` : '');
-  $('#form-rows').innerHTML = res.rows.map(r => `<div class="frow"><span>${r.name}</span><span>${r.text} ${r.r ? `<span class="pill ${r.r}">${r.r === 'work' ? 'fix' : r.r}</span>` : ''}</span></div>`).join('');
+  $('#form-rows').innerHTML = (res.comp ? `<div class="comp"><span class="start-ico" style="width:36px;height:36px;border-radius:12px;font-size:18px">🏀</span><span>Your form looks like <b>${esc(res.comp.name)}</b><br><span class="muted" style="font-size:14px">${esc(res.comp.why)}</span></span></div>` : '') + res.rows.map(r => `<div class="frow"><span>${r.name}</span><span>${r.text} ${r.r ? `<span class="pill ${r.r}">${r.r === 'work' ? 'fix' : r.r}</span>` : ''}</span></div>`).join('');
 }
 
 function renderCoach(){
@@ -1564,6 +1621,8 @@ async function showReport(sess){
     <div class="kv"><div><span>Form</span><b>${avgF ?? '–'}</b></div><div><span>Avg arc</span><b>${avgA != null ? avgA + '°' : '–'}</b></div>
       <div><span>Top miss</span><b>${top && top[1] ? (top[0] === 'rim' ? 'Rim-out' : top[0][0].toUpperCase() + top[0].slice(1)) : '–'}</b></div></div>
     ${courtSVG(sess.shots.map(x => `<circle cx="${x.x}" cy="${x.y}" r=".8" fill="${x.made ? 'var(--make)' : 'var(--miss)'}" opacity=".7"/>`).join(''))}
+    ${(() => { const c = {}; forms.forEach(f => f.comp && (c[f.comp.name] = (c[f.comp.name] || 0) + 1)); const top = Object.entries(c).sort((a,b) => b[1]-a[1])[0];
+      return top ? `<div class="comp"><span>Today you shot like <b>${esc(top[0])}</b> (${top[1]} shot${top[1] > 1 ? 's' : ''})</span></div>` : ''; })()}
     <div class="sub-h">Top highlights</div><div class="clips3" id="report-clips"><span class="muted" style="grid-column:1/-1;font-size:14px">Loading clips…</span></div>`;
   $('#report').hidden = false;
   reportUrls.forEach(u => URL.revokeObjectURL(u)); reportUrls = [];
