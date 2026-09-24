@@ -15,6 +15,8 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
 - **Form & Arc stats.** Entry-angle histogram, FG% by arc, how you miss, form-score trend, each form check's trend, and release time.
 - **No setup to start.** The hoop box appears on its own (line the rim up inside it), followed by a 3-2-1 countdown.
 
+- **Funny voices.** Misses get a line from a character voice: grandma, robot, chipmunk, angry coach or movie-trailer guy. If the AI calls a shot wrong and you press Undo, it apologises in one of those voices. Turn it off with the "Funny voices" button in the camera tools. The demo doesn't talk.
+- **A coach that remembers.** The "Coach remembers" card on Track keeps your last session, average, best session, longest streak, hot spot, weakest spot and the form fix it flags most. When a session starts, the coach greets you with one of those. It calls out new records as they happen, and the session report compares the session with your average. It's worked out from your own history on the phone. It is not a chatbot.
 - **AI form check.** A pose-detection model (MoveNet) watches your body. After every shot you get a
   0–100 form score covering knee bend, arm extension, release height, follow-through and balance/drift,
   plus release time and one spoken tip on what to fix. An object-detection model (COCO-SSD) helps find the ball.

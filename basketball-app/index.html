@@ -468,6 +468,10 @@ nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,13
 .spot-card .court{border-radius:14px}
 #ft-chip{white-space:nowrap}
 .panel h3,.spot-label b{letter-spacing:.01em}
+.mem-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.mem-list li{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:#C9CFDA}.mem-list li > span:first-child{width:22px;flex:none;text-align:center}.mem-list b{color:#fff}
+.mem-ico{font-size:24px}.mem-card{background:radial-gradient(120% 120% at 100% 0%,#23183F 0%,#14161D 60%) !important}
+.mem-comp{margin-top:10px}
 /* workout intro page */
 .wi{position:fixed;inset:0;z-index:66;background:#0A0B0F;color:#fff;overflow:auto}
 .wi-wrap{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
@@ -634,6 +638,7 @@ body.imm .stage .hint{top:calc(env(safe-area-inset-top,0px) + 124px)}
           <button class="btn" id="color-btn" type="button"><span class="swatch" id="swatch"></span>Tap the ball</button>
           <button class="btn" id="pause-btn" type="button" hidden>Pause</button>
           <button class="btn" id="voice-btn" type="button" aria-pressed="false">Voice calls: off</button>
+          <button class="btn" id="funny-btn" type="button" aria-pressed="true">Funny voices: on</button>
           <button class="btn ghost" id="stop-btn" type="button">Stop</button>
         </div>
         <div class="status" id="status"></div>
@@ -658,6 +663,7 @@ body.imm .stage .hint{top:calc(env(safe-area-inset-top,0px) + 124px)}
           <div class="row goal-adj"><span class="muted">Weekly goal</span><button class="btn" id="goal-minus" type="button" aria-label="Lower goal">−</button><button class="btn" id="goal-plus" type="button" aria-label="Raise goal">+</button></div>
         </div>
         <div id="home-picks"></div>
+        <div class="panel mem-card" id="mem-card"><div class="card-head"><h3>Coach remembers</h3><span class="mem-ico" aria-hidden="true">🧠</span></div><ul class="mem-list" id="mem-list"></ul></div>
         <div class="panel log-card">
           <div class="card-head"><h3>Log a shot</h3><span class="muted">Or let the camera call it</span></div>
           <div class="mm">
@@ -966,9 +972,33 @@ function beep(made){
     o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + .32);
   }catch(e){}
 }
-function speak(text, low){
+// Character voices: the phone's own speech engine with a different pitch, speed and, when it has several, a different voice.
+const VOICES = {announcer:{emoji:'🎙️', pitch:1, rate:1.1, n:0}, grandma:{emoji:'👵', pitch:1.8, rate:.8, n:1}, robot:{emoji:'🤖', pitch:.1, rate:.85, n:2},
+  chipmunk:{emoji:'🐿️', pitch:2, rate:1.45, n:3}, coach:{emoji:'📢', pitch:.55, rate:.92, n:4}, trailer:{emoji:'🎬', pitch:.2, rate:.72, n:5}};
+const FUNNY = {
+  miss: {grandma: ['Oh sweetie. In my day we made those.', 'Grandma could hit that one. With her purse.', 'Bless your heart. You tried.'],
+    robot: ['Error. Basket. Not. Found.', 'Beep boop. Brick detected.', 'Calculating points. Zero.'],
+    chipmunk: ['Nooo! So close!', 'Aw nuts! And I love nuts!', 'The rim! Why the rim!'],
+    coach: ['Legs! Use your LEGS!', 'I did not drive here to watch bricks!', 'Follow through! Hold it!'],
+    trailer: ['In a world... where the ball... hit the rim.', 'This summer... one shooter... zero points.', 'Coming soon... a make. Maybe.']},
+  oops: {robot: ['My bad. Recalibrating. Please do not tell the other robots.', 'Error in my code. Blame the programmer.'],
+    grandma: ['Oh dear, I forgot my glasses again.', 'Sorry honey. These old eyes.'],
+    chipmunk: ['Oopsie! My bad my bad my bad!', 'I blinked! I totally blinked!'],
+    announcer: ['And after review, the call is overturned!', 'Even the refs miss one sometimes. My bad.'],
+    trailer: ['In a world... where the A.I. ... was wrong.', 'One camera. One bad call. Never again.']}
+};
+const funnyOn = () => db.settings.funny !== false;
+let voiceList = [];
+try{ voiceList = speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', () => { voiceList = speechSynthesis.getVoices(); }); }catch(e){}
+function speak(text, low, voice){
   if(!db.settings.voice || source === 'demo') return; // the demo is watched, not heard
-  try{ if(low && speechSynthesis.pending) return; const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
+  try{
+    if(low && speechSynthesis.pending) return;
+    const u = new SpeechSynthesisUtterance(text), c = voice && VOICES[voice];
+    u.rate = c ? c.rate : 1.1;
+    if(c){ u.pitch = c.pitch; const en = voiceList.filter(x => /^en/i.test(x.lang)); if(en.length > 1) u.voice = en[c.n % en.length]; }
+    speechSynthesis.speak(u);
+  }catch(e){}
 }
 
 /* ---------- AI hype-man: jokes, streak calls, NBA form comps ---------- */
@@ -983,12 +1013,19 @@ const QUIPS = {
   first: ["Let's work! First bucket of the day.", 'And we are on the board!']
 };
 let bubbleT;
-function hype(text, say){
+function hype(text, say, voice){
   const b = $('#bubble'); if(!b) return;
-  $('#bubble-text').textContent = text; b.hidden = false;
+  $('#bubble-text').textContent = text; b.hidden = false; $('#bubble .bot').textContent = voice ? VOICES[voice].emoji : '🏀';
   b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
   clearTimeout(bubbleT); bubbleT = setTimeout(() => { b.hidden = true; }, 4200);
-  if(say !== false) speak(text);
+  if(say !== false) speak(text, false, voice);
+}
+// Most misses get a character voice; streak calls keep the normal one.
+function funnyMiss(){ const v = pick(Object.keys(FUNNY.miss)); hype(pick(FUNNY.miss[v]), true, v); }
+// The AI called a shot wrong and the player pressed Undo.
+function aiOops(){
+  if(!funnyOn()){ hype('My bad, I called that one wrong. Fixed.', true); return; }
+  const v = pick(Object.keys(FUNNY.oops)); hype(pick(FUNNY.oops[v]), true, v);
 }
 function hypeShot(made){
   const shots = db.current.shots; let run = 0, cold = 0;
@@ -1304,7 +1341,12 @@ function record(made, auto, fb){
   const sm = summarize(cur.shots);
   beep(made); flash(made);
   speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''), true);
-  const q = hypeShot(made); if(q && running) setTimeout(() => hype(q), 400);
+  const q = hypeShot(made);
+  if(running){
+    if(!made && funnyOn() && (!q || QUIPS.miss.includes(q)) && Math.random() < .7) setTimeout(funnyMiss, 400);
+    else if(q) setTimeout(() => hype(q), 400);
+    checkRecords();
+  }
   if(fb && running){ const fl = (cur.forms || [])[(cur.forms || []).length - 1], form = fl && Date.now() - fl.t < 3500 ? fl : null; setTimeout(() => attachStats(shotRec, form), 900); }
   advanceWorkout(made);
   if(!cur.demo) save();
@@ -1320,6 +1362,7 @@ function flash(made){
 function undo(){
   const cur = db.current; const s = cur.shots.pop();
   if(!s){ toast('No shots to undo'); return; }
+  if(s.auto && running) setTimeout(aiOops, 150);
   myOnUndo(s); clipDrop('c' + s.t);
   if(cur.workout){ recomputeWorkout(s); setStepSpot(); }
   if(!cur.demo) save();
@@ -1403,6 +1446,52 @@ function endSession(silent){
   } else if(!silent) toast('Nothing to save yet');
   db.current = newSession();
   save(); renderAll();
+}
+
+/* ---------- coach memory: remembers your sessions, records and weak spots ---------- */
+let MEM = null;
+function coachMemory(excludeId){
+  const real = db.sessions.filter(x => !x.example && x.id !== excludeId && x.shots.length >= 5);
+  if(!real.length) return null;
+  const all = real.flatMap(x => x.shots), sums = real.map(x => ({x, sm: summarize(x.shots)}));
+  const last = sums[sums.length - 1], big = sums.filter(o => o.sm.att >= 20).sort((a, b) => pct(b.sm.made, b.sm.att) - pct(a.sm.made, a.sm.att))[0];
+  const zones = {}; all.forEach(q => { const z = zones[q.zone] || (zones[q.zone] = [0, 0]); z[1]++; if(q.made) z[0]++; });
+  const zl = Object.entries(zones).filter(([, v]) => v[1] >= 10).map(([z, [m, a]]) => ({z, p: pct(m, a), a})).sort((a, b) => a.p - b.p);
+  const fixes = {}; real.slice(-3).flatMap(x => x.forms || []).forEach(f => (f.rows || []).filter(r => r.r === 'work').forEach(r => fixes[r.name] = (fixes[r.name] || 0) + 1));
+  const fix = Object.entries(fixes).sort((a, b) => b[1] - a[1])[0];
+  const sa = summarize(all);
+  return {n: real.length, avg: pct(sa.made, sa.att), last: {date: last.x.start, made: last.sm.made, att: last.sm.att, p: pct(last.sm.made, last.sm.att)},
+    best: big ? {p: pct(big.sm.made, big.sm.att), date: big.x.start} : null, bestStreak: Math.max(...sums.map(o => o.sm.best)), mostMakes: Math.max(...sums.map(o => o.sm.made)),
+    weak: zl.length > 1 ? zl[0] : null, strong: zl.length > 1 ? zl[zl.length - 1] : null, fix: fix ? fix[0] : null};
+}
+// Spoken hello at the start of a free session, using what the coach remembers.
+function coachGreet(){
+  MEM = coachMemory(); const pr = profile(), name = pr ? pr.name.split(' ')[0] : '';
+  if(!MEM){ hype(`${name ? 'Hey ' + name + '! ' : ''}First session with me. I'll remember how you shoot.`, true, 'announcer'); return; }
+  const extra = [MEM.weak && `I remember your ${MEM.weak.z.toLowerCase()} is at ${MEM.weak.p} percent. Get some reps there.`,
+    MEM.fix && `Lately the form check keeps flagging ${MEM.fix.toLowerCase()}. Focus on that today.`,
+    MEM.bestStreak >= 3 && `Your record is ${MEM.bestStreak} in a row. Go get ${MEM.bestStreak + 1}.`].filter(Boolean);
+  hype(`Welcome back${name ? ', ' + name : ''}! Last time you went ${MEM.last.made} for ${MEM.last.att}, ${MEM.last.p} percent.` + (extra.length ? ' ' + pick(extra) : ''), true, 'announcer');
+}
+// Call out new personal records as they happen, once each per session.
+function checkRecords(){
+  const cur = db.current; if(!MEM || cur.demo) return;
+  const sm = summarize(cur.shots); let run = 0; for(let i = cur.shots.length - 1; i >= 0 && cur.shots[i].made; i--) run++;
+  cur.pb = cur.pb || {};
+  if(MEM.bestStreak >= 3 && run > MEM.bestStreak && !cur.pb.streak){ cur.pb.streak = 1; setTimeout(() => hype(`New record! ${run} in a row. Your old best was ${MEM.bestStreak}. I'll remember this one.`, true, 'announcer'), 900); }
+  if(MEM.mostMakes >= 10 && sm.made > MEM.mostMakes && !cur.pb.makes){ cur.pb.makes = 1; setTimeout(() => hype(`That's ${sm.made} makes. The most you've ever hit in one session!`, true, 'announcer'), 900); }
+}
+function renderMemory(){
+  const el = $('#mem-card'); if(!el) return;
+  const m = coachMemory(), li = (ico, txt) => `<li><span aria-hidden="true">${ico}</span><span>${txt}</span></li>`;
+  $('#mem-list').innerHTML = !m ? li('🧠', "Track a few sessions and I'll remember your numbers, your records and the spots you need to work on.") :
+    li('🕒', `Last session: <b>${m.last.made}/${m.last.att}</b> (${m.last.p}%) on ${fmtDate(m.last.date)}`) +
+    li('📈', `Your average: <b>${m.avg}%</b> over ${m.n} session${m.n > 1 ? 's' : ''}`) +
+    (m.best ? li('🏆', `Best session: <b>${m.best.p}%</b> on ${fmtDate(m.best.date)}`) : '') +
+    (m.bestStreak >= 2 ? li('🔥', `Longest streak: <b>${m.bestStreak} in a row</b>`) : '') +
+    (m.strong ? li('✅', `Hot spot: <b>${esc(m.strong.z)}</b> at ${m.strong.p}%`) : '') +
+    (m.weak ? li('🎯', `Needs work: <b>${esc(m.weak.z)}</b> at ${m.weak.p}%`) : '') +
+    (m.fix ? li('🛠️', `Form focus: <b>${esc(m.fix)}</b>`) : '');
 }
 
 /* ---------- HomeCourt-style workout mode: intro page, full-screen camera, spot-to-spot flow ---------- */
@@ -1715,7 +1804,7 @@ function renderGoal(){
   $('#goal-arc').setAttribute('stroke-dashoffset', 326.7 * (1 - Math.min(1, n / g)));
   const streak = dayStreak(), mini = (v, l) => `<div><b>${v}</b><span>${l}</span></div>`;
   $('#goal-minis').innerHTML = mini(fmtPct(pct(made, n)), 'FG%') + mini(nSess, nSess === 1 ? 'Session' : 'Sessions') + mini(streak ? streak + ' 🔥' : '0', 'Day streak') + mini(made.toLocaleString(), 'Makes');
-  renderPicks();
+  renderPicks(); renderMemory();
   const f = t => new Date(t).toLocaleDateString(undefined, {month:'short', day:'numeric'});
   $('#goal-range').textContent = `${f(start)} – ${f(end - 864e5)}`;
 }
@@ -1811,6 +1900,8 @@ async function begin(kind, keep){
     else setHint('');
     setTimeout(hoopPredict, 1800);
     if(!(IMM.on && db.current.workout)) countdown();
+    MEM = coachMemory();
+    if(!db.current.workout) setTimeout(() => running && source !== 'demo' && coachGreet(), 3400);
   } else setHint('');
   const ms = kind === 'camera' ? stream : kind === 'demo' ? (demoCv.captureStream && demoCv.captureStream(30)) : (video.captureStream ? video.captureStream() : video.mozCaptureStream && video.mozCaptureStream());
   clipsStart(ms);
@@ -1867,6 +1958,9 @@ $('#voice-btn').addEventListener('click', () => {
 });
 function syncVoice(){ const b = $('#voice-btn'); b.textContent = 'Voice calls: ' + (db.settings.voice ? 'on' : 'off'); b.classList.toggle('on', db.settings.voice); b.setAttribute('aria-pressed', db.settings.voice); }
 syncVoice();
+function syncFunny(){ const b = $('#funny-btn'), on = funnyOn(); b.textContent = 'Funny voices: ' + (on ? 'on' : 'off'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }
+$('#funny-btn').addEventListener('click', () => { db.settings.funny = !funnyOn(); save(); syncFunny(); if(funnyOn()) funnyMiss(); });
+syncFunny();
 
 function enterMode(m){
   mode = mode === m ? null : m;
@@ -2140,7 +2234,7 @@ function analyzeForm(t, side){
   const recent = db.current.shots[db.current.shots.length-1]; if(recent && Date.now() - recent.t < 3000 && !recent.st) attachStats(recent, res);
   const rv = n => { const r = res.rows.find(x => x.name === n); return r && r.v != null ? Math.round(r.v) : null; };
   hudStats([[tempo ? (tempo/1000).toFixed(2) + 's' : null, 'Release time'], [rv('Knee bend') != null ? rv('Knee bend') + '°' : null, 'Leg angle'], [rv('Arm extension') != null ? rv('Arm extension') + '°' : null, 'Elbow angle'], [score, 'Form score']]);
-  speak(`Form ${score}. ${tip}`);
+  speak(`Form ${score}. ${tip}`, true);
   setTimeout(() => hype(`That jumper looked like ${comp.name}: ${comp.why}`), 1800);
   renderForm(res);
 }
@@ -2453,6 +2547,9 @@ async function showReport(sess){
     ${courtSVG(sess.shots.map(x => `<circle cx="${x.x}" cy="${x.y}" r=".8" fill="${x.made ? 'var(--make)' : 'var(--miss)'}" opacity=".7"/>`).join(''))}
     ${(() => { const c = {}; forms.forEach(f => f.comp && (c[f.comp.name] = (c[f.comp.name] || 0) + 1)); const top = Object.entries(c).sort((a,b) => b[1]-a[1])[0];
       return top ? `<div class="comp"><span>Today you shot like <b>${esc(top[0])}</b> (${top[1]} shot${top[1] > 1 ? 's' : ''})</span></div>` : ''; })()}
+    ${(() => { const m = coachMemory(sess.id), p = pct(sm.made, sm.att); if(!m || p == null) return '';
+      const d = p - m.avg, pbs = [m.bestStreak && sm.best > m.bestStreak && `new longest streak (${sm.best})`, sm.made > m.mostMakes && `most makes ever (${sm.made})`, m.best && sm.att >= 20 && p > m.best.p && 'best session ever'].filter(Boolean);
+      return `<div class="comp mem-comp"><span aria-hidden="true">🧠</span><span>${d >= 0 ? '+' : ''}${d}% vs your ${m.avg}% average${pbs.length ? ` · <b>${pbs.join(', ')}</b>` : ''}</span></div>`; })()}
     ${w && sess.shots.some(x => x.wst != null) ? `<div class="sub-h">By spot</div><div class="wi-res">${w.steps.map((st, i) => { const sh = sess.shots.filter(x => x.wst === i), m = sh.filter(x => x.made).length;
       const hit = st.makes ? m >= st.makes : st.shots ? sh.length >= st.shots : false;
       return `<div class="${hit ? 'hit' : ''}"><span class="n">${hit ? '✓' : i + 1}</span><b>${esc(st.label)}</b><em>${m}/${sh.length}</em><span>${fmtPct(pct(m, sh.length))}</span></div>`; }).join('')}</div>` : ''}
