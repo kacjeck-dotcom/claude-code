@@ -5,6 +5,13 @@ One HTML file, no account, no server, no subscription. Everything runs on your d
 
 ## Features
 
+- **Installs like an app.** Open the web address on your phone and choose Add to Home Screen. It gets its own icon, opens full screen, and works offline after the first load.
+- **Highlight clips.** Every tracked shot is recorded as a short clip (Clips tab) that you can play, save or share. The session report shows your top makes.
+- **Your own AI.** A make/miss model and a hoop-finder model train on your phone from your own shots.
+  The make/miss model helps call shots once it's at least 80% accurate on shots it hasn't seen. Stats → My AI shows its accuracy, and you can retrain or reset it there.
+- **Form & Arc stats.** Entry-angle histogram, FG% by arc, how you miss, form-score trend, each form check's trend, and release time.
+- **No setup to start.** The hoop box appears on its own (line the rim up inside it), followed by a 3-2-1 countdown.
+
 - **AI form check.** A pose-detection model (MoveNet) watches your body. After every shot you get a
   0–100 form score covering knee bend, arm extension, release height, follow-through and balance/drift,
   plus release time and one spoken tip on what to fix. An object-detection model (COCO-SSD) helps find the ball.

@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <title>Swish Lab</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1A2130">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Swish Lab">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
@@ -52,7 +59,7 @@ button{cursor:pointer}
 
 /* nav */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
 nav.tabs button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-selected="true"]{color:var(--accent)}
@@ -164,6 +171,27 @@ td.num,th.num{text-align:right}
 .toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;opacity:0;transition:.25s;z-index:50;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 [hidden]{display:none!important}
+.hl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.hl{padding:0;overflow:hidden}
+.hl video{width:100%;display:block;background:var(--stage);aspect-ratio:16/9;object-fit:contain;max-width:100%}
+.hl .meta{padding:10px 12px 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
+.hl .row{padding:0 12px 12px}
+.hl .row .btn{padding:7px 12px;font-size:14px}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(10,14,20,.62);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{background:var(--surface);border-radius:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:18px;box-shadow:var(--shadow)}
+.sheet .big{font:800 64px/1 var(--display);font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.kv div{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.kv b{display:block;font:700 24px/1.1 var(--display)}
+.kv span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.clips3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.clips3 video{width:100%;border-radius:8px;background:var(--stage);aspect-ratio:16/9;object-fit:cover}
+.blocked{background:#E2571B;color:#fff;border-radius:10px;padding:10px 12px;font-size:14px;max-width:44ch;margin:0}
+.blocked a{color:#fff;font-weight:700;word-break:break-all}
+.hbar{display:grid;grid-template-columns:5.5em 1fr 3.2em;gap:8px;align-items:center;font-size:14px;margin:6px 0;font-variant-numeric:tabular-nums}
+.hbar i{display:block;height:10px;border-radius:99px;background:var(--accent)}
+.hbar .track{background:var(--surface-2);border-radius:99px;overflow:hidden}
+.sub-h{font:700 15px/1.2 var(--display);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 6px;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
@@ -205,6 +233,8 @@ td.num,th.num{text-align:right}
               <label class="btn ghost" style="border-color:#3A4654;color:#EDE6DA">Upload a clip<input id="file" type="file" accept="video/*" class="sr"></label>
               <button class="btn ghost" id="demo-btn" type="button" style="border-color:#3A4654;color:#EDE6DA">Watch the demo</button>
             </div>
+            <p class="blocked" id="blocked" hidden>The camera and AI are blocked in this preview. Open the full app on your phone: <a id="app-link" href="https://kacjeck-dotcom.github.io/claude-code/basketball-app/" target="_blank" rel="noopener">kacjeck-dotcom.github.io/claude-code/basketball-app</a></p>
+            <p id="install-hint" hidden style="font-size:13px">Tip: install it like an app. iPhone: Share → <b>Add to Home Screen</b>. <button class="btn primary" id="install-btn" type="button" hidden style="padding:6px 12px;font-size:13px">Install app</button></p>
           </div>
         </div>
         <div class="tool-row" id="tools" hidden>
@@ -276,13 +306,31 @@ td.num,th.num{text-align:right}
     <div id="ex-banner-stats"></div>
     <div class="tiles" id="tiles"></div>
     <div class="stats-grid">
+      <div class="panel"><h3>Arc</h3><div id="arc-stats" style="margin-top:8px"></div></div>
+      <div class="panel"><h3>Form</h3><div id="form-stats" style="margin-top:8px"></div></div>
+    </div>
+    <div class="stats-grid">
       <div class="panel"><h3>Hot zones</h3><div id="heat" style="margin-top:10px"></div>
         <div class="legend">Cold <i style="background:linear-gradient(90deg,#3E6FB8,#8C8F99,#E2571B,#C3202B)"></i> Hot</div></div>
       <div class="view" style="gap:18px">
+        <div class="panel"><h3>My AI</h3><div id="myai" style="margin-top:8px"></div></div>
         <div class="panel"><h3>FG% by session</h3><div id="trend" style="margin-top:10px"></div></div>
         <div class="panel"><h3>By zone</h3><div class="table-wrap" id="zone-table"></div></div>
       </div>
     </div>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <section class="view" id="view-highlights" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div><div class="eyebrow">Auto-recorded clips</div><h2>Highlights</h2></div>
+      <div class="row" role="group" aria-label="Filter clips">
+        <button class="chip" data-hl="makes" type="button" aria-pressed="true">Makes</button>
+        <button class="chip" data-hl="misses" type="button" aria-pressed="false">Misses</button>
+        <button class="chip" data-hl="all" type="button" aria-pressed="false">All</button>
+      </div>
+    </div>
+    <div class="hl-grid" id="hl-grid"></div>
   </section>
 
   <!-- HISTORY -->
@@ -298,9 +346,17 @@ td.num,th.num{text-align:right}
     <button role="tab" data-view="track" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/></svg>Track</button>
     <button role="tab" data-view="workouts" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Workouts</button>
     <button role="tab" data-view="stats" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+    <button role="tab" data-view="highlights" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>Clips</button>
     <button role="tab" data-view="history" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
   </div>
 </nav>
+<div class="modal" id="report" hidden role="dialog" aria-modal="true" aria-labelledby="report-title">
+  <div class="sheet">
+    <div class="row" style="justify-content:space-between"><div><div class="eyebrow" id="report-date"></div><h2 id="report-title">Session report</h2></div>
+      <button class="btn" id="report-close" type="button">Done</button></div>
+    <div id="report-body"></div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -369,6 +425,11 @@ const WORKOUTS = [
 const woById = id => WORKOUTS.find(w => w.id === id);
 
 /* ---------- example data ---------- */
+const FORM_RULES = {
+  'Knee bend':{good:135, ok:152, lower:true, unit:'°'}, 'Arm extension':{good:160, ok:148, unit:'°'},
+  'Release height':{good:55, ok:30, unit:'%'}, 'Follow-through':{good:75, ok:45, unit:'%'}, 'Balance (drift)':{good:35, ok:70, lower:true, unit:'%'}
+};
+function rateVal(name, v){ const r = FORM_RULES[name]; const b = (x, lim) => r.lower ? x <= lim : x >= lim; return b(v, r.good) ? 'good' : b(v, r.ok) ? 'ok' : 'work'; }
 function seedExamples(){
   let s = 7; const rnd = () => (s = (s*16807) % 2147483647) / 2147483647;
   const base = {'Paint':.68,'Free Throw':.74,'Mid Left':.46,'Mid Right':.5,'Mid Center':.44,'Corner 3 L':.38,'Corner 3 R':.42,'Wing 3 L':.33,'Wing 3 R':.36,'Top 3':.35};
@@ -382,9 +443,20 @@ function seedExamples(){
     spots.forEach(sp => {
       const z = zoneOf(sp.x, sp.y, sp.ft);
       t += 9000 + rnd()*9000;
-      shots.push({t, made: rnd() < base[z] + i*0.012, x: sp.x + (rnd()-.5), y: sp.y + (rnd()-.5), zone: z, auto: rnd() > .2});
+      const made = rnd() < base[z] + i*0.012, auto = rnd() > .2;
+      const angle = Math.round(44 + i*.4 + (made ? 0 : -5) + (rnd()-.5)*16);
+      const fb = auto ? {angle, arc: +(1.5 + rnd()*2).toFixed(1), miss: made ? null : ['short','long','rim'][Math.floor(rnd()*3)], tip:''} : undefined;
+      shots.push({t, made, x: sp.x + (rnd()-.5), y: sp.y + (rnd()-.5), zone: z, auto, fb});
     });
-    out.push({id:'ex'+i, start, end:t, shots, workout: wid, example:true});
+    const forms = shots.filter(() => rnd() < .6).map(sh => {
+      const g = i / plan.length;
+      const vals = {'Knee bend': 150 - g*18 + (rnd()-.5)*16, 'Arm extension': 152 + g*12 + (rnd()-.5)*14, 'Release height': 38 + g*25 + (rnd()-.5)*30,
+        'Follow-through': 50 + g*35 + (rnd()-.5)*40, 'Balance (drift)': 55 - g*30 + (rnd()-.5)*30};
+      const rows = Object.entries(vals).map(([name, v]) => ({name, v, text: Math.round(v) + FORM_RULES[name].unit, r: rateVal(name, v)}));
+      const score = Math.round(rows.reduce((a,r) => a + (r.r === 'good' ? 100 : r.r === 'ok' ? 65 : 30), 0) / rows.length);
+      return {t: sh.t, score, tip:'', tempo: Math.round(520 - g*120 + (rnd()-.5)*120), rows};
+    });
+    out.push({id:'ex'+i, start, end:t, shots, forms, workout: wid, example:true});
   });
   return out;
 }
@@ -438,6 +510,8 @@ function record(made, auto, fb){
   const cur = db.current, sp = db.settings.spot;
   const z = zoneOf(sp.x, sp.y, sp.ft);
   cur.shots.push({t: Date.now(), made, x: sp.x, y: sp.y, zone: z, auto: !!auto, fb: fb || undefined});
+  const shotRec = cur.shots[cur.shots.length-1];
+  if(running){ myOnShot(shotRec, auto); clipSave({id:'c' + shotRec.t, sessionId: cur.id, t: shotRec.t, made, zone: z, angle: fb && fb.angle, demo: !!cur.demo}); }
   const sm = summarize(cur.shots);
   beep(made); flash(made);
   speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
@@ -455,6 +529,7 @@ function flash(made){
 function undo(){
   const cur = db.current; const s = cur.shots.pop();
   if(!s){ toast('No shots to undo'); return; }
+  myOnUndo(s); clipDrop('c' + s.t);
   if(cur.workout){ recomputeWorkout(); setStepSpot(); }
   if(!cur.demo) save();
   toast('Last shot removed'); renderScore(); renderShots(); renderWorkoutLive();
@@ -520,7 +595,8 @@ function endSession(silent){
     cur.end = cur.shots[cur.shots.length-1].t;
     if(cur.workout) { cur.workout = cur.workout.id; }
     db.sessions.push(cur);
-    if(!silent){ const sm = summarize(cur.shots); toast(`Saved: ${sm.made}/${sm.att} (${fmtPct(pct(sm.made, sm.att))})`); }
+    if(!silent || cur.workoutDone) showReport(cur);
+    setTimeout(() => { myTrain(); hoopTrain(); }, 500);
   } else if(!silent) toast('Nothing to save yet');
   db.current = newSession();
   save(); renderAll();
@@ -639,6 +715,8 @@ function renderStats(){
   $('#zone-table').innerHTML = rows ? `<table><thead><tr><th>Zone</th><th class="num">Made</th><th class="num">FG%</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="muted">No shots yet.</p>';
 
   renderTrend(all.slice(-12));
+  renderFormArc(sess);
+  renderMyAI();
 }
 function renderTrend(sess){
   if(sess.length < 2){ $('#trend').innerHTML = '<p class="muted">Log two or more sessions to see your trend.</p>'; return; }
@@ -685,7 +763,7 @@ function renderHistory(){
     return `<article class="panel"><button class="sess-head" data-toggle="${s.id}" type="button" aria-expanded="${open}">
         <span class="sess-pct" style="color:${p >= 50 ? 'var(--make)' : 'var(--ink)'}">${fmtPct(p)}</span>
         <span class="grow"><span class="title">${w ? esc(w.name) : 'Free shooting'}</span>${s.example ? '<span class="tag">Example</span>' : ''}
-          <br><span class="sub">${fmtDate(s.start)} · ${sm.made}/${sm.att} · 3PT ${fmtPct(pct(...sm.three))} · ${fmtTime((s.end||s.start) - s.start)}</span></span>
+          <br><span class="sub">${fmtDate(s.start)} · ${sm.made}/${sm.att} · 3PT ${fmtPct(pct(...sm.three))} · ${fmtTime((s.end||s.start) - s.start)}${sessExtras(s)}</span></span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(${open?180:0}deg);transition:.2s"><path d="M6 9l6 6 6-6"/></svg>
       </button>${body}</article>`;
   }).join('');
@@ -712,6 +790,7 @@ function showView(v){
   $$('nav.tabs [data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v ? 'true' : 'false'));
   $$('.view[id^="view-"]').forEach(s => s.hidden = s.id !== 'view-' + v);
   try{ localStorage.setItem(KEY + '.tab', v); }catch(e){}
+  if(v === 'highlights') renderHighlights();
   if(v === 'stats') renderStats(); if(v === 'history') renderHistory(); if(v === 'workouts') renderWorkouts();
   if(v === 'track') requestAnimationFrame(sizeOverlay);
 }
@@ -778,14 +857,21 @@ async function begin(kind, keep){
     hoop = db.settings.hoop || null;
   }
   try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){}
-  if(kind !== 'demo') loadAI().then(aiLoop);
-  if(!hoop && kind !== 'demo') enterMode('hoop');
-  else setHint('');
+  if(kind !== 'demo') loadAI().then(aiLoop); else loadTF();
+  hoopAuto = false;
+  if(kind !== 'demo'){
+    if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; setHint('Line the rim up inside the blue box, or tap Set hoop to draw it'); }
+    else setHint('');
+    setTimeout(hoopPredict, 1800);
+    countdown();
+  } else setHint('');
+  const ms = kind === 'camera' ? stream : kind === 'demo' ? (demoCv.captureStream && demoCv.captureStream(30)) : (video.captureStream ? video.captureStream() : video.mozCaptureStream && video.mozCaptureStream());
+  clipsStart(ms);
   renderScore();
   loop();
 }
 function stopSource(quiet){
-  running = false;
+  running = false; clipsStop();
   if(stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
   if(video.src){ video.pause(); URL.revokeObjectURL(video.src); video.removeAttribute('src'); video.load(); }
   video.srcObject = null;
@@ -803,7 +889,7 @@ $('#cam-btn').addEventListener('click', async () => {
   stopSource(true);
   try{
     stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment', width:{ideal:1280}, height:{ideal:720}}, audio:false});
-  }catch(e){ stream = null; toast('Camera blocked — allow camera access, or upload a clip instead'); setStatus('Camera access was refused. On this page you can still upload a recorded clip or watch the demo.'); return; }
+  }catch(e){ stream = null; $('#blocked').hidden = false; toast('Camera blocked — allow camera access, or upload a clip instead'); setStatus('Camera access was refused. On this page you can still upload a recorded clip or watch the demo.'); return; }
   video.srcObject = stream; await video.play().catch(()=>{});
   const go = () => { setAspect(video.videoWidth || 1280, video.videoHeight || 720); begin('camera', true); setStatus('Camera live. Mark the hoop, then tap the ball once so the tracker learns its colour.'); };
   video.videoWidth ? go() : video.addEventListener('loadedmetadata', go, {once:true});
@@ -853,8 +939,8 @@ overlay.addEventListener('pointerup', () => {
   let x0 = Math.min(a.x,b.x), x1 = Math.max(a.x,b.x), y0 = Math.min(a.y,b.y), y1 = Math.max(a.y,b.y);
   if(x1 - x0 < .02){ const cx = (x0+x1)/2; x0 = cx - .045; x1 = cx + .045; }
   if(y1 - y0 < .02){ const cy = (y0+y1)/2; y0 = cy - .02; y1 = cy + .03; }
-  hoop = {x0, y0, x1, y1};
-  if(source !== 'demo'){ db.settings.hoop = hoop; save(); }
+  hoop = {x0, y0, x1, y1}; hoopAuto = false;
+  if(source !== 'demo'){ db.settings.hoop = hoop; save(); hoopSample(true); }
   enterMode(null); toast('Hoop locked. Start shooting!');
 });
 
@@ -973,12 +1059,17 @@ const ai = {state:'off', pose:null, coco:null};
 let poseBuf = [], lastPose = null, cocoBall = null, formCooldown = 0, aiBusy = false;
 function aiStatus(t){ const el = $('#ai-status'); if(el) el.textContent = t; }
 function loadScript(src){ return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+const J = 'https://cdn.jsdelivr.net/npm/';
+let tfP = null;
+function loadTF(){
+  if(window.tf) return Promise.resolve(true);
+  return tfP || (tfP = loadScript(J + '@tensorflow/tfjs@4.22.0/dist/tf.min.js').then(() => tf.ready()).then(() => { myLoad(); return true; }, () => { tfP = null; return false; }));
+}
 async function loadAI(){
   if(ai.state === 'ready' || ai.state === 'loading') return;
   ai.state = 'loading'; aiStatus('Loading AI models (first time takes a few seconds)…');
-  const J = 'https://cdn.jsdelivr.net/npm/';
   try{
-    await loadScript(J + '@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+    if(!(await loadTF())) throw new Error('tf');
     await loadScript(J + '@mediapipe/pose@0.5.1675469404/pose.js').catch(() => {});
     await loadScript(J + '@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js');
     await tf.ready();
@@ -1052,7 +1143,7 @@ function analyzeForm(t, side){
   const rate = (name, val, unit, good, okay, tipBad, better) => {
     if(val == null || isNaN(val)) { rows.push({name, text:'not visible', r:null}); return; }
     const r = better(val, good) ? 'good' : better(val, okay) ? 'ok' : 'work';
-    rows.push({name, text: Math.round(val) + unit, r, tip: r === 'good' ? null : tipBad});
+    rows.push({name, v: val, text: Math.round(val) + unit, r, tip: r === 'good' ? null : tipBad});
   };
   const lower = (v, lim) => v <= lim, higher = (v, lim) => v >= lim;
   // knee bend: smallest knee angle in the dip before release
@@ -1079,7 +1170,7 @@ function analyzeForm(t, side){
   const worst = scored.find(r => r.r === 'work') || scored.find(r => r.r === 'ok');
   const tempo = dipMin ? Math.round(rel.t - dipMin.f.t) : null;
   const tip = worst ? worst.tip : 'Textbook form. Keep repeating that exact motion.';
-  const res = {t: Date.now(), score, tip, tempo, rows: rows.map(({name,text,r}) => ({name,text,r}))};
+  const res = {t: Date.now(), score, tip, tempo, rows: rows.map(({name,v,text,r}) => ({name,v,text,r}))};
   (db.current.forms = db.current.forms || []).push(res);
   if(!db.current.demo) save();
   renderForm(res);
@@ -1106,7 +1197,10 @@ function renderCoach(){
     (top[1] ? ` · most misses ${top[0] === 'rim' ? 'rim-outs' : top[0]} (${top[1]})` : '') + '.';
 }
 function finish(made){
+  const p = myPredict();
+  if(p != null && ((made && p < .12) || (!made && p > .88))){ made = !made; toast('Your AI corrected the call'); }
   const fb = analyze(shot.path || [], made);
+  if(fb && p != null) fb.ai = +p.toFixed(2);
   shot = {phase:'idle'}; cooldownUntil = performance.now() + 1100;
   record(made, true, fb);
 }
@@ -1119,6 +1213,8 @@ function loop(){
   const src = source === 'demo' ? demoCv : video;
   if(source !== 'demo' && (video.readyState < 2 || video.paused || video.ended)) { draw(null, now); return; }
   pctx.drawImage(src, 0, 0, PW, PH);
+  captureCrop(src, now);
+  if(source !== 'demo' && hoop && !hoopAuto && now - lastHoopSample > 5000) hoopSample(false);
   const b = (source !== 'demo' && cocoBall && now - cocoBall.t < 150) ? cocoBall : detect();
   if(b){ lastBall = b; lostFrames = 0; trail.push({x:b.x, y:b.y, t:now}); judge(b, now); }
   else if(++lostFrames > 8){ lastBall = null; }
@@ -1224,6 +1320,393 @@ const demo = (() => {
     }
   };
 })();
+
+/* ================= storage for clips + training data (IndexedDB) ================= */
+const IDB = (() => {
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => {
+    const r = indexedDB.open('swishlab', 1);
+    r.onupgradeneeded = () => { const d = r.result; ['clips','samples','hoopSamples'].forEach(n => d.objectStoreNames.contains(n) || d.createObjectStore(n, {keyPath:'id'})); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = async (store, mode, fn) => { const d = await open(); return new Promise((res, rej) => {
+    const t = d.transaction(store, mode), req = fn(t.objectStore(store));
+    t.oncomplete = () => res(req ? req.result : undefined); t.onerror = () => rej(t.error); }); };
+  return {
+    put: (st, v) => tx(st, 'readwrite', s => s.put(v)),
+    del: (st, k) => tx(st, 'readwrite', s => s.delete(k)),
+    all: st => tx(st, 'readonly', s => s.getAll()),
+    clear: st => tx(st, 'readwrite', s => s.clear())
+  };
+})();
+
+/* ================= countdown ================= */
+let hoopAuto = false, lastHoopSample = 0;
+function bigText(text, color){
+  const f = $('#flash'); f.textContent = text; f.style.color = color || '#fff'; f.style.textShadow = '0 4px 30px rgba(0,0,0,.6)';
+  f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+}
+function countdown(){
+  cooldownUntil = performance.now() + 3200;
+  ['3','2','1','Go'].forEach((t, i) => setTimeout(() => running && bigText(t, i === 3 ? 'var(--make)' : '#fff'), i * 800));
+}
+
+/* ================= highlight clips ================= */
+const clipRec = {stream:null, segs:[], mime:'', saving:0};
+const undoneClips = new Set();
+function clipMime(){
+  if(!window.MediaRecorder) return null;
+  for(const m of ['video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']) if(MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+  return '';
+}
+function clipSeg(){
+  const chunks = [], opt = {videoBitsPerSecond: 1500000};
+  if(clipRec.mime) opt.mimeType = clipRec.mime;
+  const r = new MediaRecorder(clipRec.stream, opt);
+  r.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
+  r.start(500);
+  return {r, chunks, t0: Date.now()};
+}
+function clipsStart(ms){
+  clipsStop();
+  const m = clipMime(); if(m === null || !ms) return;
+  clipRec.mime = m; clipRec.stream = ms;
+  try{ clipRec.segs = [clipSeg()]; }catch(e){ clipRec.stream = null; clipRec.segs = []; }
+}
+function clipsStop(){ clipRec.segs.forEach(sg => { try{ sg.r.stop(); }catch(e){} }); clipRec.segs = []; clipRec.stream = null; }
+// two overlapping recorders so a clip always holds a few seconds before the release
+setInterval(() => {
+  if(!clipRec.stream || clipRec.saving) return;
+  const now = Date.now(), segs = clipRec.segs;
+  try{
+    if(!segs.length || (segs.length < 2 && now - segs[segs.length-1].t0 > 4000)) segs.push(clipSeg());
+    if(segs.length === 2 && now - segs[0].t0 > 10000 && shot.phase === 'idle'){ const old = segs.shift(); old.r.stop(); }
+  }catch(e){}
+}, 1000);
+function clipSave(meta){
+  if(!clipRec.stream || !clipRec.segs.length) return;
+  clipRec.saving++;
+  setTimeout(() => {
+    clipRec.saving--;
+    const seg = clipRec.segs.shift(); if(!seg) return;
+    try{ if(clipRec.stream && !clipRec.segs.length) clipRec.segs.push(clipSeg()); }catch(e){}
+    seg.r.onstop = () => {
+      if(undoneClips.has(meta.id)) return;
+      const blob = new Blob(seg.chunks, {type: seg.r.mimeType || clipRec.mime || 'video/webm'});
+      if(blob.size < 2000) return;
+      IDB.put('clips', {...meta, blob}).then(pruneClips).then(() => { if(!$('#view-highlights').hidden) renderHighlights(); }).catch(() => {});
+    };
+    try{ seg.r.stop(); }catch(e){}
+  }, 1000);
+}
+function clipDrop(id){ undoneClips.add(id); IDB.del('clips', id).catch(() => {}); }
+async function pruneClips(){
+  const all = await IDB.all('clips'); if(all.length <= 150) return;
+  all.sort((a,b) => a.t - b.t).slice(0, all.length - 150).forEach(c => IDB.del('clips', c.id));
+}
+let hlFilter = 'makes', hlCache = [], hlUrls = [];
+async function renderHighlights(){
+  let list = []; try{ list = await IDB.all('clips'); }catch(e){}
+  hlUrls.forEach(u => URL.revokeObjectURL(u)); hlUrls = [];
+  list.sort((a,b) => b.t - a.t); hlCache = list;
+  $$('[data-hl]').forEach(b => b.setAttribute('aria-pressed', b.dataset.hl === hlFilter ? 'true' : 'false'));
+  const f = list.filter(c => hlFilter === 'all' || (hlFilter === 'makes') === c.made);
+  $('#hl-grid').innerHTML = f.length ? f.map(c => {
+    const u = URL.createObjectURL(c.blob); hlUrls.push(u);
+    return `<article class="panel hl"><video src="${u}" controls playsinline preload="metadata"></video>
+      <div class="meta"><span class="pill ${c.made ? 'good' : 'work'}">${c.made ? 'Make' : 'Miss'}</span><span>${esc(c.zone || '')}</span>
+        ${c.angle ? `<span class="muted">${c.angle}° arc</span>` : ''}${c.demo ? '<span class="tag">Demo</span>' : ''}<span class="muted" style="margin-left:auto">${fmtDate(c.t)}</span></div>
+      <div class="row"><button class="btn" data-hl-save="${c.id}" type="button">Save</button><button class="btn" data-hl-share="${c.id}" type="button">Share</button>
+        <button class="btn ghost" data-hl-del="${c.id}" type="button">Delete</button></div></article>`;
+  }).join('') : `<div class="panel muted">${list.length ? 'No clips match this filter.' : 'Every shot you track with the camera is recorded as a clip and lands here automatically. Try the demo to see it.'}</div>`;
+}
+function clipFile(c){ const ext = /mp4/.test(c.blob.type) ? 'mp4' : 'webm'; return new File([c.blob], `swishlab-${c.made ? 'make' : 'miss'}-${c.t}.${ext}`, {type: c.blob.type}); }
+$$('[data-hl]').forEach(b => b.addEventListener('click', () => { hlFilter = b.dataset.hl; renderHighlights(); }));
+$('#hl-grid').addEventListener('click', async e => {
+  const t = e.target.closest('[data-hl-save],[data-hl-share],[data-hl-del]'); if(!t) return;
+  const id = t.dataset.hlSave || t.dataset.hlShare || t.dataset.hlDel, c = hlCache.find(x => x.id === id); if(!c) return;
+  if(t.dataset.hlDel){ await IDB.del('clips', id).catch(() => {}); renderHighlights(); toast('Clip deleted'); return; }
+  const file = clipFile(c);
+  if(t.dataset.hlShare){
+    try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Swish Lab clip'}); return; } }catch(err){ if(err && err.name === 'AbortError') return; }
+    toast('Sharing is not available here. Use Save instead'); return;
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast('Saving clip…');
+});
+
+/* ================= session report ================= */
+let reportUrls = [];
+async function showReport(sess){
+  const sm = summarize(sess.shots), fbs = sess.shots.filter(s => s.fb), forms = sess.forms || [];
+  const avgA = fbs.length ? Math.round(fbs.reduce((a,s) => a + s.fb.angle, 0) / fbs.length) : null;
+  const avgF = forms.length ? Math.round(forms.reduce((a,f) => a + f.score, 0) / forms.length) : null;
+  const m = {short:0, long:0, rim:0}; fbs.forEach(s => s.fb.miss && m[s.fb.miss]++);
+  const top = Object.entries(m).sort((x,y) => y[1]-x[1])[0];
+  const w = sess.workout && woById(sess.workout);
+  $('#report-date').textContent = fmtDate(sess.start) + (w ? ' · ' + w.name : '');
+  $('#report-body').innerHTML = `
+    <div class="row" style="align-items:baseline;gap:14px;margin-top:10px"><span class="big" style="color:${pct(sm.made,sm.att) >= 50 ? 'var(--make)' : 'var(--ink)'}">${fmtPct(pct(sm.made, sm.att))}</span>
+      <span class="muted">${sm.made} of ${sm.att} · best streak ${sm.best}</span></div>
+    <div class="kv"><div><span>Form</span><b>${avgF ?? '–'}</b></div><div><span>Avg arc</span><b>${avgA != null ? avgA + '°' : '–'}</b></div>
+      <div><span>Top miss</span><b>${top && top[1] ? (top[0] === 'rim' ? 'Rim-out' : top[0][0].toUpperCase() + top[0].slice(1)) : '–'}</b></div></div>
+    ${courtSVG(sess.shots.map(x => `<circle cx="${x.x}" cy="${x.y}" r=".8" fill="${x.made ? 'var(--make)' : 'var(--miss)'}" opacity=".7"/>`).join(''))}
+    <div class="sub-h">Top highlights</div><div class="clips3" id="report-clips"><span class="muted" style="grid-column:1/-1;font-size:14px">Loading clips…</span></div>`;
+  $('#report').hidden = false;
+  reportUrls.forEach(u => URL.revokeObjectURL(u)); reportUrls = [];
+  let clips = []; try{ clips = (await IDB.all('clips')).filter(c => c.sessionId === sess.id && c.made).sort((a,b) => b.t - a.t).slice(0, 3); }catch(e){}
+  $('#report-clips').innerHTML = clips.length ? clips.map(c => { const u = URL.createObjectURL(c.blob); reportUrls.push(u); return `<video src="${u}" controls playsinline preload="metadata"></video>`; }).join('')
+    : '<span class="muted" style="grid-column:1/-1;font-size:14px">No clips this session. Clips are recorded when you track with the camera.</span>';
+}
+$('#report-close').addEventListener('click', () => { $('#report').hidden = true; });
+
+/* ================= YOUR OWN AI: make/miss model trained on your shots ================= */
+const CROP = 24, NF = 6;
+const cropCv = document.createElement('canvas'); cropCv.width = cropCv.height = CROP;
+const cropCtx = cropCv.getContext('2d', {willReadFrequently:true});
+const MY = {model:null, hoop:null, training:false, buf:[], pending:null, fresh:0};
+function captureCrop(src, now){
+  if(!hoop) return;
+  const sw = src.videoWidth || src.width, sh = src.videoHeight || src.height; if(!sw) return;
+  const side = (hoop.x1 - hoop.x0) * 2.4 * sw, cx = (hoop.x0 + hoop.x1) / 2 * sw, cy = hoop.y1 * sh;
+  try{ cropCtx.drawImage(src, cx - side/2, cy - side/2, side, side, 0, 0, CROP, CROP); }catch(e){ return; }
+  const d = cropCtx.getImageData(0, 0, CROP, CROP).data, g = new Uint8Array(CROP*CROP);
+  for(let i = 0; i < g.length; i++) g[i] = (d[i*4]*.299 + d[i*4+1]*.587 + d[i*4+2]*.114) | 0;
+  MY.buf.push({t: now, g});
+  while(MY.buf.length && now - MY.buf[0].t > 3000) MY.buf.shift();
+}
+function stackFrames(from, to){
+  const fr = MY.buf.filter(f => f.t >= from && f.t <= to); if(fr.length < NF) return null;
+  const x = new Uint8Array(CROP*CROP*NF);
+  for(let k = 0; k < NF; k++){ const g = fr[Math.round(k * (fr.length-1) / (NF-1))].g; for(let i = 0; i < g.length; i++) x[i*NF + k] = g[i]; }
+  return x;
+}
+function myOnShot(shotRec, auto){
+  const now = performance.now();
+  // auto calls: the window ends at the call; manual taps usually come a beat after the ball drops
+  const x = auto ? stackFrames(now - 1000, now) : stackFrames(now - 2300, now - 700);
+  let label = shotRec.made ? 1 : 0;
+  if(!auto && MY.pending && Date.now() - MY.pending.at < 15000){ MY.pending.s.y = label; IDB.put('samples', MY.pending.s).catch(() => {}); MY.pending = null; MY.fresh++; return; }
+  if(!x || db.current.demo && !MY.allowDemo) return;
+  const s = {id: 's' + shotRec.t, t: shotRec.t, x, y: label, auto: !!auto};
+  IDB.put('samples', s).catch(() => {});
+  if(++MY.fresh >= 10){ MY.fresh = 0; myTrain(); }
+}
+function myOnUndo(shotRec){
+  const id = 's' + shotRec.t;
+  IDB.all('samples').then(all => { const s = all.find(q => q.id === id); if(s){ IDB.del('samples', id); MY.pending = {s, at: Date.now()}; } }).catch(() => {});
+}
+function toTensor(list){
+  const n = list.length, f = new Float32Array(n*CROP*CROP*NF);
+  // motion input: each frame minus the pixel's average over the clip, so the static background drops out
+  list.forEach((s, j) => { const x = s.x, o = j*x.length;
+    for(let i = 0; i < x.length; i += NF){ let m = 0; for(let k = 0; k < NF; k++) m += x[i+k]; m /= NF;
+      for(let k = 0; k < NF; k++) f[o + i + k] = (x[i+k] - m) / 64; } });
+  return tf.tensor4d(f, [n, CROP, CROP, NF]);
+}
+function myBuild(){
+  const m = tf.sequential();
+  m.add(tf.layers.conv2d({inputShape:[CROP,CROP,NF], filters:12, kernelSize:3, activation:'relu', padding:'same'}));
+  m.add(tf.layers.maxPooling2d({poolSize:2}));
+  m.add(tf.layers.conv2d({filters:24, kernelSize:3, activation:'relu', padding:'same'}));
+  m.add(tf.layers.maxPooling2d({poolSize:2}));
+  m.add(tf.layers.flatten());
+  m.add(tf.layers.dropout({rate:.3}));
+  m.add(tf.layers.dense({units:24, activation:'relu'}));
+  m.add(tf.layers.dense({units:1, activation:'sigmoid'}));
+  m.compile({optimizer: tf.train.adam(.002), loss:'binaryCrossentropy', metrics:['accuracy']});
+  return m;
+}
+async function myTrain(force){
+  if(MY.training || !window.tf) return;
+  let data = []; try{ data = await IDB.all('samples'); }catch(e){}
+  const pos = data.filter(d => d.y === 1).length, neg = data.length - pos;
+  if(data.length < 16 || pos < 4 || neg < 4){ if(force) toast(`Your AI needs at least 16 tracked shots with 4 makes and 4 misses (has ${data.length})`); renderMyAI(); return; }
+  MY.training = true; renderMyAI();
+  try{
+    for(let i = data.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i+1)); [data[i], data[j]] = [data[j], data[i]]; }
+    const nTest = Math.max(4, Math.round(data.length * .2)), test = data.slice(0, nTest), train = data.slice(nTest);
+    const xs0 = toTensor(train), xs = tf.concat([xs0, tf.image.flipLeftRight(xs0)]);
+    const ys = tf.tensor2d([...train, ...train].map(s => [s.y]));
+    const model = myBuild();
+    await model.fit(xs, ys, {epochs: 80, batchSize: 16, shuffle: true});
+    const xt = toTensor(test), pr = await model.predict(xt).data();
+    const acc = test.filter((s, i) => (pr[i] > .5 ? 1 : 0) === s.y).length / test.length;
+    tf.dispose([xs0, xs, ys, xt]);
+    await model.save('indexeddb://swishlab-makemiss').catch(() => {});
+    if(MY.model) MY.model.dispose();
+    MY.model = model;
+    db.settings.myai = {acc: Math.round(acc*100), n: data.length, t: Date.now()}; save();
+  }catch(e){ console.warn('train', e); }
+  MY.training = false; renderMyAI();
+}
+function myPredict(){
+  if(!MY.model || !db.settings.myai || db.settings.myai.acc < 80) return null;
+  const now = performance.now(), x = stackFrames(now - 1000, now); if(!x) return null;
+  return tf.tidy(() => MY.model.predict(toTensor([{x}])).dataSync()[0]);
+}
+async function myLoad(){
+  try{ MY.model = await tf.loadLayersModel('indexeddb://swishlab-makemiss'); }catch(e){ MY.model = null; }
+  try{ MY.hoop = await tf.loadLayersModel('indexeddb://swishlab-hoop'); }catch(e){ MY.hoop = null; }
+  renderMyAI();
+}
+
+/* ---------- YOUR OWN AI: hoop finder, learns where the rim is in your setups ---------- */
+const HW = 64, HH = 36;
+const hoopCv = document.createElement('canvas'); hoopCv.width = HW; hoopCv.height = HH;
+const hoopCtx = hoopCv.getContext('2d', {willReadFrequently:true});
+function hoopFrame(){
+  const src = source === 'demo' ? demoCv : video; if(!(src.videoWidth || src.width)) return null;
+  try{ hoopCtx.drawImage(src, 0, 0, HW, HH); }catch(e){ return null; }
+  const d = hoopCtx.getImageData(0, 0, HW, HH).data, g = new Uint8Array(HW*HH);
+  for(let i = 0; i < g.length; i++) g[i] = (d[i*4]*.299 + d[i*4+1]*.587 + d[i*4+2]*.114) | 0;
+  return g;
+}
+function hoopSample(){
+  lastHoopSample = performance.now();
+  if(source === 'demo' || !hoop) return;
+  const g = hoopFrame(); if(!g) return;
+  IDB.put('hoopSamples', {id: 'h' + Date.now(), x: g, box: [hoop.x0, hoop.y0, hoop.x1, hoop.y1]}).catch(() => {});
+}
+const iou = (a, b) => { const ix = Math.max(0, Math.min(a[2],b[2]) - Math.max(a[0],b[0])), iy = Math.max(0, Math.min(a[3],b[3]) - Math.max(a[1],b[1]));
+  const I = ix*iy, U = (a[2]-a[0])*(a[3]-a[1]) + (b[2]-b[0])*(b[3]-b[1]) - I; return U > 0 ? I/U : 0; };
+async function hoopTrain(force){
+  if(MY.training || !window.tf) return;
+  let data = []; try{ data = await IDB.all('hoopSamples'); }catch(e){}
+  if(data.length > 400){ data.sort((a,b) => a.id < b.id ? -1 : 1); data.slice(0, data.length - 400).forEach(d => IDB.del('hoopSamples', d.id)); data = data.slice(-400); }
+  if(data.length < 30){ if(force) toast(`The hoop finder needs 30 hoop snapshots (has ${data.length}). It saves one every 5 seconds while you track.`); renderMyAI(); return; }
+  MY.training = true; renderMyAI();
+  try{
+    for(let i = data.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i+1)); [data[i], data[j]] = [data[j], data[i]]; }
+    const nTest = Math.max(5, Math.round(data.length * .2)), test = data.slice(0, nTest), train = data.slice(nTest);
+    const T = list => { const f = new Float32Array(list.length*HW*HH); list.forEach((s,j) => s.x.forEach((v,i) => f[j*HW*HH + i] = v/255)); return tf.tensor4d(f, [list.length, HH, HW, 1]); };
+    const m = tf.sequential();
+    m.add(tf.layers.conv2d({inputShape:[HH,HW,1], filters:8, kernelSize:3, activation:'relu', padding:'same'}));
+    m.add(tf.layers.maxPooling2d({poolSize:2}));
+    m.add(tf.layers.conv2d({filters:16, kernelSize:3, activation:'relu', padding:'same'}));
+    m.add(tf.layers.maxPooling2d({poolSize:2}));
+    m.add(tf.layers.flatten()); m.add(tf.layers.dense({units:32, activation:'relu'})); m.add(tf.layers.dense({units:4, activation:'sigmoid'}));
+    m.compile({optimizer: tf.train.adam(.002), loss:'meanSquaredError'});
+    const xs = T(train), ys = tf.tensor2d(train.map(s => s.box));
+    await m.fit(xs, ys, {epochs: 30, batchSize: 16, shuffle: true});
+    const xt = T(test), pr = await m.predict(xt).array();
+    const q = test.reduce((a, s, i) => a + iou(pr[i], s.box), 0) / test.length;
+    tf.dispose([xs, ys, xt]);
+    await m.save('indexeddb://swishlab-hoop').catch(() => {});
+    if(MY.hoop) MY.hoop.dispose();
+    MY.hoop = m; db.settings.hoopai = {iou: Math.round(q*100), n: data.length, t: Date.now()}; save();
+  }catch(e){ console.warn('hoop train', e); }
+  MY.training = false; renderMyAI();
+}
+async function hoopPredict(){
+  if(!running || source === 'demo' || !MY.hoop || !db.settings.hoopai || db.settings.hoopai.iou < 50) return;
+  const g = hoopFrame(); if(!g) return;
+  const b = tf.tidy(() => MY.hoop.predict(tf.tensor4d(Float32Array.from(g, v => v/255), [1, HH, HW, 1])).dataSync());
+  const box = [b[0], b[1], b[2], b[3]];
+  if(box[2] - box[0] < .01 || box[3] - box[1] < .01) return;
+  if(!hoop || hoopAuto || iou(box, [hoop.x0, hoop.y0, hoop.x1, hoop.y1]) < .5){
+    hoop = {x0: box[0], y0: box[1], x1: box[2], y1: box[3]}; hoopAuto = false;
+    setHint(''); toast('Your AI found the hoop. Drag to fix it if it is off');
+  }
+}
+
+/* ================= stats: arc, form, my AI ================= */
+function lineChart(points, {max = 100, min = 0, unit = '%', label = ''} = {}){
+  if(points.length < 2) return '<p class="muted">Log two or more sessions to see the trend.</p>';
+  const W = 460, H = 170, L = 38, R = 12, T = 14, B = 26;
+  const xs = i => L + i * (W - L - R) / (points.length - 1), ys = v => T + (1 - (v - min)/(max - min)) * (H - T - B);
+  const ticks = [0, .5, 1].map(k => min + (max - min) * k);
+  const grid = ticks.map(v => `<line class="grid" x1="${L}" x2="${W-R}" y1="${ys(v)}" y2="${ys(v)}"/><text x="${L-6}" y="${ys(v)+4}" text-anchor="end">${Math.round(v)}${unit}</text>`).join('');
+  const line = points.map((p,i) => `${i?'L':'M'}${xs(i).toFixed(1)} ${ys(p.v).toFixed(1)}`).join(' ');
+  const last = points[points.length-1];
+  const dots = points.map((p,i) => `<circle cx="${xs(i)}" cy="${ys(p.v)}" r="${i === points.length-1 ? 5 : 3}" fill="${i === points.length-1 ? 'var(--accent)' : 'var(--surface)'}" stroke="var(--accent)" stroke-width="2"><title>${p.label}: ${Math.round(p.v)}${unit}</title></circle>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="${label}">${grid}
+    <path d="${line} L${xs(points.length-1)} ${ys(min)} L${xs(0)} ${ys(min)} Z" fill="var(--accent)" opacity=".12"/>
+    <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>${dots}
+    <text x="${xs(points.length-1)}" y="${ys(last.v) - 10}" text-anchor="end" style="fill:var(--ink);font-weight:600">${Math.round(last.v)}${unit}</text>
+    <text x="${L}" y="${H-6}">${points[0].label}</text><text x="${W-R}" y="${H-6}" text-anchor="end">${last.label}</text></svg>`;
+}
+const hbar = (name, frac, right, color) => `<div class="hbar"><span>${name}</span><span class="track"><i style="width:${Math.round(Math.max(0, Math.min(1, frac))*100)}%;${color ? 'background:' + color : ''}"></i></span><b style="text-align:right">${right}</b></div>`;
+function renderFormArc(sess){
+  const shots = sess.flatMap(s => s.shots).filter(s => s.fb);
+  if(!shots.length){ $('#arc-stats').innerHTML = '<p class="muted">Track shots with the camera to see your arc.</p>'; }
+  else {
+    const avg = Math.round(shots.reduce((a,s) => a + s.fb.angle, 0) / shots.length);
+    // histogram of entry angles, ideal band shaded
+    const lo = 20, hi = 75, step = 5, bins = []; for(let a = lo; a < hi; a += step) bins.push({a, m:0, x:0});
+    shots.forEach(s => { const b = bins[Math.max(0, Math.min(bins.length-1, Math.floor((s.fb.angle - lo) / step)))]; s.made ? b.m++ : b.x++; });
+    const W = 460, H = 150, L = 8, B = 22, T = 8, bw = (W - 2*L) / bins.length, mx = Math.max(...bins.map(b => b.m + b.x), 1);
+    const xa = a => L + (a - lo) / step * bw, yh = v => v / mx * (H - B - T);
+    const svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Entry angle histogram">
+      <rect x="${xa(43)}" y="${T}" width="${xa(50) - xa(43)}" height="${H - B - T}" fill="var(--make)" opacity=".13"/>
+      <text x="${(xa(43)+xa(50))/2}" y="${T + 11}" text-anchor="middle" style="fill:var(--make);font-weight:600">ideal</text>
+      ${bins.map(b => `<rect x="${xa(b.a)+2}" y="${H - B - yh(b.m + b.x)}" width="${bw-4}" height="${yh(b.x)}" fill="var(--miss)" opacity=".75"/>
+        <rect x="${xa(b.a)+2}" y="${H - B - yh(b.m)}" width="${bw-4}" height="${yh(b.m)}" fill="var(--make)"/>`).join('')}
+      <line class="grid" x1="${L}" x2="${W-L}" y1="${H-B}" y2="${H-B}"/>
+      ${[20,30,40,50,60,70].map(a => `<text x="${xa(a)}" y="${H-6}" text-anchor="middle">${a}°</text>`).join('')}</svg>`;
+    const bucket = (name, f) => { const b = shots.filter(f), m = b.filter(s => s.made).length; return hbar(name, b.length ? m/b.length : 0, b.length ? pct(m, b.length) + '%' : '–'); };
+    const miss = {short:0, long:0, rim:0}; shots.forEach(s => s.fb.miss && miss[s.fb.miss]++); const mt = miss.short + miss.long + miss.rim || 1;
+    $('#arc-stats').innerHTML = `<div class="row" style="align-items:baseline"><b style="font:800 40px/1 var(--display)">${avg}°</b><span class="muted">average entry angle · ideal 43–50°</span></div>
+      <div style="margin-top:10px">${svg}</div>
+      <div class="legend"><i style="max-width:12px;height:12px;background:var(--make)"></i>Makes <i style="max-width:12px;height:12px;background:var(--miss)"></i>Misses</div>
+      <div class="sub-h">FG% by arc</div>${bucket('Flat <43°', s => s.fb.angle < 43)}${bucket('Ideal', s => s.fb.angle >= 43 && s.fb.angle <= 50)}${bucket('High >50°', s => s.fb.angle > 50)}
+      <div class="sub-h">How you miss</div>${hbar('Short', miss.short/mt, miss.short, 'var(--miss)')}${hbar('Long', miss.long/mt, miss.long, 'var(--miss)')}${hbar('Rim-out', miss.rim/mt, miss.rim, 'var(--miss)')}`;
+  }
+  const withForms = sess.filter(s => (s.forms || []).length);
+  const forms = withForms.flatMap(s => s.forms);
+  if(!forms.length){ $('#form-stats').innerHTML = '<p class="muted">Track with the camera, whole body in frame, to get form scores.</p>'; return; }
+  const avg = a => a.length ? a.reduce((x,y) => x+y, 0) / a.length : null;
+  const trend = lineChart(withForms.map(s => ({label: fmtDate(s.start), v: avg(s.forms.map(f => f.score))})), {label:'Form score by session', unit:''});
+  const half = Math.max(1, Math.floor(withForms.length / 2)), early = withForms.slice(0, half).flatMap(s => s.forms), late = withForms.slice(-half).flatMap(s => s.forms);
+  const rows = Object.keys(FORM_RULES).map(name => {
+    const vals = f => f.flatMap(x => x.rows.filter(r => r.name === name && r.v != null).map(r => r.v));
+    const all = avg(vals(forms)); if(all == null) return '';
+    const d = withForms.length >= 2 ? avg(vals(late)) - avg(vals(early)) : 0, better = FORM_RULES[name].lower ? d < -1 : d > 1, worse = FORM_RULES[name].lower ? d > 1 : d < -1;
+    const r = rateVal(name, all);
+    return `<div class="frow"><span>${name}</span><span>${Math.round(all)}${FORM_RULES[name].unit} <span class="muted" style="font-size:13px">${better ? '▲ better' : worse ? '▼ worse' : '– steady'}</span> <span class="pill ${r}">${r === 'work' ? 'fix' : r}</span></span></div>`;
+  }).join('');
+  const tempos = withForms.map(s => ({label: fmtDate(s.start), v: avg(s.forms.filter(f => f.tempo).map(f => f.tempo))})).filter(p => p.v != null);
+  $('#form-stats').innerHTML = `<div class="row" style="align-items:baseline"><b style="font:800 40px/1 var(--display)">${Math.round(avg(forms.map(f => f.score)))}</b><span class="muted">average form score · ${forms.length} shots analyzed</span></div>
+    <div style="margin-top:10px">${trend}</div><div class="sub-h">Checks</div>${rows}
+    ${tempos.length ? `<div class="sub-h">Release time</div><div class="row" style="align-items:baseline"><b style="font:700 26px/1 var(--display)">${(avg(tempos.map(p => p.v))/1000).toFixed(2)}s</b><span class="muted">dip to release · quicker is harder to block</span></div>
+      <div style="margin-top:8px">${lineChart(tempos.map(p => ({label:p.label, v:p.v/1000})), {min:0, max:1, unit:'s', label:'Release time by session'})}</div>` : ''}`;
+}
+async function renderMyAI(){
+  const el = $('#myai'); if(!el) return;
+  let n = 0, pos = 0, hn = 0;
+  try{ const s = await IDB.all('samples'); n = s.length; pos = s.filter(x => x.y === 1).length; hn = (await IDB.all('hoopSamples')).length; }catch(e){}
+  const a = db.settings.myai, h = db.settings.hoopai;
+  const status = MY.training ? 'Training now…' : a ? (a.acc >= 80 ? `Active: helps call your shots (${a.acc}% accurate on shots it hasn't seen)` : `Learning: ${a.acc}% accurate so far, and it takes over at 80%`) : 'Not trained yet';
+  el.innerHTML = `<p class="muted" style="margin:0 0 8px;font-size:14px">This model is yours. It trains on this phone from your own tracked shots and gets better every session.</p>
+    <div class="frow"><span>Make/miss model</span><span>${status}</span></div>
+    <div class="frow"><span>Training shots</span><span>${n} (${pos} makes · ${n - pos} misses)</span></div>
+    <div class="frow"><span>Hoop finder</span><span>${h ? `${h.iou}% overlap on held-out frames${h.iou >= 50 ? ' · active' : ''}` : 'Not trained yet'} · ${hn} snapshots</span></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="myai-train" type="button" ${MY.training ? 'disabled' : ''}>Train now</button>
+      <button class="btn ghost" id="myai-reset" type="button">${MY.armReset ? 'Tap again to reset' : 'Reset my AI'}</button></div>`;
+}
+document.addEventListener('click', async e => {
+  if(e.target.id === 'myai-train'){ const ok = await loadTF(); if(!ok){ toast("Couldn't load TensorFlow. Check your connection"); return; } await myTrain(true); await hoopTrain(true); }
+  if(e.target.id === 'myai-reset'){
+    if(!MY.armReset){ MY.armReset = true; renderMyAI(); setTimeout(() => { MY.armReset = false; renderMyAI(); }, 3000); return; }
+    MY.armReset = false; await IDB.clear('samples').catch(() => {}); await IDB.clear('hoopSamples').catch(() => {});
+    try{ indexedDB.deleteDatabase('tensorflowjs'); }catch(err){}
+    MY.model = MY.hoop = null; delete db.settings.myai; delete db.settings.hoopai; save(); renderMyAI(); toast('Your AI was reset');
+  }
+});
+function sessExtras(s){
+  const fbs = s.shots.filter(x => x.fb), f = s.forms || [];
+  return (fbs.length ? ` · arc ${Math.round(fbs.reduce((a,x) => a + x.fb.angle, 0) / fbs.length)}°` : '') + (f.length ? ` · form ${Math.round(f.reduce((a,x) => a + x.score, 0) / f.length)}` : '');
+}
+
+/* ================= app shell: install, blocked-camera notice, offline ================= */
+const inFrame = (() => { try{ return window.top !== window; }catch(e){ return true; } })();
+if(inFrame) $('#blocked').hidden = false;
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+if(!inFrame && !standalone) $('#install-hint').hidden = false;
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#install-btn').hidden = false; });
+$('#install-btn').addEventListener('click', async () => { if(!installEvt) return; installEvt.prompt(); installEvt = null; $('#install-btn').hidden = true; });
+if('serviceWorker' in navigator && !inFrame && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 
 /* ---------- boot ---------- */
 let tab = 'track'; try{ tab = localStorage.getItem(KEY + '.tab') || 'track'; }catch(e){}
