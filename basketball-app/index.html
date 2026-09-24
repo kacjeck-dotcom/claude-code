@@ -283,6 +283,10 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 .hud-stats div{display:flex;flex-direction:column;align-items:center;transform:skewX(-6deg)}
 .hud-stats div b{font-size:clamp(24px,7vw,44px);font-weight:800;line-height:1}
 .hud-stats div span{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.stats-grid > *, .view > *{min-width:0}
+#metrics table th, #metrics table td{font-size:13px;padding:7px 4px}
+#metrics .minis{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+#metrics .minis b{font-size:22px}
 /* app polish */
 .page-head{display:flex;flex-direction:column;gap:2px;margin-top:4px}
 .page-head .muted{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
@@ -349,7 +353,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 .clips3 video{width:100%;border-radius:8px;background:var(--stage);aspect-ratio:16/9;object-fit:cover}
 .blocked{background:#E2571B;color:#fff;border-radius:10px;padding:10px 12px;font-size:14px;max-width:44ch;margin:0}
 .blocked a{color:#fff;font-weight:700;word-break:break-all}
-.hbar{display:grid;grid-template-columns:5.5em 1fr 3.2em;gap:8px;align-items:center;font-size:14px;margin:6px 0;font-variant-numeric:tabular-nums}
+.hbar{display:grid;grid-template-columns:6.5em minmax(0,1fr) auto;gap:8px;align-items:center;font-size:14px;margin:6px 0;font-variant-numeric:tabular-nums}
 .hbar i{display:block;height:10px;border-radius:99px;background:var(--accent)}
 .hbar .track{background:var(--surface-2);border-radius:99px;overflow:hidden}
 .sub-h{font:700 15px/1.2 var(--display);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 6px;color:var(--muted)}
@@ -486,6 +490,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
       <div class="panel"><h3>Hot zones</h3><div id="heat" style="margin-top:10px"></div>
         <div class="legend">Cold <i style="background:linear-gradient(90deg,#3E6FB8,#8C8F99,#E2571B,#C3202B)"></i> Hot</div></div>
       <div class="view" style="gap:18px">
+        <div class="panel"><h3>Shot metrics</h3><div id="metrics" style="margin-top:8px"></div></div>
         <div class="panel"><h3>My AI</h3><div id="myai" style="margin-top:8px"></div></div>
         <div class="panel"><h3>FG% by session</h3><div id="trend" style="margin-top:10px"></div></div>
         <div class="panel"><h3>By zone</h3><div class="table-wrap" id="zone-table"></div></div>
@@ -651,7 +656,9 @@ function seedExamples(){
       const made = rnd() < base[z] + i*0.012, auto = rnd() > .2;
       const angle = Math.round(44 + i*.4 + (made ? 0 : -5) + (rnd()-.5)*16);
       const fb = auto ? {angle, arc: +(1.5 + rnd()*2).toFixed(1), miss: made ? null : ['short','long','rim'][Math.floor(rnd()*3)], tip:''} : undefined;
-      shots.push({t, made, x: sp.x + (rnd()-.5), y: sp.y + (rnd()-.5), zone: z, auto, fb});
+      const st = auto ? {type: rnd() < .6 ? 'Catch and shoot' : 'Off the dribble', leg: Math.round(125 + rnd()*25), rel: Math.round(44 + rnd()*12), time: +(0.8 + rnd()*.5).toFixed(2),
+        speed: +(rnd()*3).toFixed(1), height: Math.round(84 + rnd()*8)} : undefined;
+      shots.push({t, made, x: sp.x + (rnd()-.5), y: sp.y + (rnd()-.5), zone: z, auto, fb, st});
     });
     const forms = shots.filter(() => rnd() < .6).map(sh => {
       const g = i / plan.length;
@@ -670,6 +677,7 @@ let db = load();
 if(!db){ db = {sessions: seedExamples(), current: null, settings: {}}; }
 db.settings = Object.assign({voice:true, spot:{x:25,y:31,ft:false}, ball:null}, db.settings||{});
 if(!db.current || db.current.demo) db.current = newSession();
+if(db.sessions.some(x => x.example) && !db.sessions.some(x => x.example && x.shots.some(q => q.st))){ db.sessions = db.sessions.filter(x => !x.example).concat(seedExamples()); }
 
 /* ---------- helpers ---------- */
 const pct = (m,a) => a ? Math.round(m/a*100) : null;
@@ -775,7 +783,20 @@ const DRILLS = [
 ];
 let drLvl = 'all', drType = 'all';
 const thumbCache = {};
-function thumb(kind){ if(thumbCache[kind]) return thumbCache[kind]; const cv = document.createElement('canvas'); cv.width = 480; cv.height = 300; drawFig(cv, kind, .55, true); return thumbCache[kind] = cv.toDataURL('image/jpeg', .8); }
+function drawTargets(cv, seed){
+  const c = cv.getContext('2d'), W = cv.width, H = cv.height, f = getComputedStyle(document.documentElement).getPropertyValue('--hcf');
+  [[.3, .78, 2], [.72, .8, 0]].forEach(([x, y, n], i) => { const r = H * .1, tx = W * (i ? x : x - seed * .02), ty = H * y;
+    const g = c.createRadialGradient(tx - r*.3, ty - r*.3, r*.1, tx, ty, r); g.addColorStop(0, '#FFE680'); g.addColorStop(1, '#FFB21A');
+    c.fillStyle = g; c.beginPath(); c.arc(tx, ty, r * .78, 0, 7); c.fill();
+    c.lineWidth = r * .16; c.strokeStyle = 'rgba(255,255,255,.6)'; c.beginPath(); c.arc(tx, ty, r * .9, 0, 7); c.stroke();
+    c.strokeStyle = '#FF6A00'; c.beginPath(); c.arc(tx, ty, r * .9, -Math.PI/2, Math.PI * .8); c.stroke();
+    c.fillStyle = '#7A3A00'; c.font = `italic 800 ${Math.round(r)}px ${f}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(n || '', tx, ty); });
+  c.fillStyle = '#fff'; c.font = `italic 800 ${Math.round(H*.13)}px ${f}`; c.textAlign = 'left'; c.fillText('+4', W * .8, H * .62);
+  c.fillStyle = 'rgba(10,12,18,.85)'; c.fillRect(12, 12, 64, 40); c.fillRect(W - 112, 12, 100, 40);
+  c.fillStyle = '#fff'; c.font = `italic 800 30px ${f}`; c.textBaseline = 'middle'; c.fillText('75', 24, 33); c.fillText('00:44', W - 102, 33);
+}
+function thumb(kind){ if(thumbCache[kind]) return thumbCache[kind]; const cv = document.createElement('canvas'); cv.width = 480; cv.height = 300; drawFig(cv, kind, .55, true);
+  if(['pound','cross','fig8','btl','twoball','tennis','hesi'].includes(kind)) drawTargets(cv, 1); return thumbCache[kind] = cv.toDataURL('image/jpeg', .8); }
 const drMins = d => Math.round(d.steps.reduce((a, s) => a + s.secs, 0) / 60 * 10) / 10;
 function renderDrills(){
   $$('[data-lvl]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lvl === drLvl ? 'true' : 'false'));
@@ -999,7 +1020,7 @@ function record(made, auto, fb){
   beep(made); flash(made);
   speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
   const q = hypeShot(made); if(q && running) setTimeout(() => hype(q), 400);
-  if(fb && running) setTimeout(() => hudStats([[fb.angle + '°', 'Release angle'], [fb.arc ? fb.arc + 'x' : null, 'Arc height']]), 900);
+  if(fb && running){ const fl = (cur.forms || [])[(cur.forms || []).length - 1], form = fl && Date.now() - fl.t < 3500 ? fl : null; setTimeout(() => attachStats(shotRec, form), 900); }
   advanceWorkout(made);
   if(!cur.demo) save();
   renderScore(); renderShots(); renderCoach(); renderGoal();
@@ -1200,6 +1221,7 @@ function renderStats(){
 
   renderTrend(all.slice(-12));
   renderFormArc(sess);
+  renderMetrics(sess);
   renderMyAI();
 }
 function renderTrend(sess){
@@ -1665,13 +1687,25 @@ function analyzeForm(t, side){
   const score = Math.round(scored.reduce((a,r) => a + (r.r === 'good' ? 100 : r.r === 'ok' ? 65 : 30), 0) / scored.length);
   const worst = scored.find(r => r.r === 'work') || scored.find(r => r.r === 'ok');
   const tempo = dipMin ? Math.round(rel.t - dipMin.f.t) : null;
+  // player speed into the shot (hips over the last second), scaled by torso length (~0.5 m)
+  const hipAt = f => ok(f.kp.left_hip, f.kp.right_hip) ? {x: midX(f.kp.left_hip, f.kp.right_hip), y: midY(f.kp.left_hip, f.kp.right_hip)} : null;
+  const pre = win.filter(f => f.t >= rel.t - 1000 && f.t <= rel.t && hipAt(f));
+  let speed = null;
+  if(pre.length >= 2){ const a = hipAt(pre[0]), b = hipAt(pre[pre.length-1]), dt = (pre[pre.length-1].t - pre[0].t) / 1000;
+    if(dt > .2) speed = +(Math.hypot(b.x - a.x, b.y - a.y) / torso * .5 / dt * 2.237).toFixed(1); }
+  // release height: wrist above the ankles, scaled by your height
+  const ank = [K.left_ankle, K.right_ankle].filter(q => q && q.s > .3);
+  let relHeight = null;
+  if(ank.length && ok(K.nose)){ const ay = ank.reduce((a,q) => a + q.y, 0) / ank.length, body = (ay - K.nose.y) * 1.07;
+    if(body > 40) relHeight = Math.round((ay - K[P('wrist')].y) / body * (db.settings.heightIn || 70) + 3); }
   const tip = worst ? worst.tip : 'Textbook form. Keep repeating that exact motion.';
-  const res = {t: Date.now(), score, tip, tempo, rows: rows.map(({name,v,text,r}) => ({name,v,text,r}))};
+  const res = {t: Date.now(), score, tip, tempo, speed, relHeight, knee: dipMin ? Math.round(dipMin.v) : null, rows: rows.map(({name,v,text,r}) => ({name,v,text,r}))};
   (db.current.forms = db.current.forms || []).push(res);
   if(!db.current.demo) save();
   renderForm(res);
   const lastFb = [...db.current.shots].reverse().find(x => x.fb), comp = nbaComp(res, lastFb && lastFb.fb.angle);
   res.comp = comp;
+  const recent = db.current.shots[db.current.shots.length-1]; if(recent && Date.now() - recent.t < 3000 && !recent.st) attachStats(recent, res);
   const rv = n => { const r = res.rows.find(x => x.name === n); return r && r.v != null ? Math.round(r.v) : null; };
   hudStats([[tempo ? (tempo/1000).toFixed(2) + 's' : null, 'Release time'], [rv('Knee bend') != null ? rv('Knee bend') + '°' : null, 'Leg angle'], [rv('Arm extension') != null ? rv('Arm extension') + '°' : null, 'Elbow angle'], [score, 'Form score']]);
   speak(`Form ${score}. ${tip}`);
@@ -1700,11 +1734,36 @@ function renderCoach(){
   $('#coach-sum').textContent = `Session: average entry ${avg}° (ideal 43–50°) over ${fbs.length} tracked shots` +
     (top[1] ? ` · most misses ${top[0] === 'rim' ? 'rim-outs' : top[0]} (${top[1]})` : '') + '.';
 }
+// release angle and catch-and-shoot vs off-the-dribble, read from the ball's path before it went up
+function launchInfo(t0){
+  const w = trail.filter(q => q.t >= t0 - 2200 && q.t <= t0); if(w.length < 4) return {launch:null, type:null};
+  const upWin = w.filter(q => q.t >= t0 - 800);
+  let lo = 0; upWin.forEach((q, i) => { if(q.y > upWin[lo].y) lo = i; });
+  const a = upWin[lo], b = upWin[Math.min(upWin.length-1, lo + 4)];
+  let launch = null;
+  if(b && b !== a && a.y - b.y > .02){ launch = Math.round(Math.atan2(a.y - b.y, Math.abs(b.x - a.x) * (PW/PH) + 1e-6) * 180 / Math.PI); launch = Math.max(25, Math.min(80, launch)); }
+  const before = w.filter(q => q.t < a.t - 150);
+  const dribbled = before.some(q => q.y > a.y + .14);
+  return {launch, type: dribbled ? 'Off the dribble' : 'Catch and shoot'};
+}
+function attachStats(shotRec, form){
+  const fb = shotRec.fb || {};
+  shotRec.st = {type: fb.type || null, leg: form ? form.knee : null, rel: fb.launch || fb.angle || null, time: form && form.tempo ? +(form.tempo/1000).toFixed(2) : null,
+    speed: form ? form.speed : null, height: form ? form.relHeight : null};
+  if(!db.current.demo) save();
+  showShotHud(shotRec.st);
+}
+const fmtIn = i => i == null ? null : `${Math.floor(i/12)}'${i%12}"`;
+function showShotHud(st){
+  hudStats([[st.type ? st.type.toUpperCase() : null, 'Shot type'], [st.leg != null ? st.leg + '°' : null, 'Leg angle'], [st.rel != null ? st.rel + '°' : null, 'Release angle'],
+    [st.time != null ? st.time.toFixed(1) + 's' : null, 'Release time'], [st.speed != null ? st.speed.toFixed(1) + 'mph' : null, 'Speed'], [fmtIn(st.height), 'Release height']]);
+}
 function finish(made){
   const p = myPredict();
   if(p != null && ((made && p < .12) || (!made && p > .88))){ made = !made; toast('Your AI corrected the call'); }
   const fb = analyze(shot.path || [], made);
   if(fb && p != null) fb.ai = +p.toFixed(2);
+  if(fb){ const lt = launchInfo(shot.t0); fb.launch = lt.launch; fb.type = lt.type; }
   shot = {phase:'idle'}; cooldownUntil = performance.now() + 1100;
   record(made, true, fb);
 }
@@ -1722,7 +1781,7 @@ function loop(){
   const b = (source !== 'demo' && cocoBall && now - cocoBall.t < 150) ? cocoBall : detect();
   if(b){ lastBall = b; lostFrames = 0; trail.push({x:b.x, y:b.y, t:now}); judge(b, now); }
   else if(++lostFrames > 8){ lastBall = null; }
-  while(trail.length && now - trail[0].t > 1400) trail.shift();
+  while(trail.length && now - trail[0].t > 2600) trail.shift();
   if(shot.phase === 'up' && now - shot.t0 > 3200){ shot.close ? finish(false) : (shot = {phase:'idle'}); }
   draw(b, now);
 }
@@ -2177,6 +2236,25 @@ function renderFormArc(sess){
     ${tempos.length ? `<div class="sub-h">Release time</div><div class="row" style="align-items:baseline"><b style="font:700 26px/1 var(--display)">${(avg(tempos.map(p => p.v))/1000).toFixed(2)}s</b><span class="muted">dip to release · quicker is harder to block</span></div>
       <div style="margin-top:8px">${lineChart(tempos.map(p => ({label:p.label, v:p.v/1000})), {min:0, max:1, unit:'s', label:'Release time by session'})}</div>` : ''}`;
 }
+function renderMetrics(sess){
+  const sh = sess.flatMap(s => s.shots).filter(x => x.st);
+  const avg = f => { const v = sh.map(f).filter(x => x != null); return v.length ? v.reduce((a,b) => a+b, 0) / v.length : null; };
+  const cs = sh.filter(x => x.st.type === 'Catch and shoot'), od = sh.filter(x => x.st.type === 'Off the dribble');
+  const fgp = a => a.length ? pct(a.filter(x => x.made).length, a.length) + '%' : '–';
+  const tile = (v, l) => `<div><b>${v ?? '–'}</b><span>${l}</span></div>`;
+  const h = db.settings.heightIn || 70;
+  $('#metrics').innerHTML = `<div class="minis" style="grid-template-columns:repeat(3,1fr)">
+      ${tile(avg(x => x.st.leg) != null ? Math.round(avg(x => x.st.leg)) + '°' : null, 'Leg angle')}${tile(avg(x => x.st.rel) != null ? Math.round(avg(x => x.st.rel)) + '°' : null, 'Release angle')}
+      ${tile(avg(x => x.st.time) != null ? avg(x => x.st.time).toFixed(2) + 's' : null, 'Release time')}${tile(avg(x => x.st.speed) != null ? avg(x => x.st.speed).toFixed(1) + ' mph' : null, 'Speed')}
+      ${tile(avg(x => x.st.height) != null ? fmtIn(Math.round(avg(x => x.st.height))) : null, 'Release height')}${tile(sh.length, 'Shots measured')}</div>
+    <div class="sub-h">By shot type</div>${hbar('Catch & shoot', cs.length ? cs.filter(x => x.made).length / cs.length : 0, fgp(cs) + ` (${cs.length})`)}${hbar('Off dribble', od.length ? od.filter(x => x.made).length / od.length : 0, fgp(od) + ` (${od.length})`)}
+    ${sh.length ? `<div class="sub-h">Recent shots</div><div class="table-wrap"><table><thead><tr><th></th><th>Type</th><th class="num">Leg</th><th class="num">Rel°</th><th class="num">Time</th><th class="num">MPH</th><th class="num">Height</th></tr></thead><tbody>
+      ${sh.slice(-12).reverse().map(x => `<tr><td><span class="pill ${x.made ? 'good' : 'work'}">${x.made ? 'Make' : 'Miss'}</span></td><td>${x.st.type === 'Off the dribble' ? 'Dribble' : x.st.type ? 'C&S' : '–'}</td><td class="num">${x.st.leg ?? '–'}${x.st.leg != null ? '°' : ''}</td><td class="num">${x.st.rel ?? '–'}${x.st.rel != null ? '°' : ''}</td><td class="num">${x.st.time != null ? x.st.time + 's' : '–'}</td><td class="num">${x.st.speed ?? '–'}</td><td class="num">${fmtIn(x.st.height) || '–'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted" style="font-size:14px">Track shots with the camera, whole body in frame, to fill these in.</p>'}
+    <div class="row" style="margin-top:12px;font-size:14px"><label for="height-in" class="muted">Your height (for release height)</label>
+      <select id="height-in" class="chip">${Array.from({length:31}, (_, i) => 56 + i).map(v => `<option value="${v}" ${v === h ? 'selected' : ''}>${fmtIn(v)}</option>`).join('')}</select></div>`;
+}
+document.addEventListener('change', e => { if(e.target.id === 'height-in'){ db.settings.heightIn = +e.target.value; save(); toast('Height saved'); } });
+
 async function renderMyAI(){
   const el = $('#myai'); if(!el) return;
   let n = 0, pos = 0, hn = 0;
