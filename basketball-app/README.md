@@ -45,3 +45,14 @@ Local test: `npx serve basketball-app` (or `python3 -m http.server`) and open it
    If it miscalls one, press **Undo** and log it by hand.
 
 Press **Watch the demo** to see the tracker work on a simulated shooter.
+
+## Photo credits
+
+Drill photos come from Wikimedia Commons. They have been resized and cropped, with training targets drawn on top:
+
+- "Boy dribbling the ball in a 3x3 basketball game in Baozhong Junior High School" by 褒忠國中 雲端網, CC BY 2.0
+- "Boy dribbling a Basketball at a Sidewalk in downtown Taichung" by Tbatb, CC BY-SA 4.0
+- "Jump Shot (147812777)" by Devon Boutte, CC BY 3.0
+- "Street Basketball" by Jeremy Nacario, CC BY-SA 4.0
+- "San Vicente, Filipino basketball 2, Palawan, Philippines" by Vyacheslav Argenberg, CC BY 4.0
+- "Streetball in the Philippines 46" by Video13, CC BY-SA 4.0
