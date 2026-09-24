@@ -242,9 +242,13 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 .hc canvas{position:absolute;inset:0;width:100%;height:100%}
 .hc-top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:flex;gap:18px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent)}
 .hc-top div{display:flex;flex-direction:column}
-.hc-top b{font:800 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.hc-top b{font:800 34px/1 var(--hcf);font-style:italic;font-variant-numeric:tabular-nums}
+.hc-box{background:rgba(10,12,18,.85);border-radius:10px;padding:6px 12px}
+.hc-right{margin-left:auto}
+.hc-combo{font:800 20px/1 var(--hcf);font-style:italic;color:#FFC83D;flex-direction:row !important;align-items:baseline;gap:2px}
+.hc-combo b{font-size:26px}
 .hc-top span{font-size:12px;opacity:.8}
-.hc-top .btn{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border-radius:999px;width:42px;height:42px;padding:0}
+.hc-top .btn{margin-left:4px;background:rgba(255,255,255,.2);color:#fff;border-radius:999px;width:42px;height:42px;padding:0}
 .hc-msg{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);background:rgba(255,255,255,.95);color:#0E1116;border-radius:16px;padding:12px 14px;font-weight:600;text-align:center}
 /* HomeCourt-style: italic condensed display, dark programs, HUD */
 :root{--hcf:"Barlow Condensed","Arial Narrow",Impact,sans-serif}
@@ -554,7 +558,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
 </div>
 <div class="hc" id="hc" hidden>
   <video id="hc-video" playsinline muted></video><canvas id="hc-cv"></canvas>
-  <div class="hc-top"><div><b id="hc-score">0</b><span>hits</span></div><div><b id="hc-combo">0</b><span>combo</span></div><div><b id="hc-time">0:45</b><span>left</span></div>
+  <div class="hc-top"><div class="hc-box"><b id="hc-score">0</b></div><div class="hc-combo">x<b id="hc-combo">1</b></div><div class="hc-box hc-right"><b id="hc-time">00:45</b></div>
     <button class="btn" id="hc-close" type="button" aria-label="Close">✕</button></div>
   <div class="hc-msg" id="hc-msg">Prop your phone up facing you and step back until your whole body fits.</div>
 </div>
@@ -890,9 +894,9 @@ async function hcStart(d){
   const v = $('#hc-video'); v.srcObject = HC.stream; await v.play().catch(() => {});
   await loadAI();
   if(ai.state !== 'ready'){ $('#hc-msg').textContent = "The AI couldn't load here. Open the app from its own web address."; return; }
-  Object.assign(HC, {on:true, targets:[], score:0, combo:0, best:0, times:[], side:1});
+  Object.assign(HC, {on:true, targets:[], score:0, combo:0, best:0, times:[], side:1, pops:[]});
   ['3','2','1','Pound it!'].forEach((t, i) => setTimeout(() => { if(HC.on){ $('#hc-msg').textContent = t; speak(t); } }, i * 900));
-  setTimeout(() => { if(!HC.on) return; HC.end = performance.now() + 45000; hcSpawn(); $('#hc-msg').textContent = 'Dribble the ball into the glowing circle!'; }, 3600);
+  setTimeout(() => { if(!HC.on) return; HC.end = performance.now() + 45000; hcSpawn(); $('#hc-msg').textContent = 'Pound the ball into the targets before they run out!'; }, 3600);
   hcLoop(); hcDetect();
 }
 function hcSpawn(){
@@ -930,32 +934,42 @@ function hcLoop(){
   HC.pts.forEach(p => { c.fillStyle = p.b ? '#FF7A1A' : 'rgba(255,255,255,.8)'; c.beginPath(); c.arc(X(p.x), Y(p.y), (p.b ? 12 : 7)*d, 0, 7); c.fill(); });
   if(HC.end){
     const left = Math.max(0, HC.end - now);
-    $('#hc-time').textContent = fmtTime(left + 999);
+    $('#hc-time').textContent = fmtTime(left + 999).padStart(5, '0');
     if(left <= 0) return hcFinish();
   }
   for(const tg of HC.targets){
-    const age = now - tg.born, k = age / tg.life, R = tg.r * Math.min(W, H) * 1.3;
-    c.lineWidth = 6*d; c.strokeStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.arc(X(tg.x), Y(tg.y), R, 0, 7); c.stroke();
-    c.strokeStyle = '#A78BFA'; c.beginPath(); c.arc(X(tg.x), Y(tg.y), R, -Math.PI/2, -Math.PI/2 + Math.PI*2*(1-k)); c.stroke();
-    c.fillStyle = `rgba(139,92,246,${.25 + .15*Math.sin(now/120)})`; c.beginPath(); c.arc(X(tg.x), Y(tg.y), R - 6*d, 0, 7); c.fill();
-    const hit = HC.pts.some(p => Math.hypot(X(p.x) - X(tg.x), Y(p.y) - Y(tg.y)) < R);
+    const age = now - tg.born, k = age / tg.life, R = tg.r * Math.min(W, H) * 1.3, tx = X(tg.x), ty = Y(tg.y);
+    const pop = Math.min(1, age / 180), r = R * (.6 + .4 * pop);
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.arc(tx, ty + 4*d, r, 0, 7); c.fill();
+    const g = c.createRadialGradient(tx - r*.3, ty - r*.3, r*.1, tx, ty, r); g.addColorStop(0, '#FFE680'); g.addColorStop(1, '#FFB21A');
+    c.fillStyle = g; c.beginPath(); c.arc(tx, ty, r * .78, 0, 7); c.fill();
+    c.lineWidth = r * .16; c.strokeStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.arc(tx, ty, r * .9, 0, 7); c.stroke();
+    c.strokeStyle = '#FF6A00'; c.beginPath(); c.arc(tx, ty, r * .9, -Math.PI/2, -Math.PI/2 + Math.PI*2*(1-k)); c.stroke();
+    c.fillStyle = '#7A3A00'; c.font = `italic 800 ${Math.round(r*.9)}px ${getComputedStyle(document.documentElement).getPropertyValue('--hcf')}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(Math.max(1, Math.ceil((tg.life - age) / 1000)), tx, ty + r*.05);
+    const hit = HC.pts.some(p => Math.hypot(X(p.x) - tx, Y(p.y) - ty) < R);
     if(hit){
-      HC.score++; HC.combo++; HC.best = Math.max(HC.best, HC.combo); HC.times.push(age); beep(true);
+      const mult = 1 + Math.floor(HC.combo / 5), pts = mult * (k < .4 ? 2 : 1);
+      HC.score += pts; HC.combo++; HC.best = Math.max(HC.best, HC.combo); HC.times.push(age); beep(true);
+      HC.pops.push({x: tx, y: ty, t: now, txt: '+' + pts});
       if(HC.combo % 10 === 0) speak(pick(['Combo ' + HC.combo + '!', 'Handles!', 'Those are some crazy handles!']));
       hcSpawn(); break;
     }
     if(k >= 1){ HC.combo = 0; beep(false); hcSpawn(); break; }
   }
-  $('#hc-score').textContent = HC.score; $('#hc-combo').textContent = HC.combo;
+  HC.pops = (HC.pops || []).filter(p => now - p.t < 800);
+  for(const p of HC.pops){ const a = (now - p.t) / 800; c.globalAlpha = 1 - a; c.fillStyle = '#fff'; c.strokeStyle = 'rgba(0,0,0,.4)'; c.lineWidth = 4*d;
+    c.font = `italic 800 ${Math.round(42*d)}px ${getComputedStyle(document.documentElement).getPropertyValue('--hcf')}`; c.strokeText(p.txt, p.x + 40*d, p.y - 30*d - a*60*d); c.fillText(p.txt, p.x + 40*d, p.y - 30*d - a*60*d); c.globalAlpha = 1; }
+  $('#hc-score').textContent = HC.score; $('#hc-combo').textContent = 1 + Math.floor(HC.combo / 5);
 }
 function hcFinish(){
   HC.on = false;
   const avg = HC.times.length ? Math.round(HC.times.reduce((a,b) => a+b, 0) / HC.times.length) : 0;
   const rec = db.settings.handles = db.settings.handles || {};
   const pb = !rec[HC.drill.id] || HC.score > rec[HC.drill.id]; if(pb) rec[HC.drill.id] = HC.score; save();
-  const line = HC.score >= 40 ? 'Kyrie handles. Ankles are in danger.' : HC.score >= 25 ? 'Chris Paul control. Smooth.' : HC.score >= 12 ? 'Getting there. Keep your eyes up.' : 'Warm-up round. Run it back!';
-  $('#hc-msg').innerHTML = `<b style="font-size:20px">${HC.score} hits</b> · best combo ${HC.best} · ${avg ? (avg/1000).toFixed(2) + 's per hit' : ''}${pb ? ' · New best!' : ''}<br>${line}`;
-  speak(`${HC.score} hits. ${line}`);
+  const line = HC.score >= 70 ? 'Kyrie handles. Ankles are in danger.' : HC.score >= 40 ? 'Kyrie handles. Ankles are in danger.' : HC.score >= 25 ? 'Chris Paul control. Smooth.' : HC.score >= 12 ? 'Getting there. Keep your eyes up.' : 'Warm-up round. Run it back!';
+  $('#hc-msg').innerHTML = `<b style="font-size:20px">${HC.score} points · ${HC.times.length} hits</b> · best combo ${HC.best} · ${avg ? (avg/1000).toFixed(2) + 's per hit' : ''}${pb ? ' · New best!' : ''}<br>${line}`;
+  speak(`${HC.score} points. ${line}`);
 }
 function hcClose(){ HC.on = false; HC.end = 0; if(HC.stream){ HC.stream.getTracks().forEach(t => t.stop()); HC.stream = null; } $('#hc').hidden = true; }
 $('#hc-close').addEventListener('click', hcClose);
