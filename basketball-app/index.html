@@ -2612,7 +2612,7 @@ HF.ctx = HF.cv.getContext('2d', {willReadFrequently: true});
 // near: a point the player tapped. Then only rims around it count and no backboard is needed.
 function hoopScan(src, near){
   const sw = src.videoWidth || src.width, sh = src.videoHeight || src.height; if(!sw || !sh) return null;
-  const W = 320, H = Math.max(60, Math.round(320 * sh / sw)); HF.cv.width = W; HF.cv.height = H;
+  const W = 240, H = Math.max(60, Math.min(430, Math.round(240 * sh / sw))); HF.cv.width = W; HF.cv.height = H;
   try{ HF.ctx.drawImage(src, 0, 0, W, H); }catch(e){ return null; }
   const d = HF.ctx.getImageData(0, 0, W, H).data, n = W * H, mask = new Uint8Array(n), bright = new Uint8Array(n);
   for(let i = 0, j = 0; i < n; i++, j += 4){
@@ -2682,9 +2682,12 @@ function boxIou(a, b){ const ix = Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.
 // Runs from the camera loop: fast scans until the hoop is found, then a slow check to follow camera bumps.
 function hoopAutoTick(now){
   if(source === 'demo' || HF.user || drag || mode === 'hoop') return;
-  if(now - HF.lastScan < (HF.found ? 2500 : 300)) return;
+  // scanning is heavy on a phone: a few times a second at first, then back off so the buttons stay responsive
+  const age = now - HF.since, gap = HF.found ? 3000 : age < 12000 ? 700 : 2500;
+  if(now - HF.lastScan < gap) return;
   HF.lastScan = now;
-  const c = hoopScan(video); HF.hist.push(c); if(HF.hist.length > 5) HF.hist.shift();
+  const t0 = performance.now(), c = hoopScan(video);
+  if(performance.now() - t0 > 60) HF.lastScan += 1500;                // slow phone: give it more room HF.hist.push(c); if(HF.hist.length > 5) HF.hist.shift();
   if(!c){
     if(!HF.found && now - HF.since > 6000) setHint("Can't spot the hoop. Tap the rim on the screen");
     return;
