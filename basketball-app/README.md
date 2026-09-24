@@ -16,7 +16,8 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
 - **No setup to start.** The hoop box appears on its own (line the rim up inside it), followed by a 3-2-1 countdown.
 
 - **Funny voices.** Misses get a line from a character voice: grandma, robot, chipmunk, angry coach or movie-trailer guy. If the AI calls a shot wrong and you press Undo, it apologises in one of those voices. Turn it off with the "Funny voices" button in the camera tools. The demo doesn't talk.
-- **A coach that remembers.** The "Coach remembers" card on Track keeps your last session, average, best session, longest streak, hot spot, weakest spot and the form fix it flags most. When a session starts, the coach greets you with one of those. It calls out new records as they happen, and the session report compares the session with your average. It's worked out from your own history on the phone. It is not a chatbot.
+- **AI Coach.** The AI Coach section at the bottom of Track pulls it all together. It shows your form score, average arc and most common miss from the current or last session, plus the latest form check and shot feedback. It tells you what to work on next, with a button that starts the matching drill or workout. It also lists what the coach remembers: your last session, average, best session, longest streak, hot spot, weakest spot and main form fix. When a session starts, the coach greets you with one of those. It calls out new records as they happen, and the session report compares the session with your average. All of this is worked out from your own history on the phone. It is not a chatbot.
+- **Your spot.** The camera can see makes and misses, but not where you're standing. Workouts set your spot for you. In free shooting, open tools → Spot (or tap the spot name at the top) to say where you're shooting from, so your shot chart and zones stay right.
 - **AI form check.** A pose-detection model (MoveNet) watches your body. After every shot you get a
   0–100 form score covering knee bend, arm extension, release height, follow-through and balance/drift,
   plus release time and one spoken tip on what to fix. An object-detection model (COCO-SSD) helps find the ball.
@@ -24,7 +25,7 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
 
 - **Automatic make/miss detection.** Point your phone's camera at the hoop, or upload a recorded clip.
   Swish Lab finds the ball using colour and motion, follows it, and calls each shot as a make or a miss.
-- **Shot chart.** Tap the court to set where you're shooting from. Each shot is tagged with its zone
+- **Shot chart.** Each shot is tagged with the zone of your spot
   (paint, mid-range, corner 3s, wings, top of the key, free throws).
 - **Drills and workouts, HomeCourt style.** Tap a workout or a shooting drill to see its intro page: the spots on a court, the target at each spot, the time and setup tips. Start opens the camera full screen. Before each spot a card shows where to go, and the coach says it out loud ("Now go to the right elbow. Make 5.") and counts you in. Your makes count toward the target on screen. Drill spots are timed, so you move on when you hit the target or the clock runs out. Make, Undo and Miss buttons fix any call the camera gets wrong, and undoing the shot that finished a spot takes you back to it. At the end you get a spot-by-spot results page. Dribbling drills open the front-camera target game.
 - **Guided workouts.** Form Shooting, Free Throw 50, Elbow to Elbow, Around the World, Make 100 and Corner Specialist.
@@ -33,7 +34,7 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
 - **History.** Every session is saved in your browser, with a per-session shot chart and a summary you can copy.
 - **Full-screen camera.** Every session (free shooting, workouts, drills, video analysis and the demo) runs full screen. At the top: ✕ to end, the session name and a tools button for Set hoop, Tap the ball, voice and Stop. At the bottom: Make, Undo and Miss. Ending a session shows its report.
 - **Voice calls and sounds.** Hear "Make, 7 for 10" after every shot, so you never have to look at the phone. Minor lines are skipped when the voice falls behind. Turn voice calls and funny voices on or off on your profile page.
-- **Manual buttons.** Big Make/Miss/Undo buttons for when you'd rather log by hand.
+- **Manual buttons.** Make, Undo and Miss sit at the bottom of the camera screen for when the AI gets a call wrong.
 
 ## Run it
 
@@ -46,8 +47,8 @@ Local test: `npx serve basketball-app` (or `python3 -m http.server`) and open it
 ## Tips for accurate tracking
 
 1. Prop the phone up behind the shooter or on the baseline, so the rim and the ball's whole arc are in frame.
-2. Press **Set hoop** and drag a box around just the rim.
-3. Press **Tap the ball** and tap the ball once, so the tracker learns its colour under your gym's lighting.
+2. Open the tools button (top right), press **Set hoop** and drag a box around just the rim.
+3. In the same tools, press **Tap the ball** and tap the ball once, so the tracker learns its colour under your gym's lighting.
 4. Shoot. A shot is counted when the ball rises above the rim and comes back down: through the box is a make, beside it is a miss.
    If it miscalls one, press **Undo** and log it by hand.
 
