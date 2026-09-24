@@ -24,7 +24,7 @@ One HTML file, no email, no server, no subscription. Everything runs on your dev
   Swish Lab finds the ball using colour and motion, follows it, and calls each shot as a make or a miss.
 - **Shot chart.** Tap the court to set where you're shooting from. Each shot is tagged with its zone
   (paint, mid-range, corner 3s, wings, top of the key, free throws).
-- **Drills.** Dribbling drills open a front-camera target game. Shooting, Moves (pump fake, jab step, step-through, spin, drop step, fadeaway) and Finishing (layups, reverses, euro steps, floaters, weak hand, wrong-foot and scoop) drills open the shot tracker. Each spot has a make target on screen, and the next spot starts once you hit it. Best FG% per drill is saved.
+- **Drills and workouts, HomeCourt style.** Tap a workout or a shooting drill to see its intro page: the spots on a court, the target at each spot, the time and setup tips. Start opens the camera full screen. Before each spot a card shows where to go, and the coach says it out loud ("Now go to the right elbow. Make 5.") and counts you in. Your makes count toward the target on screen. Drill spots are timed, so you move on when you hit the target or the clock runs out. Make, Undo and Miss buttons fix any call the camera gets wrong, and undoing the shot that finished a spot takes you back to it. At the end you get a spot-by-spot results page. Dribbling drills open the front-camera target game.
 - **Guided workouts.** Form Shooting, Free Throw 50, Elbow to Elbow, Around the World, Make 100 and Corner Specialist.
   Your spot moves on its own as you finish each station.
 - **Stats.** FG%, 3PT%, FT%, eFG%, best streak, a hot-zone map and your FG% trend across sessions.

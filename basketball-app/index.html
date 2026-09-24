@@ -468,6 +468,63 @@ nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,13
 .spot-card .court{border-radius:14px}
 #ft-chip{white-space:nowrap}
 .panel h3,.spot-label b{letter-spacing:.01em}
+/* workout intro page */
+.wi{position:fixed;inset:0;z-index:66;background:#0A0B0F;color:#fff;overflow:auto}
+.wi-wrap{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+.wi-hero{position:relative;height:320px;display:flex;align-items:flex-end;overflow:hidden}
+.wi-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wi-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,.2) 20%,#0A0B0F 96%)}
+.wi-close{position:absolute;z-index:2;left:14px;top:calc(env(safe-area-inset-top,0px) + 14px)}
+.wi-hero-txt{position:relative;z-index:1;padding:0 18px 6px}.wi-hero-txt h2{font-size:48px !important;line-height:.9;margin:6px 0 0}
+.wi-in{padding:8px 18px 20px;flex:1}.wi-in h3{font-size:24px !important;margin:22px 0 10px}
+.wi-desc{color:#C9CFDA;margin:14px 0}.wi-pb{margin:12px 0 0;color:#C4B5FD}.wi-pb b{color:#fff}
+.wi-court{max-width:280px;margin:0 auto}.spot-n{font:700 2.2px var(--body);fill:#fff;text-anchor:middle;dominant-baseline:central}
+.wi-spots{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.wi-spots li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:14px;padding:10px 12px}
+.wi-spots .n,.wi-res .n{width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#FFB21A,#FF6A00);color:#3B1A00;font:italic 800 17px var(--hcf);display:flex;align-items:center;justify-content:center;flex:none}
+.wi-spots div{flex:1;min-width:0;display:flex;flex-direction:column}.wi-spots b{font-size:16px}.wi-spots div span{font-size:13px;color:#9AA3B2}
+.wi-spots em{font-style:normal;font-weight:700;font-size:13px;text-align:right;color:#FFB21A;white-space:nowrap}
+.wi-setup{margin:0;padding-left:18px;color:#C9CFDA;display:grid;gap:6px}
+.wi-foot{position:sticky;bottom:0;padding:14px 18px calc(env(safe-area-inset-bottom,0px) + 14px);background:linear-gradient(180deg,rgba(10,11,15,0),#0A0B0F 35%)}
+.wi .btn.big{width:100%;padding:16px;font-size:17px;border-radius:16px}
+.wo{cursor:pointer}
+.wi-res{display:grid;gap:6px}.wi-res div{display:grid;grid-template-columns:30px 1fr auto 48px;gap:10px;align-items:center;background:rgba(255,255,255,.05);border-radius:12px;padding:8px 10px}
+.wi-res div:not(.hit) .n{background:rgba(255,255,255,.12);color:#fff}.wi-res .hit .n{background:linear-gradient(180deg,#34D399,#16A34A);color:#fff}
+.wi-res em{font-style:normal;font-weight:700}.wi-res span:last-child{text-align:right;color:#9AA3B2}
+#report .sheet > .row:first-child{flex-wrap:nowrap;align-items:flex-start}#report-title{font-size:clamp(26px,7vw,34px) !important}
+/* full-screen camera workout */
+body.imm{overflow:hidden}
+body.imm::before{content:"";position:fixed;inset:0;background:#000;z-index:64}
+body.imm #stage{position:fixed;inset:0;margin:auto !important;z-index:65;width:min(100vw,calc(100vh * var(--ar,.5625)));height:min(100vh,calc(100vw / var(--ar,.5625)));width:min(100vw,calc(100dvh * var(--ar,.5625)));height:min(100dvh,calc(100vw / var(--ar,.5625)));max-width:none;border-radius:0 !important;box-shadow:none}
+body.imm .hud,body.imm .flash{position:fixed;inset:0}
+body.imm .stage .hint{position:fixed;left:12px;right:12px;max-width:none;text-align:center}
+body.imm .bubble{position:fixed;left:12px;right:12px}
+body.imm .board,body.imm nav.tabs,body.imm #status{display:none !important}
+body.imm #tools{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:67;display:none;padding:0 12px;margin:0}
+body.imm.tools-open #tools{display:flex}
+body.imm .hud > b{top:calc(env(safe-area-inset-top,0px) + 72px)}
+body.imm .hud-goal{bottom:calc(env(safe-area-inset-bottom,0px) + 82px)}
+body.imm .bubble{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 186px)}
+body.imm .stage .hint{top:calc(env(safe-area-inset-top,0px) + 124px)}
+.imm-top{position:fixed;left:0;right:0;top:0;z-index:68;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 14px;background:linear-gradient(180deg,rgba(0,0,0,.78),transparent)}
+.imm-btn{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:18px;flex:none;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.imm-btn[aria-pressed="true"]{background:#fff;color:#0A0B0F}
+.imm-title{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;color:#fff;text-align:center}
+.imm-title b{font:italic 800 24px/1 var(--hcf);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.imm-title span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#FFB21A;margin-top:3px}
+.imm-bottom{position:fixed;left:0;right:0;bottom:0;z-index:68;display:grid;grid-template-columns:1fr 58px 1fr;gap:10px;padding:14px 12px calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(0deg,rgba(0,0,0,.78),transparent)}
+.imm-mm{border:0;border-radius:16px;padding:13px 8px;color:#fff;font:italic 800 22px/1 var(--hcf);text-transform:uppercase;cursor:pointer}
+.imm-mm.make{background:linear-gradient(180deg,#34D399,#15A34A)}.imm-mm.miss{background:linear-gradient(180deg,#FB7185,#DC2650)}.imm-mm.undo{background:rgba(255,255,255,.16);font-size:24px}
+.imm-next{position:fixed;inset:0;z-index:69;display:flex;align-items:flex-end;justify-content:center;text-align:center;color:#fff;padding:24px 20px calc(env(safe-area-inset-bottom,0px) + 28px);background:linear-gradient(180deg,rgba(6,7,10,.15) 0%,rgba(6,7,10,.55) 35%,rgba(6,7,10,.94) 70%)}
+.imm-next-in{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:380px;width:100%}
+.imm-next h2{font-size:clamp(40px,12vw,58px) !important;line-height:.9;margin:2px 0 4px}
+.imm-next p{margin:0;font-weight:700;font-size:18px}.imm-next .imm-hint{font-weight:500;font-size:14px;color:#C9CFDA}
+.imm-court{width:min(240px,62vw);margin:6px 0}
+.imm-count{font:italic 800 84px/1 var(--hcf);color:#FFB21A;margin:4px 0}
+.imm-next .btn{padding:12px 28px;border-radius:999px;font-size:16px}
+.hud-clock{margin-left:auto;align-self:center;font-size:clamp(26px,7vw,40px);font-weight:800;padding-left:8px;font-variant-numeric:tabular-nums}
+.hud-clock.late{color:#FB7185;animation:late 1s infinite}@keyframes late{50%{opacity:.5}}
+.stage.short .hud-clock{font-size:20px}
 /* sign up, log in and onboarding */
 .auth{position:fixed;inset:0;z-index:90;background:#0B0D12;color:#fff;overflow:auto;-webkit-overflow-scrolling:touch}
 .auth-in{min-height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px calc(env(safe-area-inset-bottom,0px) + 18px)}
@@ -556,7 +613,7 @@ nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,13
           <div class="flash" id="flash"></div>
           <div class="hud" id="hud" hidden><b id="hud-count">0/0</b><b id="hud-time">00:00</b><div class="hud-stats" id="hud-stats"></div>
             <div class="hud-goal" id="hud-goal" hidden><div class="hud-ring"><b id="hud-left">5</b><span id="hud-left-l">makes to go</span></div>
-              <div class="hud-where"><small id="hud-st"></small><b id="hud-label"></b><span id="hud-cue"></span><div class="hud-pips" id="hud-pips"></div></div></div></div>
+              <div class="hud-where"><small id="hud-st"></small><b id="hud-label"></b><span id="hud-cue"></span><div class="hud-pips" id="hud-pips"></div></div><b class="hud-clock" id="hud-clock"></b></div></div>
           <div class="bubble" id="bubble" hidden><span class="bot" aria-hidden="true">🏀</span><span id="bubble-text"></span></div>
           <div class="empty" id="empty">
             <div class="start-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg></div>
@@ -725,6 +782,13 @@ nav.tabs button[aria-selected="true"] svg{filter:drop-shadow(0 0 8px rgba(167,13
   </div>
 </nav>
 <input type="file" id="restore-file" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true">
+<div class="wi" id="wo-intro" hidden role="dialog" aria-modal="true" aria-label="Workout details"><div class="wi-wrap"><div id="wi-body"></div>
+  <div class="wi-foot"><button class="btn primary big" id="wi-go" type="button">Start workout</button></div></div></div>
+<div class="imm-top" id="imm-top" hidden><button class="imm-btn" id="imm-close" type="button" aria-label="End workout">✕</button>
+  <div class="imm-title"><b id="imm-name"></b><span id="imm-step"></span></div>
+  <button class="imm-btn" id="imm-tools" type="button" aria-label="Camera tools" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button></div>
+<div class="imm-next" id="imm-next" hidden></div>
+<div class="imm-bottom" id="imm-bottom" hidden><button class="imm-mm make" data-imm="make" type="button">✓ Make</button><button class="imm-mm undo" data-imm="undo" type="button" aria-label="Undo last shot">↺</button><button class="imm-mm miss" data-imm="miss" type="button">✕ Miss</button></div>
 <div class="auth" id="auth" hidden role="dialog" aria-modal="true" aria-label="Your Swish Lab profile"><div class="auth-in" id="auth-in"></div></div>
 <div class="modal" id="profile" hidden role="dialog" aria-modal="true" aria-labelledby="pf-name"><div class="sheet" id="pf-body"></div></div>
 <div class="modal" id="report" hidden role="dialog" aria-modal="true" aria-labelledby="report-title">
@@ -819,7 +883,8 @@ function drillWo(id){
   if(!/^dr-/.test(id || '')) return null; if(drillWoCache[id]) return drillWoCache[id];
   const d = DRILLS.find(x => 'dr-' + x.id === id); if(!d || !d.cam) return null;
   const cues = d.steps.filter(st => st.name !== 'Rest').map(st => st.cue);
-  return drillWoCache[id] = {id, drill: d.id, name: d.name, level: d.lvl, steps: d.cam.map((c, i) => ({...c, cue: cues[i] || ''}))};
+  const sets = d.steps.filter(st => st.name !== 'Rest');
+  return drillWoCache[id] = {id, drill: d.id, name: d.name, level: d.lvl, desc: d.desc, steps: d.cam.map((c, i) => ({...c, cue: cues[i] || '', secs: sets[i] ? sets[i].secs : 60}))};
 }
 
 /* ---------- example data ---------- */
@@ -901,9 +966,9 @@ function beep(made){
     o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + .32);
   }catch(e){}
 }
-function speak(text){
-  if(!db.settings.voice) return;
-  try{ const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
+function speak(text, low){
+  if(!db.settings.voice || source === 'demo') return; // the demo is watched, not heard
+  try{ if(low && speechSynthesis.pending) return; const u = new SpeechSynthesisUtterance(text); u.rate = 1.1; speechSynthesis.speak(u); }catch(e){}
 }
 
 /* ---------- AI hype-man: jokes, streak calls, NBA form comps ---------- */
@@ -1053,7 +1118,7 @@ $('#view-drills').addEventListener('click', e => { const b = e.target.closest('[
 function openDrill(d){
   PL.d = d; PL.i = 0; PL.left = d.steps[0].secs; plStop();
   if(d.type === 'Dribbling'){ hcStart(d); return; }
-  if(d.cam){ startWorkout('dr-' + d.id); if(source !== 'camera') startCamera(); return; }
+  if(d.cam){ woIntro('dr-' + d.id); return; }
   $('#pl-name').textContent = d.name; $('#pl-meta').textContent = `${d.lvl} · ${d.type} · ${drMins(d)} min`;
   $('#pl-video').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(d.q);
   $('#player').hidden = false; plShow();
@@ -1223,7 +1288,7 @@ function hudTick(){
   const sm = summarize(db.current.shots); $('#hud-count').textContent = `${sm.made}/${sm.att}`;
   $('#hud-time').textContent = fmtTime(Date.now() - hudStart).padStart(5, '0');
 }
-setInterval(hudTick, 500);
+setInterval(() => { hudTick(); workoutTick(); }, 500);
 function hudStats(items){
   const el = $('#hud-stats'); el.innerHTML = items.filter(x => x[0] != null).map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
   el.classList.add('show'); clearTimeout(hudT); hudT = setTimeout(() => el.classList.remove('show'), 3200);
@@ -1233,12 +1298,12 @@ function hudStats(items){
 function record(made, auto, fb){
   const cur = db.current, sp = db.settings.spot;
   const z = zoneOf(sp.x, sp.y, sp.ft);
-  cur.shots.push({t: Date.now(), made, x: sp.x, y: sp.y, zone: z, auto: !!auto, fb: fb || undefined});
+  cur.shots.push({t: Date.now(), made, x: sp.x, y: sp.y, zone: z, auto: !!auto, fb: fb || undefined, wst: cur.workout ? cur.workout.step : undefined});
   const shotRec = cur.shots[cur.shots.length-1];
   if(running){ myOnShot(shotRec, auto); clipSave({id:'c' + shotRec.t, sessionId: cur.id, t: shotRec.t, made, zone: z, angle: fb && fb.angle, demo: !!cur.demo}); }
   const sm = summarize(cur.shots);
   beep(made); flash(made);
-  speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''));
+  speak(`${made ? 'Make' : 'Miss'}. ${sm.made} for ${sm.att}.` + (fb && fb.tip ? ' ' + fb.tip : ''), true);
   const q = hypeShot(made); if(q && running) setTimeout(() => hype(q), 400);
   if(fb && running){ const fl = (cur.forms || [])[(cur.forms || []).length - 1], form = fl && Date.now() - fl.t < 3500 ? fl : null; setTimeout(() => attachStats(shotRec, form), 900); }
   advanceWorkout(made);
@@ -1256,20 +1321,19 @@ function undo(){
   const cur = db.current; const s = cur.shots.pop();
   if(!s){ toast('No shots to undo'); return; }
   myOnUndo(s); clipDrop('c' + s.t);
-  if(cur.workout){ recomputeWorkout(); setStepSpot(); }
+  if(cur.workout){ recomputeWorkout(s); setStepSpot(); }
   if(!cur.demo) save();
   toast('Last shot removed'); renderScore(); renderShots(); renderWorkoutLive();
 }
-function recomputeWorkout(){
-  const cur = db.current, wp = cur.workout, w = woById(wp.id);
-  const shots = cur.shots.filter(s => s.t >= wp.startT);
-  let step = 0, att = 0, made = 0;
-  for(const s of shots){
-    att++; if(s.made) made++;
-    const st = w.steps[step];
-    if((st.shots && att >= st.shots) || (st.makes && made >= st.makes)){ step++; att = 0; made = 0; if(step >= w.steps.length) break; }
+function recomputeWorkout(popped){
+  const cur = db.current, wp = cur.workout;
+  // undoing the shot that finished a spot takes you back to that spot
+  if(popped && popped.wst != null && popped.wst < wp.step){
+    wp.step = popped.wst; if(wp.log) wp.log.length = wp.step;
+    clearInterval(IMM.nextT); $('#imm-next').hidden = true; wp.paused = false; wp.stepStart = wp.stepStart || Date.now();
   }
-  Object.assign(wp, {step: Math.min(step, w.steps.length-1), att, made});
+  const shots = cur.shots.filter(s => s.t >= wp.startT && (s.wst == null || s.wst === wp.step));
+  wp.att = shots.length; wp.made = shots.filter(s => s.made).length;
 }
 
 /* ---------- workouts flow ---------- */
@@ -1278,11 +1342,11 @@ function startWorkout(id){
   if(source === 'demo') stopSource(false);
   if(db.current.shots.length && !db.current.demo) endSession(true);
   if(db.current.demo) db.current = newSession();
-  db.current.workout = {id, step:0, att:0, made:0, startT: Date.now()};
+  db.current.workout = {id, step:0, att:0, made:0, startT: Date.now(), stepStart: Date.now()};
   setStepSpot();
   save(); showView('track'); renderAll();
   toast(`${w.name} — ${w.steps[0].label}`);
-  speak(`${w.name}. Start at ${w.steps[0].label}.` + (w.drill ? ` Make ${w.steps[0].makes}. ${w.steps[0].cue}` : ''));
+  speak(`${w.name}. ${spotCall(w.steps[0], true)}`);
 }
 function setStepSpot(){
   const wp = db.current.workout; if(!wp) return;
@@ -1292,29 +1356,39 @@ function setStepSpot(){
 }
 function advanceWorkout(made){
   const wp = db.current.workout; if(!wp) return;
-  const w = woById(wp.id), st = w.steps[wp.step];
+  const st = woById(wp.id).steps[wp.step];
   wp.att++; if(made) wp.made++;
-  const done = (st.shots && wp.att >= st.shots) || (st.makes && wp.made >= st.makes);
-  if(done){
-    const stepPct = pct(wp.made, wp.att);
-    if(wp.step + 1 >= w.steps.length){
-      const sm = summarize(db.current.shots.filter(s => s.t >= wp.startT));
-      toast(`${w.name} complete — ${sm.made}/${sm.att} (${fmtPct(pct(sm.made, sm.att))})`);
-      speak(`Workout complete. ${pct(sm.made, sm.att)} percent.`);
-      db.current.workoutDone = true;
-      if(w.drill){ const dd = db.settings.drillsDone = db.settings.drillsDone || {}, best = db.settings.drillBest = db.settings.drillBest || {}, p = pct(sm.made, sm.att);
-        dd[w.drill] = (dd[w.drill] || 0) + 1; if(p > (best[w.drill] || 0)){ best[w.drill] = p; if(dd[w.drill] > 1) setTimeout(() => hype('New personal best on this drill!', true), 1200); } }
-      endSession(true);
-      return;
-    }
-    wp.step++; wp.att = 0; wp.made = 0;
-    const next = w.steps[wp.step];
-    toast(`${st.label}: ${stepPct}% — move to ${next.label}`);
-    speak(`Move to ${next.label}.` + (w.drill ? ` Make ${next.makes}. ${next.cue}` : ''));
-    const g = $('#hud-goal'); g.classList.remove('pop'); void g.offsetWidth; g.classList.add('pop');
-    setStepSpot();
-  }
+  if((st.shots && wp.att >= st.shots) || (st.makes && wp.made >= st.makes)) finishStation(false);
   renderWorkoutLive();
+}
+function finishStation(timeUp){
+  const wp = db.current.workout, w = woById(wp.id), st = w.steps[wp.step];
+  const stepPct = pct(wp.made, wp.att);
+  (wp.log = wp.log || [])[wp.step] = {made: wp.made, att: wp.att, hit: !timeUp, secs: wp.stepStart ? Math.round((Date.now() - wp.stepStart) / 1000) : null};
+  if(wp.step + 1 >= w.steps.length){
+    if(IMM.on){ immOff(); stopSource(false); }
+    const sm = summarize(db.current.shots.filter(s => s.t >= wp.startT));
+    toast(`${w.name} complete — ${sm.made}/${sm.att} (${fmtPct(pct(sm.made, sm.att))})`);
+    speak(`${timeUp ? 'Time! ' : ''}Workout complete. ${sm.made} for ${sm.att}, ${pct(sm.made, sm.att) || 0} percent.`);
+    db.current.workoutDone = true;
+    if(w.drill){ const dd = db.settings.drillsDone = db.settings.drillsDone || {}, best = db.settings.drillBest = db.settings.drillBest || {}, p = pct(sm.made, sm.att);
+      dd[w.drill] = (dd[w.drill] || 0) + 1; if(p > (best[w.drill] || 0)){ best[w.drill] = p; if(dd[w.drill] > 1) setTimeout(() => hype('New personal best on this drill!', true), 1200); } }
+    endSession(true);
+    return;
+  }
+  wp.step++; wp.att = 0; wp.made = 0; wp.stepStart = 0;
+  const next = w.steps[wp.step];
+  toast(`${st.label}: ${wp.log[wp.step - 1].made}/${wp.log[wp.step - 1].att}${stepPct != null ? ` (${stepPct}%)` : ''}`);
+  speak(`${timeUp ? 'Time! ' : 'Nice! '}${spotCall(next)}`);
+  const g = $('#hud-goal'); g.classList.remove('pop'); void g.offsetWidth; g.classList.add('pop');
+  setStepSpot();
+  if(IMM.on) showNextSpot(false); else { cooldownUntil = performance.now() + 2500; wp.stepStart = Date.now(); }
+  renderWorkoutLive();
+}
+// What the coach says at each spot: "Now go to the right elbow. Make 5."
+function spotCall(st, first){
+  const the = /^(\d|top of|anywhere)/i.test(st.label) ? '' : 'the ';
+  return (first ? `Start at ${the}` : `Now go to ${the}`) + st.label.toLowerCase() + '.' + (st.free ? '' : st.makes ? ` Make ${st.makes}.` : st.shots ? ` Take ${st.shots} shots.` : '') + (st.cue ? ' ' + st.cue : '');
 }
 
 function endSession(silent){
@@ -1322,7 +1396,7 @@ function endSession(silent){
   if(cur.demo){ db.current = newSession(); if(source === 'demo') stopSource(false); if(!silent) toast("Demo shots aren't saved"); renderAll(); return; }
   if(cur.shots.length){
     cur.end = cur.shots[cur.shots.length-1].t;
-    if(cur.workout) { cur.workout = cur.workout.id; }
+    if(cur.workout) { cur.woLog = cur.workout.log; cur.workout = cur.workout.id; }
     db.sessions.push(cur);
     if(!silent || cur.workoutDone) showReport(cur);
     setTimeout(() => { myTrain(); hoopTrain(); }, 500);
@@ -1330,6 +1404,95 @@ function endSession(silent){
   db.current = newSession();
   save(); renderAll();
 }
+
+/* ---------- HomeCourt-style workout mode: intro page, full-screen camera, spot-to-spot flow ---------- */
+const IMM = {on:false, nextT:0};
+function woIntro(id){
+  const w = woById(id); if(!w) return;
+  const d = w.drill ? DRILLS.find(x => x.id === w.drill) : null;
+  const img = d ? photoFor(d) : PHOTOS[['shot4','shot5','shot3','shot1','drib2','shot5'][WORKOUTS.indexOf(w) % 6]];
+  const goalOf = st => st.free ? `${st.makes} makes, anywhere` : st.makes ? `Make ${st.makes}` : `${st.shots} shots`;
+  const tot = w.steps.reduce((a, st) => a + (st.makes || st.shots || 0), 0);
+  const mins = w.steps.reduce((a, st) => a + (st.secs || (st.shots || st.makes * 2) * 6), 0) / 60;
+  const pts = w.steps.map((st, i) => st.free ? '' : `<circle cx="${st.x}" cy="${st.y}" r="2.3" fill="#FF8A3D"/><text x="${st.x}" y="${st.y}" class="spot-n">${i + 1}</text>`).join('');
+  const past = db.sessions.filter(s => s.workout === id && !s.example);
+  const best = past.length ? Math.max(...past.map(s => pct(summarize(s.shots).made, s.shots.length) || 0)) : null;
+  $('#wi-body').innerHTML = `
+    <div class="wi-hero"><img src="${img}" alt=""><button class="imm-btn wi-close" data-wi="close" type="button" aria-label="Close">✕</button>
+      <div class="wi-hero-txt"><span class="lvl">${esc(w.level)} · ${d ? esc(d.type) + ' drill' : 'Shooting workout'} · 📷 Camera</span><h2>${esc(w.name)}</h2></div></div>
+    <div class="wi-in">
+      <div class="plan-tiles"><div><b>${w.steps.length}</b><span>spot${w.steps.length > 1 ? 's' : ''}</span></div><div><b>${tot}</b><span>${w.steps.some(st => st.makes) ? 'makes' : 'shots'}</span></div><div><b>~${Math.max(1, Math.round(mins))}</b><span>minutes</span></div></div>
+      ${best != null ? `<p class="wi-pb">Your best: <b>${best}%</b> · done ${past.length}×</p>` : ''}
+      <p class="wi-desc">${esc(w.desc || '')}</p>
+      ${pts.trim() ? courtSVG(pts, 'wi-court') : ''}
+      <h3>Your spots</h3><ol class="wi-spots">${w.steps.map((st, i) => `<li><span class="n">${i + 1}</span><div><b>${esc(st.label)}</b>${st.cue ? `<span>${esc(st.cue)}</span>` : ''}</div><em>${goalOf(st)}${st.secs ? `<br>${fmtTime(st.secs * 1000)}` : ''}</em></li>`).join('')}</ol>
+      <h3>Setup</h3><ul class="wi-setup"><li>Prop your phone up behind you or on the baseline, with the hoop and you in the shot.</li><li>Turn your volume up. The coach calls out every spot.</li>
+        <li>Shoot from the spot on screen. The camera counts your makes and moves you on when you hit the target${w.steps.some(st => st.secs) ? ' or the clock runs out' : ''}.</li></ul>
+    </div>`;
+  $('#wi-go').dataset.id = id;
+  const m = $('#wo-intro'); m.hidden = false; m.scrollTop = 0; document.documentElement.style.overflow = 'hidden';
+}
+function closeIntro(){ $('#wo-intro').hidden = true; document.documentElement.style.overflow = ''; }
+$('#wo-intro').addEventListener('click', e => { if(e.target.closest('[data-wi="close"]')) closeIntro(); });
+$('#wi-go').addEventListener('click', e => { const id = e.currentTarget.dataset.id; closeIntro(); startWorkoutCam(id); });
+async function startWorkoutCam(id){
+  startWorkout(id); immOn();
+  if(source !== 'camera' && !(await startCamera())){ immOff(); return; }
+  showNextSpot(true);
+}
+function immOn(){
+  IMM.on = true; document.body.classList.add('imm'); ['#imm-top', '#imm-bottom'].forEach(q => $(q).hidden = false);
+  renderImm(); requestAnimationFrame(sizeOverlay);
+}
+function immOff(){
+  IMM.on = false; clearInterval(IMM.nextT); document.body.classList.remove('imm', 'tools-open');
+  ['#imm-top', '#imm-bottom', '#imm-next'].forEach(q => $(q).hidden = true);
+  requestAnimationFrame(sizeOverlay);
+}
+function renderImm(){
+  const wp = db.current.workout, w = wp && woById(wp.id); if(!w) return;
+  $('#imm-name').textContent = w.name; $('#imm-step').textContent = `Spot ${wp.step + 1} of ${w.steps.length}`;
+}
+// "Next spot" card: where to go, the target, a count-in, and the station clock waits until it's done.
+function showNextSpot(first){
+  const wp = db.current.workout; if(!wp) return;
+  const w = woById(wp.id), st = w.steps[wp.step], secs = first ? 10 : 6, el = $('#imm-next');
+  el.innerHTML = `<div class="imm-next-in"><span class="lvl">${first ? 'First spot' : 'Next spot'} · ${wp.step + 1} of ${w.steps.length}</span><h2>${esc(st.label)}</h2>
+    ${st.free ? '' : courtSVG(`<circle cx="${st.x}" cy="${st.y}" r="2.4" fill="#FF8A3D"><animate attributeName="r" values="2;3.6;2" dur="1.2s" repeatCount="indefinite"/></circle>`, 'imm-court')}
+    <p>${st.free ? `Make ${st.makes} from anywhere` : st.makes ? `Make ${st.makes}` : `Take ${st.shots} shots`}${st.secs ? ` in ${fmtTime(st.secs * 1000)}` : ''}</p>
+    ${first ? '<p class="imm-hint">Line the rim up inside the box on screen while you walk over.</p>' : ''}
+    <b class="imm-count" id="imm-count">${secs}</b><button class="btn primary" data-imm="go" type="button">I'm ready</button></div>`;
+  el.hidden = false; wp.paused = true; renderImm();
+  cooldownUntil = performance.now() + secs * 1000;
+  clearInterval(IMM.nextT); let n = secs;
+  IMM.nextT = setInterval(() => { n--; const c = $('#imm-count'); if(c) c.textContent = n; if(n <= 0) spotGo(); }, 1000);
+}
+function spotGo(){
+  clearInterval(IMM.nextT); $('#imm-next').hidden = true;
+  const wp = db.current.workout; if(!wp) return;
+  wp.paused = false; wp.stepStart = Date.now(); wp.warned = -1; cooldownUntil = performance.now() + 300;
+  bigText('Go', 'var(--make)'); speak('Go!', true); renderHudGoal();
+}
+// Station clock: drill spots count down and move you on at zero; workout spots count up.
+function workoutTick(){
+  const wp = db.current.workout; if(!wp || !running || wp.paused || !wp.stepStart) return;
+  const st = woById(wp.id).steps[wp.step], el = $('#hud-clock');
+  if(!st.secs){ el.textContent = fmtTime(Date.now() - wp.stepStart); return; }
+  const left = st.secs * 1000 - (Date.now() - wp.stepStart);
+  el.textContent = fmtTime(Math.max(0, left + 999)); el.classList.toggle('late', left < 10000);
+  if(left < 10000 && wp.warned !== wp.step){ wp.warned = wp.step; speak('10 seconds!'); }
+  if(left <= 0){ finishStation(true); }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-imm]'); if(!b) return;
+  const a = b.dataset.imm;
+  if(a === 'go') spotGo(); else if(a === 'make') record(true, false); else if(a === 'miss') record(false, false); else if(a === 'undo') undo();
+});
+$('#imm-tools').addEventListener('click', e => { const on = document.body.classList.toggle('tools-open'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
+$('#imm-close').addEventListener('click', () => {
+  if(db.current.shots.length && !confirm('End this workout? The shots you took are saved.')) return;
+  immOff(); stopSource(false); endSession(false);
+});
 
 /* ---------- rendering: scoreboard + track ---------- */
 function renderScore(){
@@ -1387,6 +1550,7 @@ function renderHudGoal(){
   $('#hud-left-l').textContent = st.makes ? 'makes to go' : 'shots to go';
   $('#hud-st').textContent = `Spot ${wp.step + 1} of ${w.steps.length}`;
   $('#hud-label').textContent = st.label; $('#hud-cue').textContent = st.cue || '';
+  $('#hud-clock').classList.toggle('down', !!st.secs); renderImm();
   $('#hud-pips').innerHTML = w.steps.map((_, i) => `<i class="${i < wp.step ? 'd' : i === wp.step ? 'on' : ''}"></i>`).join('');
 }
 $('#wo-quit').addEventListener('click', () => { db.current.workout = null; save(); renderWorkoutLive(); $('#hud-goal').hidden = true; toast('Workout ended — shots stay in this session'); });
@@ -1402,7 +1566,7 @@ function renderWorkouts(){
     const last = done[done.length-1];
     const lastTxt = last ? (() => { const sm = summarize(last.shots); return `Last: ${fmtPct(pct(sm.made, sm.att))} on ${fmtDate(last.start)}`; })() : 'Not tried yet';
     const ph = ['shot4','shot5','shot3','shot1','drib2','shot5'][WORKOUTS.indexOf(w) % 6];
-    return `<article class="panel wo">
+    return `<article class="panel wo" data-wo="${w.id}">
       <div class="wo-cover"><img src="${PHOTOS[ph]}" alt="" loading="lazy">${w.id === rec ? '<span class="wo-rec">For you</span>' : ''}<span class="tg">${total || w.steps.reduce((a,s)=>a+(s.makes||0),0)}</span>
         <div class="wo-title"><div class="meta"><span>${esc(w.level)}</span><span>${goal}</span><span>${w.steps.length} station${w.steps.length>1?'s':''}</span></div><h3>${esc(w.name)}</h3></div></div>
       ${pts ? courtSVG(pts) : ''}
@@ -1412,7 +1576,7 @@ function renderWorkouts(){
     </article>`;
   }).join('');
 }
-$('#wo-list').addEventListener('click', e => { const b = e.target.closest('[data-wo]'); if(b) startWorkout(b.dataset.wo); });
+$('#wo-list').addEventListener('click', e => { const b = e.target.closest('[data-wo]'); if(b) woIntro(b.dataset.wo); });
 
 /* ---------- stats view ---------- */
 let range = 'all';
@@ -1573,7 +1737,7 @@ function renderPicks(){
 }
 $('#home-picks').addEventListener('click', e => {
   const w = e.target.closest('[data-pick-wo]'), d = e.target.closest('[data-pick-dr]');
-  if(w) startWorkout(w.dataset.pickWo); else if(d) openDrill(DRILLS.find(x => x.id === d.dataset.pickDr));
+  if(w) woIntro(w.dataset.pickWo); else if(d) openDrill(DRILLS.find(x => x.id === d.dataset.pickDr));
 });
 $('#goal-plus').addEventListener('click', () => { db.settings.goal = (db.settings.goal || 1000) + 250; save(); renderGoal(); });
 $('#goal-minus').addEventListener('click', () => { db.settings.goal = Math.max(250, (db.settings.goal || 1000) - 250); save(); renderGoal(); });
@@ -1609,12 +1773,12 @@ updateSwatch();
 function sizeOverlay(){
   const r = $('#stage').getBoundingClientRect(), d = window.devicePixelRatio || 1;
   overlay.width = Math.round(r.width*d); overlay.height = Math.round(r.height*d);
-  $('#stage').classList.toggle('short', r.height > 0 && r.height < 340);
+  $('#stage').classList.toggle('short', !IMM.on && r.height > 0 && r.height < 340); // full-screen mode always has room
 }
 window.addEventListener('resize', sizeOverlay);
 
 function setAspect(w, h){
-  $('#stage').style.aspectRatio = `${w} / ${h}`;
+  $('#stage').style.aspectRatio = `${w} / ${h}`; $('#stage').style.setProperty('--ar', w / h);
   PW = 160; PH = Math.max(60, Math.round(160 * h / w));
   proc.width = PW; proc.height = PH;
   bg = new Float32Array(PW*PH); mask = new Uint8Array(PW*PH); bg.inited = false;
@@ -1646,7 +1810,7 @@ async function begin(kind, keep){
     if(!hoop){ hoop = {x0:.44, y0:.2, x1:.56, y1:.27}; hoopAuto = true; setHint('Line the rim up inside the blue box, or tap Set hoop to draw it'); }
     else setHint('');
     setTimeout(hoopPredict, 1800);
-    countdown();
+    if(!(IMM.on && db.current.workout)) countdown();
   } else setHint('');
   const ms = kind === 'camera' ? stream : kind === 'demo' ? (demoCv.captureStream && demoCv.captureStream(30)) : (video.captureStream ? video.captureStream() : video.mozCaptureStream && video.mozCaptureStream());
   clipsStart(ms);
@@ -1660,6 +1824,7 @@ function stopSource(quiet){
   video.srcObject = null;
   try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
   if(!quiet){
+    try{ speechSynthesis.cancel(); }catch(e){}
     const wasDemo = source === 'demo' && db.current.demo;
     source = null;
     if(wasDemo){ db.current = newSession(); renderAll(); toast("Demo over — demo shots aren't saved"); } $('#empty').hidden = false; $('#tools').hidden = true; demoCv.hidden = true; setHint(''); setStatus('');
@@ -1668,14 +1833,15 @@ function stopSource(quiet){
 }
 
 async function startCamera(){
-  if(!navigator.mediaDevices?.getUserMedia){ toast('This browser has no camera access — upload a clip instead'); return; }
+  if(!navigator.mediaDevices?.getUserMedia){ toast('This browser has no camera access — upload a clip instead'); return false; }
   stopSource(true);
   try{
     stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment', width:{ideal:1280}, height:{ideal:720}}, audio:false});
-  }catch(e){ stream = null; $('#blocked').hidden = false; toast('Camera blocked — allow camera access, or upload a clip instead'); setStatus('Camera access was refused. On this page you can still upload a recorded clip or watch the demo.'); return; }
+  }catch(e){ stream = null; $('#blocked').hidden = false; toast('Camera blocked — allow camera access, or upload a clip instead'); setStatus('Camera access was refused. On this page you can still upload a recorded clip or watch the demo.'); return false; }
   video.srcObject = stream; await video.play().catch(()=>{});
   const go = () => { setAspect(video.videoWidth || 1280, video.videoHeight || 720); begin('camera', true); setStatus('Camera live. Mark the hoop, then tap the ball once so the tracker learns its colour.'); };
   video.videoWidth ? go() : video.addEventListener('loadedmetadata', go, {once:true});
+  return true;
 }
 $('#cam-btn').addEventListener('click', startCamera);
 $('#file').addEventListener('change', e => {
@@ -2277,6 +2443,7 @@ async function showReport(sess){
   const top = Object.entries(m).sort((x,y) => y[1]-x[1])[0];
   const w = sess.workout && woById(sess.workout);
   $('#report-date').textContent = fmtDate(sess.start) + (w ? ' · ' + w.name : '');
+  $('#report-title').textContent = sess.workoutDone ? 'Workout complete' : 'Session report';
   $('#report-body').innerHTML = `
     <div class="row" style="align-items:baseline;gap:14px;margin-top:10px"><span class="big" style="color:${pct(sm.made,sm.att) >= 50 ? 'var(--make)' : 'var(--ink)'}">${fmtPct(pct(sm.made, sm.att))}</span>
       <span class="muted">${sm.made} of ${sm.att} · best streak ${sm.best}${(() => { const pr = profile(), mins = sess.shots.length ? (sess.shots[sess.shots.length-1].t - sess.shots[0].t) / 6e4 : 0;
@@ -2286,6 +2453,9 @@ async function showReport(sess){
     ${courtSVG(sess.shots.map(x => `<circle cx="${x.x}" cy="${x.y}" r=".8" fill="${x.made ? 'var(--make)' : 'var(--miss)'}" opacity=".7"/>`).join(''))}
     ${(() => { const c = {}; forms.forEach(f => f.comp && (c[f.comp.name] = (c[f.comp.name] || 0) + 1)); const top = Object.entries(c).sort((a,b) => b[1]-a[1])[0];
       return top ? `<div class="comp"><span>Today you shot like <b>${esc(top[0])}</b> (${top[1]} shot${top[1] > 1 ? 's' : ''})</span></div>` : ''; })()}
+    ${w && sess.shots.some(x => x.wst != null) ? `<div class="sub-h">By spot</div><div class="wi-res">${w.steps.map((st, i) => { const sh = sess.shots.filter(x => x.wst === i), m = sh.filter(x => x.made).length;
+      const hit = st.makes ? m >= st.makes : st.shots ? sh.length >= st.shots : false;
+      return `<div class="${hit ? 'hit' : ''}"><span class="n">${hit ? '✓' : i + 1}</span><b>${esc(st.label)}</b><em>${m}/${sh.length}</em><span>${fmtPct(pct(m, sh.length))}</span></div>`; }).join('')}</div>` : ''}
     <div class="sub-h">Top highlights</div><div class="clips3" id="report-clips"><span class="muted" style="grid-column:1/-1;font-size:14px">Loading clips…</span></div>`;
   $('#report').hidden = false;
   reportUrls.forEach(u => URL.revokeObjectURL(u)); reportUrls = [];
