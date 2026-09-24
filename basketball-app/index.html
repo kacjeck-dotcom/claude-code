@@ -235,6 +235,16 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 .pl-time{font:800 72px/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.03em;color:var(--accent)}
 .pl .row{justify-content:center}
 .pl .bar{background:var(--surface-2)} .pl .bar > i{background:var(--grad)}
+.pl-demo{width:100%;max-width:100%;height:auto;border-radius:16px;background:linear-gradient(180deg,#EEF1F5,#E6F7F5);margin-top:10px;display:block}
+.hc{position:fixed;inset:0;z-index:70;background:#000;color:#fff}
+.hc video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.hc canvas{position:absolute;inset:0;width:100%;height:100%}
+.hc-top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:flex;gap:18px;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent)}
+.hc-top div{display:flex;flex-direction:column}
+.hc-top b{font:800 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.hc-top span{font-size:12px;opacity:.8}
+.hc-top .btn{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border-radius:999px;width:42px;height:42px;padding:0}
+.hc-msg{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);background:rgba(255,255,255,.95);color:#0E1116;border-radius:16px;padding:12px 14px;font-weight:600;text-align:center}
 /* app polish */
 .page-head{display:flex;flex-direction:column;gap:2px;margin-top:4px}
 .page-head .muted{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
@@ -463,11 +473,13 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
     <div class="sheet pl">
       <div class="row" style="justify-content:space-between"><span class="muted" id="pl-meta"></span><button class="btn" id="pl-close" type="button">Close</button></div>
       <h2 id="pl-name"></h2>
+      <canvas class="pl-demo" id="pl-demo" width="640" height="300" aria-label="Animated demo of the drill"></canvas>
       <div class="pl-now"><span class="muted" id="pl-step-n"></span><b id="pl-step"></b><div class="pl-time" id="pl-time">0:30</div><p id="pl-cue" class="muted"></p></div>
       <div class="bar"><i id="pl-bar" style="width:0%"></i></div>
       <p class="muted" id="pl-next" style="margin:8px 0 0;font-size:14px"></p>
       <div class="row" style="margin-top:14px"><button class="btn primary" id="pl-go" type="button">Start</button><button class="btn" id="pl-skip" type="button">Skip</button>
         <a class="btn ghost" id="pl-video" target="_blank" rel="noopener">Watch how ▶</a></div>
+      <button class="btn primary" id="pl-cam" type="button" style="width:100%;margin-top:10px" hidden>Train with camera: hit the targets</button>
     </div>
   </div>
 
@@ -508,6 +520,12 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
       <button class="btn" id="report-close" type="button">Done</button></div>
     <div id="report-body"></div>
   </div>
+</div>
+<div class="hc" id="hc" hidden>
+  <video id="hc-video" playsinline muted></video><canvas id="hc-cv"></canvas>
+  <div class="hc-top"><div><b id="hc-score">0</b><span>hits</span></div><div><b id="hc-combo">0</b><span>combo</span></div><div><b id="hc-time">0:45</b><span>left</span></div>
+    <button class="btn" id="hc-close" type="button" aria-label="Close">✕</button></div>
+  <div class="hc-msg" id="hc-msg">Prop your phone up facing you and step back until your whole body fits.</div>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -706,19 +724,19 @@ function nbaComp(res, angle){
 const S = (name, secs, cue) => ({name, secs, cue});
 const REST = s => S('Rest', s, 'Breathe. Shake out your hands.');
 const DRILLS = [
-  {id:'pound', lvl:'Beginner', type:'Dribbling', name:'Pound Dribble Basics', desc:'Hard, low dribbles to build hand strength and control.', steps:[S('Right hand pound, waist high',30,'Pound it hard. Eyes up!'),S('Left hand pound, waist high',30,'Same power with the weak hand.'),REST(15),S('Right hand, knee high',30,'Get low. Quick and tight.'),S('Left hand, knee high',30,'Stay low and eyes up.')], q:'pound dribble drill basketball'},
-  {id:'cross1', lvl:'Beginner', type:'Dribbling', name:'Stationary Crossovers', desc:'Low, wide crossovers in front of your body.', steps:[S('Crossovers, slow and wide',40,'Keep it below the knees.'),REST(15),S('Crossovers, fast',40,'Speed up. Do not look down.'),REST(15),S('Crossover, crossover, hold',40,'Two crosses then freeze in a triple threat.')], q:'stationary crossover dribble drill'},
-  {id:'fig8', lvl:'Beginner', type:'Dribbling', name:'Figure 8 & Around the World', desc:'Ball-handling feel around the body and legs.', steps:[S('Ball wraps around the waist',30,'Fingertips, not palms.'),S('Figure 8 through the legs',40,'Stay low, move the ball fast.'),REST(15),S('Figure 8 dribble through the legs',40,'Low dribbles through the 8.')], q:'figure 8 dribble drill basketball'},
-  {id:'form', lvl:'Beginner', type:'Shooting', name:'Form Shooting Ladder', desc:'One-hand form shots close to the rim, then step back.', steps:[S('One hand, 3 feet from the rim',60,'Elbow under the ball. Hold the follow-through.'),S('Two hands, 5 feet',60,'Legs, then arm. Straight up.'),S('Two hands, 8 feet',60,'Same motion, just a little more legs.')], q:'basketball form shooting drill', track:true},
-  {id:'mikan', lvl:'Beginner', type:'Shooting', name:'Mikan Drill', desc:'Alternating layups under the rim for touch and footwork.', steps:[S('Mikan layups',45,'Never let the ball go below your chin.'),REST(20),S('Reverse Mikan',45,'Use the rim to protect the ball.'),REST(20),S('Mikan layups, as fast as you can',45,'Go go go!')], q:'mikan drill basketball'},
-  {id:'btl', lvl:'Intermediate', type:'Dribbling', name:'Between & Behind Series', desc:'Between-the-legs and behind-the-back combos.', steps:[S('Between the legs, walking',40,'Step forward on each one.'),S('Behind the back, stationary',40,'Wrap it tight to your hip.'),REST(20),S('Cross, between, behind combo',45,'Crossover, between, behind. Repeat.'),REST(20),S('Combo at game speed',45,'Fast! Game speed now.')], q:'between the legs behind the back combo dribble drill'},
-  {id:'2ball', lvl:'Intermediate', type:'Dribbling', name:'Two-Ball Handling', desc:'Two balls at once to level up the weak hand.', steps:[S('Two-ball pound together',30,'Both balls hit the floor together.'),S('Two-ball alternate',30,'Like pistons. Up, down, up, down.'),REST(20),S('Two-ball crossovers',40,'Cross both balls in front of you.'),S('Two-ball high-low',30,'One high, one low. Switch.')], q:'two ball dribbling drills'},
-  {id:'pullup', lvl:'Intermediate', type:'Shooting', name:'Elbow Pull-Ups', desc:'One-dribble pull-up jumpers from both elbows.', steps:[S('Right elbow, one dribble going left',60,'Hop into it and rise straight up.'),S('Left elbow, one dribble going right',60,'Square your shoulders before you rise.'),S('Top of the key, two dribbles',60,'Sell the drive, then pull up.')], q:'elbow pull up jumper drill', track:true},
-  {id:'spot', lvl:'Intermediate', type:'Shooting', name:'Catch & Shoot Spot-Up', desc:'Game-style catch and shoot around the arc.', steps:[S('Left corner',50,'Feet ready before the catch.'),S('Left wing',50,'Hands ready, shoot on the hop.'),S('Top',50,'Quick release!'),S('Right wing',50,'Same shot every time.'),S('Right corner',50,'Finish strong.')], q:'catch and shoot drill basketball', track:true},
-  {id:'tennis', lvl:'Advanced', type:'Dribbling', name:'Tennis Ball Toss', desc:'Dribble with one hand while tossing and catching a tennis ball.', steps:[S('Right hand dribble, left hand toss',40,'Eyes on the tennis ball, not the basketball.'),S('Left hand dribble, right hand toss',40,'Weak hand, same rhythm.'),REST(20),S('Crossover on every catch',45,'Catch, cross, toss.')], q:'tennis ball dribbling drill'},
-  {id:'zig', lvl:'Advanced', type:'Dribbling', name:'Change of Pace Attacks', desc:'Hesitations and explosive first steps, full speed.', steps:[S('Hesi, then explode',40,'Slow, slow, GO!'),S('In-and-out crossover attacks',40,'Sell it with your shoulders.'),REST(25),S('Snatch back into a step-back',40,'Rip it back and create space.'),S('Freestyle combo, full speed',45,'Your best moves. Go!')], q:'change of pace hesitation dribble drill'},
-  {id:'step', lvl:'Advanced', type:'Shooting', name:'Step-Back Threes', desc:'Create space off the bounce and shoot the three.', steps:[S('Step-back from the right wing',60,'Push off hard. Land balanced.'),S('Step-back from the left wing',60,'Gather, step back, rise.'),S('Side-step from the top',60,'Stay square in the air.')], q:'step back three drill', track:true},
-  {id:'sprint', lvl:'Advanced', type:'Shooting', name:'Sprint 3s', desc:'Shoot a three, sprint to half-court and back. Game conditioning.', steps:[S('Sprint 3s, round 1',60,'Shoot tired, shoot the same.'),REST(30),S('Sprint 3s, round 2',60,'Legs are your jump shot.'),REST(30),S('Sprint 3s, final round',60,'Last one. Empty the tank!')], q:'sprint threes shooting drill', track:true}
+  {id:'pound', anim:'pound', lvl:'Beginner', type:'Dribbling', name:'Pound Dribble Basics', desc:'Hard, low dribbles to build hand strength and control.', steps:[S('Right hand pound, waist high',30,'Pound it hard. Eyes up!'),S('Left hand pound, waist high',30,'Same power with the weak hand.'),REST(15),S('Right hand, knee high',30,'Get low. Quick and tight.'),S('Left hand, knee high',30,'Stay low and eyes up.')], q:'pound dribble drill basketball'},
+  {id:'cross1', anim:'cross', lvl:'Beginner', type:'Dribbling', name:'Stationary Crossovers', desc:'Low, wide crossovers in front of your body.', steps:[S('Crossovers, slow and wide',40,'Keep it below the knees.'),REST(15),S('Crossovers, fast',40,'Speed up. Do not look down.'),REST(15),S('Crossover, crossover, hold',40,'Two crosses then freeze in a triple threat.')], q:'stationary crossover dribble drill'},
+  {id:'fig8', anim:'fig8', lvl:'Beginner', type:'Dribbling', name:'Figure 8 & Around the World', desc:'Ball-handling feel around the body and legs.', steps:[S('Ball wraps around the waist',30,'Fingertips, not palms.'),S('Figure 8 through the legs',40,'Stay low, move the ball fast.'),REST(15),S('Figure 8 dribble through the legs',40,'Low dribbles through the 8.')], q:'figure 8 dribble drill basketball'},
+  {id:'form', anim:'shoot', lvl:'Beginner', type:'Shooting', name:'Form Shooting Ladder', desc:'One-hand form shots close to the rim, then step back.', steps:[S('One hand, 3 feet from the rim',60,'Elbow under the ball. Hold the follow-through.'),S('Two hands, 5 feet',60,'Legs, then arm. Straight up.'),S('Two hands, 8 feet',60,'Same motion, just a little more legs.')], q:'basketball form shooting drill', track:true},
+  {id:'mikan', anim:'layup', lvl:'Beginner', type:'Shooting', name:'Mikan Drill', desc:'Alternating layups under the rim for touch and footwork.', steps:[S('Mikan layups',45,'Never let the ball go below your chin.'),REST(20),S('Reverse Mikan',45,'Use the rim to protect the ball.'),REST(20),S('Mikan layups, as fast as you can',45,'Go go go!')], q:'mikan drill basketball'},
+  {id:'btl', anim:'btl', lvl:'Intermediate', type:'Dribbling', name:'Between & Behind Series', desc:'Between-the-legs and behind-the-back combos.', steps:[S('Between the legs, walking',40,'Step forward on each one.'),S('Behind the back, stationary',40,'Wrap it tight to your hip.'),REST(20),S('Cross, between, behind combo',45,'Crossover, between, behind. Repeat.'),REST(20),S('Combo at game speed',45,'Fast! Game speed now.')], q:'between the legs behind the back combo dribble drill'},
+  {id:'2ball', anim:'twoball', lvl:'Intermediate', type:'Dribbling', name:'Two-Ball Handling', desc:'Two balls at once to level up the weak hand.', steps:[S('Two-ball pound together',30,'Both balls hit the floor together.'),S('Two-ball alternate',30,'Like pistons. Up, down, up, down.'),REST(20),S('Two-ball crossovers',40,'Cross both balls in front of you.'),S('Two-ball high-low',30,'One high, one low. Switch.')], q:'two ball dribbling drills'},
+  {id:'pullup', anim:'shoot', lvl:'Intermediate', type:'Shooting', name:'Elbow Pull-Ups', desc:'One-dribble pull-up jumpers from both elbows.', steps:[S('Right elbow, one dribble going left',60,'Hop into it and rise straight up.'),S('Left elbow, one dribble going right',60,'Square your shoulders before you rise.'),S('Top of the key, two dribbles',60,'Sell the drive, then pull up.')], q:'elbow pull up jumper drill', track:true},
+  {id:'spot', anim:'shoot', lvl:'Intermediate', type:'Shooting', name:'Catch & Shoot Spot-Up', desc:'Game-style catch and shoot around the arc.', steps:[S('Left corner',50,'Feet ready before the catch.'),S('Left wing',50,'Hands ready, shoot on the hop.'),S('Top',50,'Quick release!'),S('Right wing',50,'Same shot every time.'),S('Right corner',50,'Finish strong.')], q:'catch and shoot drill basketball', track:true},
+  {id:'tennis', anim:'tennis', lvl:'Advanced', type:'Dribbling', name:'Tennis Ball Toss', desc:'Dribble with one hand while tossing and catching a tennis ball.', steps:[S('Right hand dribble, left hand toss',40,'Eyes on the tennis ball, not the basketball.'),S('Left hand dribble, right hand toss',40,'Weak hand, same rhythm.'),REST(20),S('Crossover on every catch',45,'Catch, cross, toss.')], q:'tennis ball dribbling drill'},
+  {id:'zig', anim:'hesi', lvl:'Advanced', type:'Dribbling', name:'Change of Pace Attacks', desc:'Hesitations and explosive first steps, full speed.', steps:[S('Hesi, then explode',40,'Slow, slow, GO!'),S('In-and-out crossover attacks',40,'Sell it with your shoulders.'),REST(25),S('Snatch back into a step-back',40,'Rip it back and create space.'),S('Freestyle combo, full speed',45,'Your best moves. Go!')], q:'change of pace hesitation dribble drill'},
+  {id:'step', anim:'shoot', lvl:'Advanced', type:'Shooting', name:'Step-Back Threes', desc:'Create space off the bounce and shoot the three.', steps:[S('Step-back from the right wing',60,'Push off hard. Land balanced.'),S('Step-back from the left wing',60,'Gather, step back, rise.'),S('Side-step from the top',60,'Stay square in the air.')], q:'step back three drill', track:true},
+  {id:'sprint', anim:'shoot', lvl:'Advanced', type:'Shooting', name:'Sprint 3s', desc:'Shoot a three, sprint to half-court and back. Game conditioning.', steps:[S('Sprint 3s, round 1',60,'Shoot tired, shoot the same.'),REST(30),S('Sprint 3s, round 2',60,'Legs are your jump shot.'),REST(30),S('Sprint 3s, final round',60,'Last one. Empty the tank!')], q:'sprint threes shooting drill', track:true}
 ];
 let drLvl = 'Beginner', drType = 'all';
 const drMins = d => Math.round(d.steps.reduce((a, s) => a + s.secs, 0) / 60 * 10) / 10;
@@ -758,6 +776,7 @@ $('#dr-list').addEventListener('click', e => {
   $('#pl-name').textContent = d.name; $('#pl-meta').textContent = `${d.lvl} · ${d.type} · ${drMins(d)} min`;
   $('#pl-video').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(d.q);
   $('#player').hidden = false; plShow();
+  $('#pl-cam').hidden = d.type !== 'Dribbling'; drawDrillDemo();
 });
 $('#pl-go').addEventListener('click', () => {
   if(PL.t){ plStop(); $('#pl-go').textContent = 'Resume'; return; }
@@ -770,6 +789,134 @@ $('#pl-go').addEventListener('click', () => {
 });
 $('#pl-skip').addEventListener('click', () => plStep(PL.i + 1));
 $('#pl-close').addEventListener('click', () => { plStop(); $('#player').hidden = true; });
+
+/* animated drill demo (drawn, so it works offline) */
+let demoRaf = 0;
+function drawDrillDemo(){
+  cancelAnimationFrame(demoRaf);
+  const cv = $('#pl-demo'), c = cv.getContext('2d'), W = cv.width, H = cv.height, kind = PL.d && PL.d.anim;
+  const t = performance.now() / 1000, floor = H * .9, cx = W / 2;
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = '#D9C3A0'; c.fillRect(0, floor, W, H - floor);
+  const shoot = kind === 'shoot', lay = kind === 'layup';
+  let dx = kind === 'hesi' ? Math.sin(t * 1.3) * 90 * (Math.sin(t * 2.6) > 0 ? 1 : .3) : lay ? Math.sin(t * 1.5) * 60 : 0;
+  const ph = (t % 1.6) / 1.6, dip = shoot ? (ph < .35 ? Math.sin(ph / .35 * Math.PI) * 18 : 0) : 14;
+  const x = cx + dx, hip = floor - 92 + dip, sh = hip - 70, head = sh - 26;
+  c.strokeStyle = '#1F2937'; c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round';
+  const line = (...p) => { c.beginPath(); c.moveTo(p[0], p[1]); for(let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i+1]); c.stroke(); };
+  line(x - 16, floor, x - 20, hip + 46, x - 10, hip); line(x + 16, floor, x + 22, hip + 46, x + 10, hip);
+  line(x, hip, x, sh);
+  c.fillStyle = '#1F2937'; c.beginPath(); c.arc(x, head, 17, 0, 7); c.fill();
+  const ball = (bx, by, r = 15, col = '#FF7A1A') => { c.fillStyle = col; c.beginPath(); c.arc(bx, by, r, 0, 7); c.fill();
+    if(col === '#FF7A1A'){ c.strokeStyle = '#7C2D12'; c.lineWidth = 2; c.beginPath(); c.moveTo(bx - r, by); c.lineTo(bx + r, by); c.moveTo(bx, by - r); c.lineTo(bx, by + r); c.stroke(); c.strokeStyle = '#1F2937'; c.lineWidth = 9; } };
+  const bounce = (f, top, bot) => { const k = Math.abs(((t * f) % 2) - 1); return bot - (bot - top) * k; };
+  const low = hip + 10;
+  if(shoot){
+    let bx, by, arm;
+    if(ph < .35){ bx = x + 8; by = sh + 20 - ph * 40; arm = [x + 22, sh + 30]; }
+    else if(ph < .45){ const k = (ph - .35) / .1; bx = x + 8; by = sh - 10 - k * 60; arm = [x + 12, sh - 30 - k * 40]; }
+    else { const k = (ph - .45) / .55; bx = x + 8 + k * 260; by = head - 70 - Math.sin(k * Math.PI) * 60 + k * 30; arm = [x + 16, head - 50]; }
+    line(x - 2, sh + 6, x + 20, sh + 30, arm[0], arm[1]); line(x + 2, sh + 6, x + 12, sh - 10, x + 8, sh - 40 + (ph > .45 ? -20 : 0));
+    ball(bx, by);
+  } else if(lay){
+    const k = (t % 1.8) / 1.8, bx = x + 20, by = k < .5 ? bounce(3, low, floor - 15) : sh - 60 - (k - .5) * 60;
+    line(x, sh + 6, x + 20, sh + 40, bx, by - 10); line(x, sh + 6, x - 22, sh + 42); ball(bx, by);
+    c.strokeStyle = '#EF4444'; c.lineWidth = 5; line(cx + 70, 40, cx + 120, 40); c.strokeStyle = '#1F2937'; c.lineWidth = 9;
+  } else {
+    const f = kind === 'pound' ? 5 : kind === 'twoball' ? 4 : 3;
+    const side = kind === 'cross' || kind === 'btl' || kind === 'hesi' ? (Math.floor(t * f / 2) % 2 ? -1 : 1) : 1;
+    let bx = x + side * 40, by = bounce(f, low, floor - 15);
+    if(kind === 'fig8'){ bx = x + Math.sin(t * 2.2) * 50; by = hip + 40 + Math.sin(t * 4.4) * 18; }
+    if(kind === 'btl'){ const k = Math.abs(((t * f) % 2) - 1); bx = x + side * 40 * (k * 2 - 1); }
+    line(x, sh + 6, x + (bx > x ? 30 : -28), sh + 40, bx, by - 14);
+    line(x, sh + 6, x + (bx > x ? -28 : 30), sh + 40, x + (bx > x ? -36 : 36), sh + 64);
+    ball(bx, by);
+    if(kind === 'twoball') ball(x - 40, bounce(f, low, floor - 15) === by ? by : floor - 15 - (by - low), 15);
+    if(kind === 'tennis') ball(x - 34, sh - 40 - Math.abs(Math.sin(t * 2)) * 60, 8, '#D9F99D');
+  }
+  if(!$('#player').hidden) demoRaf = requestAnimationFrame(drawDrillDemo);
+}
+
+/* ---------- Handles: front camera, pound the ball into the circles (pose + ball AI) ---------- */
+const HC = {stream:null, on:false, targets:[], score:0, combo:0, best:0, end:0, times:[], busy:false, pts:[], drill:null};
+async function hcStart(d){
+  HC.drill = d; $('#hc').hidden = false; $('#player').hidden = true; plStop();
+  $('#hc-msg').textContent = 'Loading the AI… prop your phone up facing you and step back.';
+  try{ HC.stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:1280}, height:{ideal:720}}, audio:false}); }
+  catch(e){ $('#hc-msg').textContent = 'Camera blocked. Allow camera access, or open the app from its own web address.'; return; }
+  const v = $('#hc-video'); v.srcObject = HC.stream; await v.play().catch(() => {});
+  await loadAI();
+  if(ai.state !== 'ready'){ $('#hc-msg').textContent = "The AI couldn't load here. Open the app from its own web address."; return; }
+  Object.assign(HC, {on:true, targets:[], score:0, combo:0, best:0, times:[], side:1});
+  ['3','2','1','Pound it!'].forEach((t, i) => setTimeout(() => { if(HC.on){ $('#hc-msg').textContent = t; speak(t); } }, i * 900));
+  setTimeout(() => { if(!HC.on) return; HC.end = performance.now() + 45000; hcSpawn(); $('#hc-msg').textContent = 'Dribble the ball into the glowing circle!'; }, 3600);
+  hcLoop(); hcDetect();
+}
+function hcSpawn(){
+  const d = HC.drill, alt = ['cross','btl','hesi','twoball'].includes(d.anim);
+  HC.side = alt ? -HC.side : (Math.random() < .5 ? -1 : 1);
+  const [a0, a1] = HC.vis || [0, 1], span = a1 - a0;
+  HC.targets = [{x: a0 + span * (.5 + HC.side * (.16 + Math.random() * .18)), y: .66 + Math.random() * .2, r: .075, born: performance.now(), life: 2600}];
+}
+async function hcDetect(){
+  const v = $('#hc-video');
+  while(HC.on){
+    if(v.readyState >= 2){
+      const pts = [], vw = v.videoWidth, vh = v.videoHeight;
+      try{
+        const poses = await ai.pose.estimatePoses(v);
+        if(poses[0]) poses[0].keypoints.forEach(k => { if(/wrist/.test(k.name) && k.score > .3) pts.push({x: 1 - k.x/vw, y: k.y/vh, w:1}); });
+        if(ai.coco){ (await ai.coco.detect(v, 4, .2)).filter(o => o.class === 'sports ball').forEach(o => pts.push({x: 1 - (o.bbox[0] + o.bbox[2]/2)/vw, y: (o.bbox[1] + o.bbox[3]/2)/vh, b:1})); }
+      }catch(e){}
+      HC.pts = pts;
+    }
+    await new Promise(r => requestAnimationFrame(r));
+  }
+}
+function hcLoop(){
+  if(!HC.on) return;
+  requestAnimationFrame(hcLoop);
+  const cv = $('#hc-cv'), c = cv.getContext('2d'), d = devicePixelRatio || 1;
+  if(cv.width !== cv.clientWidth * d){ cv.width = cv.clientWidth * d; cv.height = cv.clientHeight * d; }
+  const W = cv.width, H = cv.height, now = performance.now();
+  c.clearRect(0, 0, W, H);
+  // map video coords (object-fit: cover) to screen
+  const v = $('#hc-video'), vw = v.videoWidth || 16, vh = v.videoHeight || 9, sc = Math.max(W/vw, H/vh), ox = (W - vw*sc)/2, oy = (H - vh*sc)/2;
+  const X = x => ox + x*vw*sc, Y = y => oy + y*vh*sc;
+  HC.vis = [Math.max(0, -ox/(vw*sc)), Math.min(1, (W - ox)/(vw*sc))];
+  HC.pts.forEach(p => { c.fillStyle = p.b ? '#FF7A1A' : 'rgba(255,255,255,.8)'; c.beginPath(); c.arc(X(p.x), Y(p.y), (p.b ? 12 : 7)*d, 0, 7); c.fill(); });
+  if(HC.end){
+    const left = Math.max(0, HC.end - now);
+    $('#hc-time').textContent = fmtTime(left + 999);
+    if(left <= 0) return hcFinish();
+  }
+  for(const tg of HC.targets){
+    const age = now - tg.born, k = age / tg.life, R = tg.r * Math.min(W, H) * 1.3;
+    c.lineWidth = 6*d; c.strokeStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.arc(X(tg.x), Y(tg.y), R, 0, 7); c.stroke();
+    c.strokeStyle = '#A78BFA'; c.beginPath(); c.arc(X(tg.x), Y(tg.y), R, -Math.PI/2, -Math.PI/2 + Math.PI*2*(1-k)); c.stroke();
+    c.fillStyle = `rgba(139,92,246,${.25 + .15*Math.sin(now/120)})`; c.beginPath(); c.arc(X(tg.x), Y(tg.y), R - 6*d, 0, 7); c.fill();
+    const hit = HC.pts.some(p => Math.hypot(X(p.x) - X(tg.x), Y(p.y) - Y(tg.y)) < R);
+    if(hit){
+      HC.score++; HC.combo++; HC.best = Math.max(HC.best, HC.combo); HC.times.push(age); beep(true);
+      if(HC.combo % 10 === 0) speak(pick(['Combo ' + HC.combo + '!', 'Handles!', 'Those are some crazy handles!']));
+      hcSpawn(); break;
+    }
+    if(k >= 1){ HC.combo = 0; beep(false); hcSpawn(); break; }
+  }
+  $('#hc-score').textContent = HC.score; $('#hc-combo').textContent = HC.combo;
+}
+function hcFinish(){
+  HC.on = false;
+  const avg = HC.times.length ? Math.round(HC.times.reduce((a,b) => a+b, 0) / HC.times.length) : 0;
+  const rec = db.settings.handles = db.settings.handles || {};
+  const pb = !rec[HC.drill.id] || HC.score > rec[HC.drill.id]; if(pb) rec[HC.drill.id] = HC.score; save();
+  const line = HC.score >= 40 ? 'Kyrie handles. Ankles are in danger.' : HC.score >= 25 ? 'Chris Paul control. Smooth.' : HC.score >= 12 ? 'Getting there. Keep your eyes up.' : 'Warm-up round. Run it back!';
+  $('#hc-msg').innerHTML = `<b style="font-size:20px">${HC.score} hits</b> · best combo ${HC.best} · ${avg ? (avg/1000).toFixed(2) + 's per hit' : ''}${pb ? ' · New best!' : ''}<br>${line}`;
+  speak(`${HC.score} hits. ${line}`);
+}
+function hcClose(){ HC.on = false; HC.end = 0; if(HC.stream){ HC.stream.getTracks().forEach(t => t.stop()); HC.stream = null; } $('#hc').hidden = true; }
+$('#hc-close').addEventListener('click', hcClose);
+$('#pl-cam').addEventListener('click', () => hcStart(PL.d));
 
 /* ---------- recording shots ---------- */
 function record(made, auto, fb){
