@@ -75,7 +75,7 @@ button{cursor:pointer}
 
 /* nav */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(6,1fr)}
 nav.tabs button{background:none;border:0;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-selected="true"]{color:var(--accent)}
@@ -219,6 +219,22 @@ h3{text-transform:none;letter-spacing:0;font-size:20px}
 @keyframes bubIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .comp{display:flex;gap:10px;align-items:center;background:var(--surface-2);border-radius:14px;padding:10px 12px;margin-top:10px}
 .comp b{font-size:17px}
+/* drills */
+.dr-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.dr{display:flex;flex-direction:column;gap:8px;padding:0;overflow:hidden}
+.dr .cover{height:110px;display:flex;align-items:flex-end;justify-content:space-between;padding:12px 14px;color:#fff;font-weight:700}
+.dr .cover.Dribbling{background:linear-gradient(135deg,#14B8C4,#2563EB)}
+.dr .cover.Shooting{background:var(--grad)}
+.dr .cover span{background:rgba(0,0,0,.25);padding:3px 9px;border-radius:99px;font-size:12px}
+.dr .body{padding:4px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.dr p{margin:0;color:var(--muted);font-size:14px}
+.dr .row .btn{padding:8px 14px;font-size:14px}
+.pl{text-align:center}
+.pl-now{display:flex;flex-direction:column;align-items:center;gap:4px;margin:16px 0 6px}
+.pl-now b{font-size:22px}
+.pl-time{font:800 72px/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.03em;color:var(--accent)}
+.pl .row{justify-content:center}
+.pl .bar{background:var(--surface-2)} .pl .bar > i{background:var(--grad)}
 /* app polish */
 .page-head{display:flex;flex-direction:column;gap:2px;margin-top:4px}
 .page-head .muted{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
@@ -428,6 +444,33 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
     </div>
   </section>
 
+  <!-- DRILLS -->
+  <section class="view" id="view-drills" hidden>
+    <div class="page-head"><h2>Drills</h2><span class="muted" style="text-transform:none;letter-spacing:0;font-size:15px">Guided workouts with a coach voice, timers and how-to videos.</span></div>
+    <div class="row" role="group" aria-label="Level">
+      <button class="chip" data-lvl="Beginner" type="button" aria-pressed="true">Beginner</button>
+      <button class="chip" data-lvl="Intermediate" type="button" aria-pressed="false">Intermediate</button>
+      <button class="chip" data-lvl="Advanced" type="button" aria-pressed="false">Advanced</button>
+    </div>
+    <div class="row" role="group" aria-label="Type">
+      <button class="chip" data-dt="all" type="button" aria-pressed="true">All</button>
+      <button class="chip" data-dt="Dribbling" type="button" aria-pressed="false">Dribbling</button>
+      <button class="chip" data-dt="Shooting" type="button" aria-pressed="false">Shooting</button>
+    </div>
+    <div class="dr-list" id="dr-list"></div>
+  </section>
+  <div class="modal" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="pl-name">
+    <div class="sheet pl">
+      <div class="row" style="justify-content:space-between"><span class="muted" id="pl-meta"></span><button class="btn" id="pl-close" type="button">Close</button></div>
+      <h2 id="pl-name"></h2>
+      <div class="pl-now"><span class="muted" id="pl-step-n"></span><b id="pl-step"></b><div class="pl-time" id="pl-time">0:30</div><p id="pl-cue" class="muted"></p></div>
+      <div class="bar"><i id="pl-bar" style="width:0%"></i></div>
+      <p class="muted" id="pl-next" style="margin:8px 0 0;font-size:14px"></p>
+      <div class="row" style="margin-top:14px"><button class="btn primary" id="pl-go" type="button">Start</button><button class="btn" id="pl-skip" type="button">Skip</button>
+        <a class="btn ghost" id="pl-video" target="_blank" rel="noopener">Watch how ▶</a></div>
+    </div>
+  </div>
+
   <!-- HIGHLIGHTS -->
   <section class="view" id="view-highlights" hidden>
     <div class="row" style="justify-content:space-between">
@@ -454,6 +497,7 @@ nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0
     <button role="tab" data-view="track" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/></svg>Track</button>
     <button role="tab" data-view="workouts" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Workouts</button>
     <button role="tab" data-view="stats" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+    <button role="tab" data-view="drills" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Drills</button>
     <button role="tab" data-view="highlights" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>Clips</button>
     <button role="tab" data-view="history" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
   </div>
@@ -657,6 +701,75 @@ function nbaComp(res, angle){
   if(res.score >= 85) return {name:'Devin Booker', why:'smooth, balanced, all the boxes checked.'};
   return {name:'DeMar DeRozan', why:'crafty mid-range energy. Keep polishing it.'};
 }
+
+/* ---------- Drills: guided timed workouts ---------- */
+const S = (name, secs, cue) => ({name, secs, cue});
+const REST = s => S('Rest', s, 'Breathe. Shake out your hands.');
+const DRILLS = [
+  {id:'pound', lvl:'Beginner', type:'Dribbling', name:'Pound Dribble Basics', desc:'Hard, low dribbles to build hand strength and control.', steps:[S('Right hand pound, waist high',30,'Pound it hard. Eyes up!'),S('Left hand pound, waist high',30,'Same power with the weak hand.'),REST(15),S('Right hand, knee high',30,'Get low. Quick and tight.'),S('Left hand, knee high',30,'Stay low and eyes up.')], q:'pound dribble drill basketball'},
+  {id:'cross1', lvl:'Beginner', type:'Dribbling', name:'Stationary Crossovers', desc:'Low, wide crossovers in front of your body.', steps:[S('Crossovers, slow and wide',40,'Keep it below the knees.'),REST(15),S('Crossovers, fast',40,'Speed up. Do not look down.'),REST(15),S('Crossover, crossover, hold',40,'Two crosses then freeze in a triple threat.')], q:'stationary crossover dribble drill'},
+  {id:'fig8', lvl:'Beginner', type:'Dribbling', name:'Figure 8 & Around the World', desc:'Ball-handling feel around the body and legs.', steps:[S('Ball wraps around the waist',30,'Fingertips, not palms.'),S('Figure 8 through the legs',40,'Stay low, move the ball fast.'),REST(15),S('Figure 8 dribble through the legs',40,'Low dribbles through the 8.')], q:'figure 8 dribble drill basketball'},
+  {id:'form', lvl:'Beginner', type:'Shooting', name:'Form Shooting Ladder', desc:'One-hand form shots close to the rim, then step back.', steps:[S('One hand, 3 feet from the rim',60,'Elbow under the ball. Hold the follow-through.'),S('Two hands, 5 feet',60,'Legs, then arm. Straight up.'),S('Two hands, 8 feet',60,'Same motion, just a little more legs.')], q:'basketball form shooting drill', track:true},
+  {id:'mikan', lvl:'Beginner', type:'Shooting', name:'Mikan Drill', desc:'Alternating layups under the rim for touch and footwork.', steps:[S('Mikan layups',45,'Never let the ball go below your chin.'),REST(20),S('Reverse Mikan',45,'Use the rim to protect the ball.'),REST(20),S('Mikan layups, as fast as you can',45,'Go go go!')], q:'mikan drill basketball'},
+  {id:'btl', lvl:'Intermediate', type:'Dribbling', name:'Between & Behind Series', desc:'Between-the-legs and behind-the-back combos.', steps:[S('Between the legs, walking',40,'Step forward on each one.'),S('Behind the back, stationary',40,'Wrap it tight to your hip.'),REST(20),S('Cross, between, behind combo',45,'Crossover, between, behind. Repeat.'),REST(20),S('Combo at game speed',45,'Fast! Game speed now.')], q:'between the legs behind the back combo dribble drill'},
+  {id:'2ball', lvl:'Intermediate', type:'Dribbling', name:'Two-Ball Handling', desc:'Two balls at once to level up the weak hand.', steps:[S('Two-ball pound together',30,'Both balls hit the floor together.'),S('Two-ball alternate',30,'Like pistons. Up, down, up, down.'),REST(20),S('Two-ball crossovers',40,'Cross both balls in front of you.'),S('Two-ball high-low',30,'One high, one low. Switch.')], q:'two ball dribbling drills'},
+  {id:'pullup', lvl:'Intermediate', type:'Shooting', name:'Elbow Pull-Ups', desc:'One-dribble pull-up jumpers from both elbows.', steps:[S('Right elbow, one dribble going left',60,'Hop into it and rise straight up.'),S('Left elbow, one dribble going right',60,'Square your shoulders before you rise.'),S('Top of the key, two dribbles',60,'Sell the drive, then pull up.')], q:'elbow pull up jumper drill', track:true},
+  {id:'spot', lvl:'Intermediate', type:'Shooting', name:'Catch & Shoot Spot-Up', desc:'Game-style catch and shoot around the arc.', steps:[S('Left corner',50,'Feet ready before the catch.'),S('Left wing',50,'Hands ready, shoot on the hop.'),S('Top',50,'Quick release!'),S('Right wing',50,'Same shot every time.'),S('Right corner',50,'Finish strong.')], q:'catch and shoot drill basketball', track:true},
+  {id:'tennis', lvl:'Advanced', type:'Dribbling', name:'Tennis Ball Toss', desc:'Dribble with one hand while tossing and catching a tennis ball.', steps:[S('Right hand dribble, left hand toss',40,'Eyes on the tennis ball, not the basketball.'),S('Left hand dribble, right hand toss',40,'Weak hand, same rhythm.'),REST(20),S('Crossover on every catch',45,'Catch, cross, toss.')], q:'tennis ball dribbling drill'},
+  {id:'zig', lvl:'Advanced', type:'Dribbling', name:'Change of Pace Attacks', desc:'Hesitations and explosive first steps, full speed.', steps:[S('Hesi, then explode',40,'Slow, slow, GO!'),S('In-and-out crossover attacks',40,'Sell it with your shoulders.'),REST(25),S('Snatch back into a step-back',40,'Rip it back and create space.'),S('Freestyle combo, full speed',45,'Your best moves. Go!')], q:'change of pace hesitation dribble drill'},
+  {id:'step', lvl:'Advanced', type:'Shooting', name:'Step-Back Threes', desc:'Create space off the bounce and shoot the three.', steps:[S('Step-back from the right wing',60,'Push off hard. Land balanced.'),S('Step-back from the left wing',60,'Gather, step back, rise.'),S('Side-step from the top',60,'Stay square in the air.')], q:'step back three drill', track:true},
+  {id:'sprint', lvl:'Advanced', type:'Shooting', name:'Sprint 3s', desc:'Shoot a three, sprint to half-court and back. Game conditioning.', steps:[S('Sprint 3s, round 1',60,'Shoot tired, shoot the same.'),REST(30),S('Sprint 3s, round 2',60,'Legs are your jump shot.'),REST(30),S('Sprint 3s, final round',60,'Last one. Empty the tank!')], q:'sprint threes shooting drill', track:true}
+];
+let drLvl = 'Beginner', drType = 'all';
+const drMins = d => Math.round(d.steps.reduce((a, s) => a + s.secs, 0) / 60 * 10) / 10;
+function renderDrills(){
+  $$('[data-lvl]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lvl === drLvl ? 'true' : 'false'));
+  $$('[data-dt]').forEach(b => b.setAttribute('aria-pressed', b.dataset.dt === drType ? 'true' : 'false'));
+  const done = db.settings.drillsDone || {};
+  $('#dr-list').innerHTML = DRILLS.filter(d => d.lvl === drLvl && (drType === 'all' || d.type === drType)).map(d => `
+    <article class="panel dr"><div class="cover ${d.type}"><b style="font-size:19px">${esc(d.name)}</b><span>${d.type}</span></div>
+      <div class="body"><p>${esc(d.desc)}</p><div class="muted" style="font-size:13px;font-weight:600">${drMins(d)} min · ${d.steps.filter(s => s.name !== 'Rest').length} sets${done[d.id] ? ` · done ${done[d.id]}×` : ''}</div>
+      <div class="row"><button class="btn primary" data-drill="${d.id}" type="button">Start</button>
+        <a class="btn ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.q)}" target="_blank" rel="noopener">Watch how ▶</a></div></div></article>`).join('');
+}
+$$('[data-lvl]').forEach(b => b.addEventListener('click', () => { drLvl = b.dataset.lvl; renderDrills(); }));
+$$('[data-dt]').forEach(b => b.addEventListener('click', () => { drType = b.dataset.dt; renderDrills(); }));
+const PL = {d:null, i:0, left:0, t:null};
+function plShow(){
+  const d = PL.d, st = d.steps[PL.i], nx = d.steps[PL.i+1];
+  $('#pl-step-n').textContent = `Set ${PL.i+1} of ${d.steps.length}`;
+  $('#pl-step').textContent = st.name; $('#pl-cue').textContent = st.cue;
+  $('#pl-time').textContent = fmtTime(PL.left*1000);
+  $('#pl-next').textContent = nx ? `Next: ${nx.name}` : 'Last set!';
+  const total = d.steps.reduce((a,s) => a + s.secs, 0), doneS = d.steps.slice(0, PL.i).reduce((a,s) => a + s.secs, 0) + (st.secs - PL.left);
+  $('#pl-bar').style.width = (doneS/total*100) + '%';
+}
+function plStep(i){
+  const d = PL.d;
+  if(i >= d.steps.length){ plStop(); const dd = db.settings.drillsDone = db.settings.drillsDone || {}; dd[d.id] = (dd[d.id] || 0) + 1; save();
+    hype(pick(['Workout done! You earned that water break.', 'Finished! Your handles just got an upgrade.', 'Done! Coach is proud of you.'])); toast(`${d.name} complete`); $('#player').hidden = true; renderDrills(); return; }
+  PL.i = i; PL.left = d.steps[i].secs; plShow();
+  speak(`${d.steps[i].name}. ${d.steps[i].cue}`);
+}
+function plStop(){ clearInterval(PL.t); PL.t = null; $('#pl-go').textContent = 'Start'; }
+$('#dr-list').addEventListener('click', e => {
+  const b = e.target.closest('[data-drill]'); if(!b) return;
+  const d = DRILLS.find(x => x.id === b.dataset.drill); PL.d = d; PL.i = 0; PL.left = d.steps[0].secs; plStop();
+  $('#pl-name').textContent = d.name; $('#pl-meta').textContent = `${d.lvl} · ${d.type} · ${drMins(d)} min`;
+  $('#pl-video').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(d.q);
+  $('#player').hidden = false; plShow();
+});
+$('#pl-go').addEventListener('click', () => {
+  if(PL.t){ plStop(); $('#pl-go').textContent = 'Resume'; return; }
+  if(PL.i === 0 && PL.left === PL.d.steps[0].secs) speak(`${PL.d.steps[0].name}. ${PL.d.steps[0].cue}`);
+  $('#pl-go').textContent = 'Pause';
+  PL.t = setInterval(() => {
+    PL.left--; if(PL.left === 3) speak('3, 2, 1');
+    if(PL.left <= 0) plStep(PL.i + 1); else plShow();
+  }, 1000);
+});
+$('#pl-skip').addEventListener('click', () => plStep(PL.i + 1));
+$('#pl-close').addEventListener('click', () => { plStop(); $('#player').hidden = true; });
 
 /* ---------- recording shots ---------- */
 function record(made, auto, fb){
@@ -944,6 +1057,7 @@ function showView(v){
   $$('.view[id^="view-"]').forEach(s => s.hidden = s.id !== 'view-' + v);
   try{ localStorage.setItem(KEY + '.tab', v); }catch(e){}
   if(v === 'highlights') renderHighlights();
+  if(v === 'drills') renderDrills();
   if(v === 'stats') renderStats(); if(v === 'history') renderHistory(); if(v === 'workouts') renderWorkouts();
   if(v === 'track') requestAnimationFrame(sizeOverlay);
 }
